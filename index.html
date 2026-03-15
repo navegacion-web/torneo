@@ -3,13 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Torneo </title>
+<title>Torneo de Quimica v2.1</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Fraunces:ital,wght@0,300;0,700;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-
-<!-- Firebase CDN (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-
 <style>
 
 /* ══════════════════════════════════════════════════════════════
@@ -779,20 +776,16 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
-  <div class="nav-logo">⚛ Química</div>
+  <div class="nav-logo">&#x26DB; Quimica</div>
   <button class="nav-btn active" onclick="showSection('intro')">INICIO</button>
-  <button class="nav-btn" onclick="showSection('torneo')">🏆 TORNEO</button>
-  <button class="nav-btn" onclick="showSection('admin')">👑 ADMIN</button>
+  <button class="nav-btn" onclick="showSection('torneo')">TORNEO</button>
+  <button class="nav-btn" onclick="showSection('admin')">&#x1F451; ADMIN</button>
   <div class="nav-score">
-    <span style="font-size:0.9rem;">⭐</span>
-    <div>
-      <div class="ns-label">PUNTOS</div>
-      <div class="ns-num" id="globalScore">0</div>
-    </div>
+    <span style="font-size:0.9rem;">&#x2B50;</span>
+    <div><div class="ns-label">PUNTOS</div><div class="ns-num" id="globalScore">0</div></div>
   </div>
-  <div class="nav-version">v2.0</div>
+  <div class="nav-version">v2.1</div>
 </nav>
 <div id="aura-overlay"></div>
 
@@ -861,14 +854,15 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <div class="t-modo-badge">DISPONIBLE · Sumas</div>
       </div>
 
-      <div class="t-modo-card" onclick="seleccionarModoAlumno()">
+      <div class="t-modo-card" 
+           onclick="seleccionarModoAlumno()">
         <div class="t-modo-icon">👥</div>
         <div class="t-modo-titulo">vs Compañeros</div>
         <div class="t-modo-desc">
-          Únete con el código de sala que te dé tu maestro.
-          Compite en tiempo real con preguntas de números cuánticos.
+          Compite en tiempo real contra tus compañeros de clase.
+          Misma lógica que vs Bots pero con jugadores reales.
         </div>
-        <div class="t-modo-badge">EN VIVO · Números Cuánticos</div>
+        <div class="t-modo-badge t-badge-soon">PRÓXIMAMENTE</div>
       </div>
 
     </div>
@@ -907,9 +901,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   </div>
 
 
-  <!-- ALUMNO JOIN -->
   <div id="t-fase-alumno-join" style="display:none;" class="t-setup">
-    <h3>👥 Unirse al Torneo</h3>
+    <h3>Unirse al Torneo</h3>
     <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
       <div style="flex:1;min-width:160px;">
         <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--dim);margin-bottom:0.4rem;">TU NOMBRE</div>
@@ -917,43 +910,33 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
           onkeydown="if(event.key==='Enter')document.getElementById('alumno-codigo').focus()">
       </div>
       <div style="flex:1;min-width:160px;">
-        <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--dim);margin-bottom:0.4rem;">CÓDIGO DE SALA</div>
-        <input id="alumno-codigo" class="t-input-jug" placeholder="Ej: QUI-749"
-          style="text-transform:uppercase;letter-spacing:0.1em;"
+        <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--dim);margin-bottom:0.4rem;">CODIGO DE SALA</div>
+        <input id="alumno-codigo" class="t-input-jug" placeholder="Ej: QUI749"
+          style="text-transform:uppercase;"
           onkeydown="if(event.key==='Enter')unirseASala()">
       </div>
     </div>
     <div id="alumno-err" style="color:#f87171;font-family:'Space Mono',monospace;font-size:0.68rem;margin-bottom:0.6rem;min-height:1.2rem;"></div>
     <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
-      <button class="t-btn t-btn-primary" onclick="unirseASala()">🚀 ENTRAR A LA SALA</button>
-      <button class="t-btn t-btn-outline t-btn-sm" onclick="volverModoSelector()">← ATRÁS</button>
+      <button class="t-btn t-btn-primary" onclick="unirseASala()">ENTRAR</button>
+      <button class="t-btn t-btn-outline t-btn-sm" onclick="volverModoSelector()">Atras</button>
     </div>
   </div>
-
-  <!-- ALUMNO ESPERA -->
   <div id="alumno-espera" style="display:none;text-align:center;padding:3rem 1rem;">
-    <div style="font-size:2.5rem;margin-bottom:0.8rem;animation:trophyFloat 3s ease-in-out infinite;">⏳</div>
-    <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:#fff;margin-bottom:0.4rem;"
-      id="alumno-espera-nombre">Conectado</div>
-    <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--dim);"
-      id="alumno-espera-count">Esperando…</div>
+    <div style="font-size:2.5rem;margin-bottom:0.8rem;">&#x23F3;</div>
+    <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:#fff;margin-bottom:0.4rem;" id="alumno-espera-nombre">Conectado</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--dim);" id="alumno-espera-count">Esperando al maestro...</div>
   </div>
-
-  <!-- ALUMNO ELIMINADO -->
   <div id="alumno-eliminado" style="display:none;text-align:center;padding:3rem 1rem;">
-    <div style="font-size:2.5rem;margin-bottom:0.8rem;">😔</div>
+    <div style="font-size:2.5rem;margin-bottom:0.8rem;">&#x1F614;</div>
     <div style="font-family:'Fraunces',serif;font-size:1.3rem;color:#f87171;margin-bottom:0.4rem;">Eliminado</div>
-    <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--dim);margin-bottom:1rem;">
-      Sigue el torneo en el pizarrón
-    </div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--dim);margin-bottom:1rem;">Sigue el torneo en el pizarron</div>
     <div id="alumno-ranking" style="max-width:320px;margin:0 auto;"></div>
   </div>
-
-  <!-- ALUMNO FIN -->
   <div id="alumno-fin" style="display:none;text-align:center;padding:2rem 1rem;">
-    <div style="font-size:2.5rem;margin-bottom:0.8rem;">🏆</div>
-    <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:#fbbf24;margin-bottom:1rem;">¡Torneo terminado!</div>
-    <div id="alumno-ranking" style="max-width:320px;margin:0 auto;"></div>
+    <div style="font-size:2.5rem;margin-bottom:0.8rem;">&#x1F3C6;</div>
+    <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:#fbbf24;margin-bottom:1rem;">Torneo terminado!</div>
+    <div id="alumno-ranking-fin" style="max-width:320px;margin:0 auto;"></div>
   </div>
 
   <!-- BRACKET -->
@@ -1037,38 +1020,29 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 
 
 
-<!-- ══════════════ SECCIÓN 3: ADMIN ══════════════ -->
 <section id="admin" class="section">
-<div class="t-bg">
-<div class="t-wrap">
-
-  <!-- LOGIN -->
+<div class="t-bg"><div class="t-wrap">
   <div id="admin-login" style="max-width:400px;margin:3rem auto;">
     <div style="text-align:center;margin-bottom:1.5rem;">
-      <div style="font-size:2.5rem;margin-bottom:0.5rem;">👑</div>
-      <div style="font-family:'Fraunces',serif;font-size:1.6rem;color:#fff;">Panel Admin</div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--dim);margin-top:0.3rem;">Solo para el maestro</div>
+      <div style="font-size:2.5rem;">&#x1F451;</div>
+      <div style="font-family:'Fraunces',serif;font-size:1.6rem;color:#fff;margin-top:0.3rem;">Panel Admin</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--dim);">Solo para el maestro</div>
     </div>
     <div class="t-setup">
-      <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--dim);margin-bottom:0.4rem;">CONTRASEÑA</div>
-      <input type="password" id="admin-pwd" placeholder="Contraseña de administrador"
-        class="t-input-jug" style="margin-bottom:0.8rem;"
-        onkeydown="if(event.key==='Enter')mostrarAdmin()">
-      <div id="admin-pwd-err" style="color:#f87171;font-family:'Space Mono',monospace;font-size:0.68rem;margin-bottom:0.6rem;"></div>
-      <button class="t-btn t-btn-primary" onclick="mostrarAdmin()">👑 ENTRAR</button>
+      <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--dim);margin-bottom:0.4rem;">CONTRASENA</div>
+      <input type="password" id="admin-pwd" class="t-input-jug" placeholder="Contrasena"
+        style="margin-bottom:0.8rem;" onkeydown="if(event.key==='Enter')mostrarAdmin()">
+      <div id="admin-pwd-err" style="color:#f87171;font-size:0.68rem;margin-bottom:0.6rem;"></div>
+      <button class="t-btn t-btn-primary" onclick="mostrarAdmin()">ENTRAR</button>
     </div>
   </div>
-
-  <!-- PANEL PRINCIPAL -->
   <div id="admin-panel" style="display:none;">
-
-    <!-- CREAR SALA -->
     <div id="admin-crear-sala" class="t-setup" style="margin-bottom:1rem;">
-      <h3>⚙️ Configurar Torneo</h3>
+      <h3>Configurar Torneo</h3>
       <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem;">
         <div>
           <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--dim);margin-bottom:0.4rem;">FORMATO</div>
-          <select id="admin-formato" style="background:#1e1b4b;border:1px solid var(--accent);color:#e9d5ff;padding:0.5rem 0.9rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.8rem;outline:none;cursor:pointer;">
+          <select id="admin-formato" style="background:#1e1b4b;border:1px solid var(--accent);color:#e9d5ff;padding:0.5rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.8rem;outline:none;">
             <option value="16">Dieciseisavos (16)</option>
             <option value="8" selected>Octavos (8)</option>
             <option value="4">Cuartos (4)</option>
@@ -1077,33 +1051,29 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         </div>
         <div>
           <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--dim);margin-bottom:0.4rem;">TIEMPO/PREGUNTA</div>
-          <select id="admin-tiempo" style="background:#1e1b4b;border:1px solid var(--accent);color:#e9d5ff;padding:0.5rem 0.9rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.8rem;outline:none;cursor:pointer;">
+          <select id="admin-tiempo" style="background:#1e1b4b;border:1px solid var(--accent);color:#e9d5ff;padding:0.5rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.8rem;outline:none;">
             <option value="30">30 segundos</option>
             <option value="60">1 minuto</option>
             <option value="120">2 minutos</option>
             <option value="300">5 minutos</option>
-            <option value="0">Sin límite</option>
+            <option value="0">Sin limite</option>
           </select>
         </div>
         <div>
-          <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--dim);margin-bottom:0.4rem;">TIPO DE PREGUNTAS</div>
-          <select id="admin-tipo" style="background:#1e1b4b;border:1px solid var(--accent);color:#e9d5ff;padding:0.5rem 0.9rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.8rem;outline:none;cursor:pointer;">
-            <option value="cuanticos">⚛️ Números Cuánticos</option>
-            <option value="sumas">➕ Sumas</option>
+          <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--dim);margin-bottom:0.4rem;">PREGUNTAS</div>
+          <select id="admin-tipo" style="background:#1e1b4b;border:1px solid var(--accent);color:#e9d5ff;padding:0.5rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.8rem;outline:none;">
+            <option value="cuanticos">Numeros Cuanticos</option>
+            <option value="sumas">Sumas</option>
           </select>
         </div>
       </div>
-      <button class="t-btn t-btn-gold" onclick="crearSala()">⚔️ CREAR SALA</button>
+      <button class="t-btn t-btn-gold" onclick="crearSala()">CREAR SALA</button>
     </div>
-
-    <!-- SALA ACTIVA -->
     <div id="admin-sala-info" style="display:none;" class="t-setup" style="margin-bottom:1rem;">
       <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
         <div>
-          <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--dim);">CÓDIGO DE SALA</div>
-          <div style="font-family:'Fraunces',serif;font-size:2.5rem;color:#fbbf24;
-            text-shadow:0 0 20px rgba(251,191,36,0.4);letter-spacing:0.1em;"
-            id="admin-sala-codigo">—</div>
+          <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--dim);">CODIGO</div>
+          <div style="font-family:'Fraunces',serif;font-size:2.5rem;color:#fbbf24;letter-spacing:0.1em;" id="admin-sala-codigo">---</div>
         </div>
         <div id="admin-qr"></div>
       </div>
@@ -1111,33 +1081,25 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         CONECTADOS: <span id="admin-conectados-count" style="color:#fbbf24;">0/8</span>
       </div>
       <div id="admin-jugadores-lista" style="margin-bottom:1rem;min-height:40px;"></div>
-      <button id="btn-iniciar-sala" class="t-btn t-btn-primary" onclick="iniciarSala()" disabled>
-        ▶ INICIAR TORNEO
-      </button>
+      <button id="btn-iniciar-sala" class="t-btn t-btn-primary" onclick="iniciarSala()" disabled>INICIAR TORNEO</button>
     </div>
-
-    <!-- BRACKET EN VIVO -->
     <div id="admin-bracket-view" style="display:none;">
       <div id="admin-bracket-live"></div>
     </div>
-
-    <!-- HISTORIAL -->
     <div class="t-setup" style="margin-top:1rem;">
-      <h3>📋 Historial de Torneos</h3>
-      <div id="admin-historial">
-        <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);">Cargando…</div>
-      </div>
+      <h3>Historial</h3>
+      <div id="admin-historial"><div style="font-size:0.75rem;color:rgba(255,255,255,0.3);">Cargando...</div></div>
     </div>
-
-  </div><!-- admin-panel -->
-
+  </div>
 </div></div>
 </section>
 
 <script>
-// ── Navigation & Score ─────────────────────────────────────
+
+// ── Navigation & Score ──────────────────────────────────────
 let totalScore=0;
 function showSection(id){
+  // Fade out current
   const cur=document.querySelector('.section.active');
   if(cur && cur.id!==id){
     cur.style.opacity='0';cur.style.transform='translateY(-8px)';
@@ -1154,7 +1116,9 @@ function showSection(id){
       s.classList.add('active');
       s.style.opacity='0';s.style.transform='translateY(10px)';
       s.style.transition='opacity 0.35s ease,transform 0.35s ease';
-      requestAnimationFrame(()=>{ s.style.opacity='1';s.style.transform='translateY(0)'; });
+      requestAnimationFrame(()=>{
+        s.style.opacity='1';s.style.transform='translateY(0)';
+      });
     }
     document.querySelectorAll('.nav-btn').forEach(b=>{
       if((b.getAttribute('onclick')||'').includes("'"+id+"'")) b.classList.add('active');
@@ -1168,21 +1132,25 @@ function addScore(pts){
   if(el){
     el.textContent=totalScore;
     el.style.transition='transform 0.2s cubic-bezier(0.34,1.56,0.64,1),color 0.2s';
-    el.style.transform='scale(1.5)';el.style.color='#fff';
-    setTimeout(()=>{el.style.transform='scale(1)';el.style.color='';},350);
+    el.style.transform='scale(1.5)';
+    el.style.color='#fff';
+    setTimeout(()=>{
+      el.style.transform='scale(1)';
+      el.style.color='';
+    },350);
   }
 }
 function updateProgress(){}
-function volverModoSelector(){
-  ['t-fase-setup-bots','t-fase-setup-multi','t-fase-alumno-join',
-   'alumno-espera','alumno-eliminado','alumno-fin'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.style.display='none';
-  });
-  document.getElementById('t-fase-modo').style.display='block';
-}
+
+// ── Mode selector ───────────────────────────────────────────
 function iniciarModoBots(){
   document.getElementById('t-fase-modo').style.display='none';
   document.getElementById('t-fase-setup-bots').style.display='block';
+}
+function volverModoSelector(){
+  ['t-fase-setup-bots','t-fase-setup-multi','t-fase-alumno-join',
+   'alumno-espera','alumno-eliminado','alumno-fin'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  document.getElementById('t-fase-modo').style.display='block';
 }
 function reiniciarTorneo(){
   clearInterval(BS.duelo.timer);clearTimeout(BS.duelo.botTimeout||0);
@@ -1193,15 +1161,30 @@ function reiniciarTorneo(){
   if(cv){const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);}
   const bn=document.getElementById('bk-pre-ronda-banner');if(bn)bn.style.display='none';
   ['t-fase-bot-duelo','t-fase-bot-resultado','t-fase-bot-bracket',
-   't-fase-setup-bots','alumno-espera','alumno-eliminado','alumno-fin'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.style.display='none';
-  });
+   't-fase-setup-bots','alumno-espera','alumno-eliminado','alumno-fin'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('t-fase-modo').style.display='block';
 }
 
+const BOTS_TODOS = [
+  {nombre:'Araceli',    tag:'🌸', av:'#ff6eb4', ac:{facil:0.45,medio:0.62,dificil:0.80}},
+  {nombre:'Roque',      tag:'⚡', av:'#f59e0b', ac:{facil:0.50,medio:0.68,dificil:0.85}},
+  {nombre:'Madeleine',  tag:'🌟', av:'#8b5cf6', ac:{facil:0.38,medio:0.55,dificil:0.78}},
+  {nombre:'Suastes',    tag:'🔥', av:'#ef4444', ac:{facil:0.55,medio:0.72,dificil:0.88}},
+  {nombre:'Ramos',      tag:'💪', av:'#10b981', ac:{facil:0.42,medio:0.60,dificil:0.82}},
+  {nombre:'Leandro',    tag:'🎯', av:'#3b82f6', ac:{facil:0.48,medio:0.65,dificil:0.84}},
+  {nombre:'Ramses',     tag:'👑', av:'#fbbf24', ac:{facil:0.52,medio:0.70,dificil:0.86}},
+  {nombre:'Arturo',     tag:'🦅', av:'#0ea5e9', ac:{facil:0.40,medio:0.58,dificil:0.81}},
+  {nombre:'Pamela',     tag:'✨', av:'#ec4899', ac:{facil:0.46,medio:0.63,dificil:0.82}},
+  {nombre:'Ismael',     tag:'🛡️', av:'#6366f1', ac:{facil:0.44,medio:0.61,dificil:0.79}},
+  {nombre:'Sergio',     tag:'⚔️', av:'#dc2626', ac:{facil:0.53,medio:0.71,dificil:0.87}},
+  {nombre:'Adolfo',     tag:'🌀', av:'#06b6d4', ac:{facil:0.41,medio:0.59,dificil:0.80}},
+  {nombre:'Melquiades', tag:'🔮', av:'#7c3aed', ac:{facil:0.49,medio:0.66,dificil:0.83}},
+  {nombre:'Kaleb',      tag:'💥', av:'#f97316', ac:{facil:0.56,medio:0.73,dificil:0.89}},
+  {nombre:'Citlali',    tag:'🌙', av:'#a855f7', ac:{facil:0.43,medio:0.61,dificil:0.81}},
+  {nombre:'Mauricio',   tag:'🦁', av:'#d97706', ac:{facil:0.51,medio:0.69,dificil:0.85}},
+];
 
-// ── Navigation & Score ──────────────────────────────────────
-
+// Generar avatar circular estilo pin de anime/superhéroe
 function makeAvatar(nombre, isHuman, size=28){
   if(isHuman){
     return `<span style="display:inline-flex;align-items:center;justify-content:center;
@@ -2320,6 +2303,7 @@ function lanzarConfetti(epico){
 
 
 
+
 // ================================================================
 //  FIREBASE CONFIG
 // ================================================================
@@ -2609,45 +2593,42 @@ let MI_PARTIDA_IDX = null;
 let MI_RONDA_KEY = null;
 
 function unirseASala(){
-  const nombre = document.getElementById('alumno-nombre').value.trim();
-  const codigo = document.getElementById('alumno-codigo').value.trim().toUpperCase();
-  if(!nombre){ document.getElementById('alumno-err').textContent='Escribe tu nombre'; return; }
-  if(!codigo || codigo.length<5){ document.getElementById('alumno-err').textContent='Escribe el código de sala'; return; }
-
+  const nombre=document.getElementById('alumno-nombre').value.trim();
+  const codigoRaw=document.getElementById('alumno-codigo').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const codigo=codigoRaw.length===6?codigoRaw.slice(0,3)+'-'+codigoRaw.slice(3):codigoRaw;
+  const errEl=document.getElementById('alumno-err');
+  errEl.textContent='';
+  if(!nombre){errEl.textContent='Escribe tu nombre';return;}
+  if(codigoRaw.length<5){errEl.textContent='Escribe el codigo';return;}
+  errEl.style.color='#a78bfa';errEl.textContent='Conectando...';
   initFirebase();
-  MI_NOMBRE = nombre;
-  SALA_CODIGO = codigo;
-  ROL = 'alumno';
-
-  // Verificar que la sala existe
+  MI_NOMBRE=nombre;SALA_CODIGO=codigo;ROL='alumno';
   db.ref('salas/'+codigo).once('value').then(snap=>{
     const sala=snap.val();
-    if(!sala){ document.getElementById('alumno-err').textContent='Sala no encontrada'; return; }
-    if(sala.estado==='terminado'){ document.getElementById('alumno-err').textContent='El torneo ya terminó'; return; }
-
-    // Verificar nombre duplicado
-    const jugs=Object.values(sala.jugadores||{});
-    if(jugs.some(j=>j.nombre.toLowerCase()===nombre.toLowerCase())){
-      document.getElementById('alumno-err').textContent='Ese nombre ya está en uso en esta sala';
-      return;
-    }
-
-    // Registrar jugador
-    const jugRef=db.ref('salas/'+codigo+'/jugadores/'+nombre.replace(/\s/g,'_'));
-    jugRef.set({nombre, conectado:true, ts:Date.now()});
-    jugRef.onDisconnect().remove();
-
-    // Mostrar sala de espera
-    document.getElementById('alumno-join').style.display='none';
-    document.getElementById('alumno-espera').style.display='block';
-    document.getElementById('alumno-espera-nombre').textContent='Hola, '+nombre+' 👋';
-
-    // Escuchar cuando inicie el torneo
-    escucharSalaAlumno(codigo);
-  }).catch(()=>{
-    document.getElementById('alumno-err').textContent='Error al conectar. Revisa el código.';
+    errEl.style.color='#f87171';
+    if(!sala){errEl.textContent='Sala no encontrada';return;}
+    if(sala.estado==='terminado'){errEl.textContent='El torneo ya termino';return;}
+    // Registrar sin validar nombre duplicado
+    const key=nombre.replace(/[^a-zA-Z0-9]/g,'_').slice(0,20)+'_'+Date.now();
+    const jugRef=db.ref('salas/'+codigo+'/jugadores/'+key);
+    jugRef.set({nombre,conectado:true,ts:Date.now()}).then(()=>{
+      jugRef.onDisconnect().remove();
+      errEl.textContent='';
+      document.getElementById('t-fase-alumno-join').style.display='none';
+      document.getElementById('alumno-espera').style.display='block';
+      document.getElementById('alumno-espera-nombre').textContent='Hola, '+nombre+'!';
+      escucharSalaAlumno(codigo);
+    }).catch(err=>{
+      errEl.textContent='No se pudo registrar. Verifica reglas de Firebase.';
+      console.error(err);
+    });
+  }).catch(err=>{
+    errEl.style.color='#f87171';
+    errEl.textContent='Error de conexion.';
+    console.error(err);
   });
 }
+
 
 function escucharSalaAlumno(codigo){
   alumnoSalaRef = db.ref('salas/'+codigo);
@@ -2880,7 +2861,10 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 function seleccionarModoAlumno(){
   document.getElementById('t-fase-modo').style.display='none';
+  const err=document.getElementById('alumno-err');
+  if(err){err.textContent='';err.style.color='#f87171';}
   document.getElementById('t-fase-alumno-join').style.display='block';
+  setTimeout(()=>{const inp=document.getElementById('alumno-nombre');if(inp)inp.focus();},100);
 }
 
 </script>
