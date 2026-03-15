@@ -125,20 +125,38 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:0;back
 
 /* ── DUELO — layout estático + sin scroll en móvil ─────────── */
 
-/* Cuando el duelo está activo, bloquear scroll del body */
-body.duelo-activo{overflow:hidden;position:fixed;width:100%;}
-
-/* Wrapper del duelo en móvil: ocupa toda la pantalla disponible */
-#t-fase-bot-duelo{
-  /* En móvil se vuelve overlay fijo sobre el viewport */
+/* ── SCROLL LOCK cuando hay duelo activo ─────────────────── */
+/* Se guarda scrollY para no hacer "jump" al fijar el body    */
+body.duelo-activo{
+  overflow:hidden;
+  position:fixed;
+  width:100%;
+  /* top se setea por JS con el scroll actual */
 }
-@media(max-width:600px){
+
+/* Duelo: overlay full-screen en móvil Y desktop */
+#t-fase-bot-duelo{
+  position:fixed;inset:0;z-index:200;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  background:var(--bg);
+  padding:0.75rem 1rem 2rem;
+  max-width:100%!important;
+  margin:0!important;
+  /* Animación de entrada */
+  animation:dueloSlideIn 0.3s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes dueloSlideIn{
+  from{opacity:0;transform:translateY(32px);}
+  to{opacity:1;transform:translateY(0);}
+}
+/* En desktop limitar ancho y centrar */
+@media(min-width:600px){
   #t-fase-bot-duelo{
-    position:fixed;inset:0;z-index:200;
-    overflow-y:auto;-webkit-overflow-scrolling:touch;
-    background:var(--bg);
-    padding:0.5rem 0.75rem 1rem;
-    max-width:100%!important;margin:0!important;
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:2rem 1rem;
+  }
+  #t-fase-bot-duelo .t-duelo{
+    width:100%;max-width:480px;
   }
 }
 
@@ -392,6 +410,45 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 
 .site-footer{text-align:center;padding:1.2rem;font-family:'Space Mono',monospace;font-size:0.58rem;color:rgba(167,139,250,0.25);letter-spacing:0.1em;border-top:1px solid rgba(255,255,255,0.04);margin-top:2rem;}
 
+/* ── SALÓN DE LA FAMA ─────────────────────────────────────── */
+.fama-card{
+  background:rgba(255,255,255,0.025);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px;
+  padding:0.85rem 1rem;
+  display:flex;align-items:center;gap:0.75rem;
+  transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  position:relative;overflow:hidden;
+  animation:fadeUp 0.4s ease both;
+}
+.fama-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 10% 50%,rgba(251,191,36,0.05),transparent 60%);
+  opacity:0;transition:opacity 0.25s;
+}
+.fama-card:hover{border-color:rgba(251,191,36,0.25);transform:translateY(-2px);}
+.fama-card:hover::before{opacity:1;}
+.fama-card.primer-lugar{
+  border-color:rgba(251,191,36,0.3);
+  background:rgba(251,191,36,0.05);
+}
+.fama-medal{
+  font-size:1.5rem;flex-shrink:0;
+  filter:drop-shadow(0 0 6px rgba(251,191,36,0.3));
+}
+.fama-info{flex:1;min-width:0;}
+.fama-nombre{
+  font-family:'Fraunces',serif;font-size:0.95rem;color:#fff;font-weight:700;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.fama-primer-label{font-family:'Fraunces',serif;font-size:0.95rem;color:var(--gold);font-weight:700;}
+.fama-meta{font-family:'Space Mono',monospace;font-size:0.58rem;color:var(--dim);margin-top:2px;}
+.fama-victorias{
+  font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;
+  color:var(--gold);flex-shrink:0;text-align:right;
+}
+.fama-vic-label{font-family:'Space Mono',monospace;font-size:0.48rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;}
+
 /* ── PALETAS DE COLOR ─────────────────────────────────────── */
 .palette-card{
   background:rgba(255,255,255,0.03);
@@ -506,6 +563,26 @@ nav{overflow:hidden;}
 <div class="t-bg"><div class="t-wrap">
   <div class="t-titulo">🏆 Torneo</div>
   <div class="t-sub" id="t-sub-ronda">Bracket eliminatorio · Octavos → Cuartos → Final</div>
+
+  <!-- SALÓN DE LA FAMA -->
+  <div id="salon-fama" style="margin-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;flex-wrap:wrap;gap:0.4rem;">
+      <div>
+        <div style="font-family:'Fraunces',serif;font-size:1.2rem;color:#fff;display:flex;align-items:center;gap:0.5rem;">
+          <span>🏛️</span> Salón de la Fama
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--dim);letter-spacing:0.08em;">Últimos campeones del torneo</div>
+      </div>
+      <button onclick="toggleSalonFama()" id="btn-toggle-salon" style="background:none;border:1px solid rgba(255,255,255,0.08);color:var(--dim);border-radius:8px;padding:4px 12px;font-family:'Space Mono',monospace;font-size:0.6rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='rgba(251,191,36,0.3)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.color='var(--dim)'">
+        Ver más
+      </button>
+    </div>
+    <div id="salon-fama-content">
+      <div id="salon-fama-lista" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.6rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:rgba(255,255,255,0.2);padding:1rem;text-align:center;border:1px dashed rgba(255,255,255,0.06);border-radius:10px;">Cargando...</div>
+      </div>
+    </div>
+  </div>
 
   <!-- SELECTOR MODO -->
   <div id="t-fase-modo" class="t-setup">
@@ -792,8 +869,11 @@ nav{overflow:hidden;}
 
         <!-- Botones de acción -->
         <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
-          <button id="btn-iniciar-sala" class="t-btn t-btn-primary" onclick="iniciarSala()" disabled>▶ INICIAR TORNEO</button>
-          <button class="t-btn t-btn-danger t-btn-sm" onclick="cerrarSalaAdmin()">✕ Cancelar</button>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+            <button id="btn-iniciar-sala" class="t-btn t-btn-primary" onclick="iniciarSala()" disabled>▶ INICIAR TORNEO</button>
+            <button class="t-btn t-btn-outline t-btn-sm" onclick="rellenarConBots()" id="btn-rellenar-bots-2" style="border-color:rgba(124,58,237,0.5);">🤖 Rellenar Bots</button>
+            <button class="t-btn t-btn-danger t-btn-sm" onclick="cerrarSalaAdmin()">✕ Cancelar</button>
+          </div>
         </div>
 
       </div>
@@ -1555,6 +1635,11 @@ function showSection(id) {
     if (s) { s.classList.add('active'); s.style.opacity='0'; s.style.transform='translateY(10px)'; s.style.transition='opacity 0.35s ease,transform 0.35s ease'; requestAnimationFrame(() => { s.style.opacity='1'; s.style.transform='translateY(0)'; }); }
     document.querySelectorAll('.nav-btn').forEach(b => { if ((b.getAttribute('onclick')||'').includes("'"+id+"'")) b.classList.add('active'); });
     window.scrollTo({top:0, behavior:'smooth'});
+    // Cargar salón de la fama al entrar a la sección torneo
+    if(id === 'torneo') {
+      try{ initFirebase(); }catch(e){}
+      setTimeout(() => cargarSalonFama(), 300);
+    }
   }, cur && cur.id !== id ? 180 : 0);
 }
 function addScore(pts) {
@@ -1615,6 +1700,8 @@ function volverModoSelector() {
 }
 function reiniciarTorneo() {
   document.body.classList.remove('duelo-activo');
+  document.body.style.top='';
+  window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
   clearInterval(BS.duelo.timer); (BS.botTimers||[]).forEach(t=>clearTimeout(t));
   BS.oct=[null,null,null,null]; BS.cuar=[null,null]; BS.gran=[null];
   BS.rondaActiva='oct'; BS.highlights=[]; BS.botTimers=[]; BS.rondaProcesada=false;
@@ -1743,8 +1830,16 @@ function abrirDuelo(arr, idx, onDone) {
   document.getElementById('t-bot-titulo').textContent = `${label(d.j1)} vs ${label(d.j2)}`;
   document.getElementById('t-fase-bot-bracket').style.display='none';
   document.getElementById('t-fase-bot-duelo').style.display='block';
+  // Scroll lock: guardar posición actual y fijar
+  const scrollY = window.scrollY||window.pageYOffset;
+  document.body.style.top = `-${scrollY}px`;
   document.body.classList.add('duelo-activo');
-  window.scrollTo(0,0);
+  document.body.dataset.scrollY = scrollY;
+  // Foco inmediato al input
+  setTimeout(()=>{
+    const inp=document.getElementById('t-bot-resp');
+    if(inp){inp.focus();inp.select();}
+  },150);
   cargarPregHumano();
 }
 
@@ -1786,6 +1881,11 @@ function cargarPregHumano() {
   document.getElementById('t-bot-resultado').className = 't-resultado-box';
   document.getElementById('t-bot-timer').className = 't-timer';
   bloquearNumpad(false);
+  // Auto-focus al campo de respuesta en cada pregunta
+  setTimeout(()=>{
+    const inp=document.getElementById('t-bot-resp');
+    if(inp&&!inp.disabled){inp.focus();if(inp.value)inp.select();}
+  },80);
   // Score
   const humIdx = esBotNombre(d.j1) ? 1 : 0;
   document.getElementById(humIdx===0?'t-bot-score-j1':'t-bot-score-j2').textContent = d.humScore;
@@ -1914,6 +2014,8 @@ function esperarBotYRevelar() {
     // Countdown 10 segundos → bracket
     iniciarContadorRegreso(10, () => {
       document.body.classList.remove('duelo-activo');
+  document.body.style.top='';
+  window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
       document.getElementById('t-fase-bot-duelo').style.display='none';
       document.getElementById('t-fase-bot-bracket').style.display='block';
       renderBotBracket(); d.onDone();
@@ -2077,6 +2179,8 @@ function lanzarDesempate(humNom, humIdx, botNom, p, d) {
     d._desempateActivo=false;
     iniciarContadorRegreso(5, () => {
       document.body.classList.remove('duelo-activo');
+  document.body.style.top='';
+  window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
       document.getElementById('t-fase-bot-duelo').style.display='none';
       document.getElementById('t-fase-bot-bracket').style.display='block';
       renderBotBracket(); d.onDone();
@@ -2594,8 +2698,19 @@ function escucharSalaAlumno(codigo) {
 }
 
 function buscarMiPartida(sala) {
-  const rondaKey = sala.rondaActiva||'oct8';
-  const partidas = sala.bracket?.[rondaKey]||[];
+  // Usar la ronda activa real; si está vacía, buscar la primera con datos
+  let rondaKey = sala.rondaActiva||'oct8';
+  let partidas = sala.bracket?.[rondaKey]||[];
+  // Si la ronda activa no tiene mis datos, buscar en otras rondas del bracket
+  if(!partidas.length||!partidas.some(p=>p&&(p.j1===MI_NOMBRE||p.j2===MI_NOMBRE))){
+    const orden=['oct16','oct8','cuar','semi','gran'];
+    for(const k of orden){
+      const pts=sala.bracket?.[k]||[];
+      if(pts.length&&pts.some(p=>p&&(p.j1===MI_NOMBRE||p.j2===MI_NOMBRE))){
+        rondaKey=k; partidas=pts; break;
+      }
+    }
+  }
   const idx = partidas.findIndex(p=>p&&(p.j1===MI_NOMBRE||p.j2===MI_NOMBRE));
 
   // No estoy en la ronda activa
@@ -2632,6 +2747,8 @@ function buscarMiPartida(sala) {
   if(partida.terminada){
     MI_DUELO_INICIADO=false;
     document.body.classList.remove('duelo-activo');
+  document.body.style.top='';
+  window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
     document.getElementById('t-fase-bot-duelo').style.display='none';
     if(partida.ganador===MI_NOMBRE){
       // ¿Hay siguiente ronda disponible?
@@ -2673,6 +2790,8 @@ function siguienteRondaOnline(rondaKey, sala){
 // Ceremonia alumno — busca la partida final en todo el bracket (cualquier formato)
 function mostrarCeremoniaAlumno(sala) {
   document.body.classList.remove('duelo-activo');
+  document.body.style.top='';
+  window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
   // Buscar la partida final: la última ronda con ganador definido
   const ordenRondas = ['gran','semi','cuar','oct8','oct16'];
   let finalPartida = null;
@@ -2720,8 +2839,15 @@ function mostrarCeremoniaAlumno(sala) {
 function iniciarDueloAlumno(sala, partida, idx, rondaKey) {
   document.getElementById('alumno-espera').style.display='none';
   document.getElementById('t-fase-bot-duelo').style.display='block';
+  const scrollYA = window.scrollY||window.pageYOffset;
+  document.body.style.top = `-${scrollYA}px`;
+  document.body.dataset.scrollY = scrollYA;
   document.body.classList.add('duelo-activo');
-  window.scrollTo(0,0);
+  // Auto-focus input
+  setTimeout(()=>{
+    const inp=document.getElementById('t-bot-resp');
+    if(inp){inp.focus();inp.select();}
+  },150);
   BS.nombreJug=MI_NOMBRE; BS.dificultad=sala.dificultad||'medio'; BS.tiempoPorPreg=sala.tiempo||30;
   BS.temaId=sala.temaId||'sumas'; BS.numPregs=sala.numPregs||3;
   const esJ1=partida.j1===MI_NOMBRE;
@@ -2770,6 +2896,8 @@ function guardarResultadoFirebase(idx, rondaKey, esJ1) {
   db.ref(path).update(update).then(() => {
     // Quitar lock de scroll al terminar de responder
     document.body.classList.remove('duelo-activo');
+  document.body.style.top='';
+  window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
     document.getElementById('t-fase-bot-duelo').style.display='none';
     document.getElementById('alumno-espera').style.display='block';
     document.getElementById('alumno-espera-nombre').textContent='⏳ Esperando que tu rival termine…';
@@ -2810,6 +2938,9 @@ function guardarHistorial(campeon) {
   const fecha=new Date().toLocaleDateString('es-MX');
   db.ref('historial').push({campeon,fecha,sala:SALA_CODIGO,ts:Date.now()});
   db.ref('ranking/'+campeon.replace(/\s/g,'_')).transaction(v=>(v||0)+1);
+  // Refrescar salón de la fama
+  _salonCargado=false;
+  setTimeout(()=>cargarSalonFama(true),1500);
 }
 
 function mostrarFinAlumno(sala) {
@@ -2836,11 +2967,100 @@ function cargarRankingAlumno() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+//  SALÓN DE LA FAMA
+// ═══════════════════════════════════════════════════════════════
+let _salonExpandido = false;
+let _salonCargado = false;
+
+function cargarSalonFama(force) {
+  if(_salonCargado && !force) return;
+  if(!db) { initFirebase(); }
+  const lista = document.getElementById('salon-fama-lista');
+  if(!lista) return;
+
+  // Cargar ranking (victorias) e historial (últimos torneos) en paralelo
+  Promise.all([
+    db.ref('ranking').orderByValue().limitToLast(10).once('value'),
+    db.ref('historial').orderByChild('ts').limitToLast(12).once('value')
+  ]).then(([rankSnap, histSnap]) => {
+    const ranking = rankSnap.val()||{};
+    const historial = histSnap.val()||{};
+
+    // Ordenar ranking de mayor a menor victorias
+    const campeones = Object.entries(ranking)
+      .map(([k,v]) => ({nombre: k.replace(/_/g,' '), victorias: v}))
+      .sort((a,b) => b.victorias - a.victorias);
+
+    // Últimas fechas por jugador
+    const fechas = {};
+    Object.values(historial).forEach(h => {
+      const n = h.campeon;
+      if(!fechas[n] || h.ts > (fechas[n].ts||0)) fechas[n] = {fecha:h.fecha, ts:h.ts||0};
+    });
+
+    if(!campeones.length) {
+      lista.innerHTML = `<div style="grid-column:1/-1;font-family:'Space Mono',monospace;font-size:0.7rem;color:rgba(255,255,255,0.2);padding:1.5rem;text-align:center;border:1px dashed rgba(255,255,255,0.06);border-radius:12px;">
+        <div style="font-size:1.6rem;margin-bottom:0.5rem;">🏛️</div>
+        Aún no hay campeones registrados.<br>
+        <span style="font-size:0.58rem;opacity:0.6;">Los ganadores aparecerán aquí después del primer torneo.</span>
+      </div>`;
+      _salonCargado = true;
+      return;
+    }
+
+    // Cuántos mostrar: 3 colapsado, todos expandido
+    const mostrar = _salonExpandido ? campeones : campeones.slice(0,3);
+    const medals = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟'];
+
+    lista.innerHTML = mostrar.map((j, i) => {
+      const info = fechas[j.nombre];
+      const fechaStr = info ? info.fecha : '';
+      const esPrimero = i === 0;
+      return `<div class="fama-card${esPrimero?' primer-lugar':''}" style="animation-delay:${i*0.06}s">
+        <div class="fama-medal">${medals[i]||'⭐'}</div>
+        <div class="fama-info">
+          <div class="${esPrimero?'fama-primer-label':'fama-nombre'}">${j.nombre}</div>
+          <div class="fama-meta">${fechaStr ? 'Último: '+fechaStr : 'Campeón'}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div class="fama-victorias">${j.victorias}</div>
+          <div class="fama-vic-label">vic.</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Botón "Ver más" / "Ver menos"
+    const btn = document.getElementById('btn-toggle-salon');
+    if(btn) {
+      if(campeones.length <= 3) {
+        btn.style.display = 'none';
+      } else {
+        btn.style.display = '';
+        btn.textContent = _salonExpandido ? 'Ver menos' : `Ver todos (${campeones.length})`;
+      }
+    }
+
+    _salonCargado = true;
+  }).catch(() => {
+    const lista2 = document.getElementById('salon-fama-lista');
+    if(lista2) lista2.innerHTML = `<div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.2);padding:0.5rem;">Conéctate para ver el salón de la fama.</div>`;
+  });
+}
+
+function toggleSalonFama() {
+  _salonExpandido = !_salonExpandido;
+  _salonCargado = false; // forzar re-render
+  cargarSalonFama(true);
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  URL PARAMS
 // ═══════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   // Cargar paleta guardada
   cargarPaletaGuardada();
+  // Cargar salón de la fama si la sección torneo está activa al inicio
+  try{ initFirebase(); setTimeout(()=>cargarSalonFama(),600); }catch(e){}
   // URL params
   const params=new URLSearchParams(window.location.search);
   const salaParam=params.get('sala');
