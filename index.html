@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Torneo de Quimica v2.1</title>
+<title>Torneo de Quimica v2.2</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Fraunces:ital,wght@0,300;0,700;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -785,7 +785,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <span style="font-size:0.9rem;">&#x2B50;</span>
     <div><div class="ns-label">PUNTOS</div><div class="ns-num" id="globalScore">0</div></div>
   </div>
-  <div class="nav-version">v2.1</div>
+  <div class="nav-version">v2.2</div>
 </nav>
 <div id="aura-overlay"></div>
 
@@ -1095,6 +1095,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 </section>
 
 <script>
+
+
 
 // ── Navigation & Score ──────────────────────────────────────
 let totalScore=0;
@@ -2591,6 +2593,7 @@ let alumnoSalaRef = null;
 let alumnoDueloRef = null;
 let MI_PARTIDA_IDX = null;
 let MI_RONDA_KEY = null;
+let MI_DUELO_INICIADO = false;
 
 function unirseASala(){
   const nombre=document.getElementById('alumno-nombre').value.trim();
@@ -2614,6 +2617,7 @@ function unirseASala(){
     jugRef.set({nombre,conectado:true,ts:Date.now()}).then(()=>{
       jugRef.onDisconnect().remove();
       errEl.textContent='';
+      MI_DUELO_INICIADO = false; // reset para nueva sala
       document.getElementById('t-fase-alumno-join').style.display='none';
       document.getElementById('alumno-espera').style.display='block';
       document.getElementById('alumno-espera-nombre').textContent='Hola, '+nombre+'!';
@@ -2631,18 +2635,20 @@ function unirseASala(){
 
 
 function escucharSalaAlumno(codigo){
-  alumnoSalaRef = db.ref('salas/'+codigo);
-  alumnoSalaRef.on('value', snap=>{
+  if(alumnoSalaRef) alumnoSalaRef.off();
+  alumnoSalaRef=db.ref('salas/'+codigo);
+  alumnoSalaRef.on('value',snap=>{
     const sala=snap.val();
-    if(!sala) return;
+    if(!sala){console.warn('Sala no encontrada');return;}
 
-    // Actualizar contador de espera
-    const jugs=Object.values(sala.jugadores||{});
-    const el=document.getElementById('alumno-espera-count');
-    if(el) el.textContent='Jugadores conectados: '+jugs.length;
+    const enEspera=document.getElementById('alumno-espera').style.display!=='none';
+    if(enEspera){
+      const jugs=Object.values(sala.jugadores||{});
+      const el=document.getElementById('alumno-espera-count');
+      if(el)el.textContent='Conectados: '+jugs.length+' jugadores';
+    }
 
-    if(sala.estado==='jugando'){
-      // Buscar mi partida en la ronda activa
+    if(sala.estado==='jugando'&&!MI_DUELO_INICIADO){
       buscarMiPartida(sala);
     }
     if(sala.estado==='terminado'){
@@ -2652,24 +2658,28 @@ function escucharSalaAlumno(codigo){
 }
 
 function buscarMiPartida(sala){
-  const rondaKey = sala.rondaActiva||'oct';
-  const partidas = sala.bracket[rondaKey]||[];
-  const idx = partidas.findIndex(p=>p&&(p.j1===MI_NOMBRE||p.j2===MI_NOMBRE));
+  const rondaKey=sala.rondaActiva||'oct';
+  const partidas=sala.bracket[rondaKey]||[];
+  const idx=partidas.findIndex(p=>p&&(p.j1===MI_NOMBRE||p.j2===MI_NOMBRE));
 
   if(idx===-1){
-    // No estoy en esta ronda — fui eliminado o soy espectador
-    document.getElementById('alumno-espera').style.display='none';
-    document.getElementById('alumno-eliminado').style.display='block';
+    if(!MI_DUELO_INICIADO){
+      document.getElementById('alumno-espera').style.display='none';
+      document.getElementById('alumno-eliminado').style.display='block';
+    }
     return;
   }
 
-  MI_PARTIDA_IDX = idx;
-  MI_RONDA_KEY   = rondaKey;
-  const partida  = partidas[idx];
+  MI_PARTIDA_IDX=idx;
+  MI_RONDA_KEY=rondaKey;
+  const partida=partidas[idx];
 
   if(partida.terminada){
+    MI_DUELO_INICIADO=false;
+    document.getElementById('t-fase-bot-duelo').style.display='none';
     if(partida.ganador===MI_NOMBRE){
-      document.getElementById('alumno-espera-nombre').textContent='✅ Pasas a la siguiente ronda';
+      document.getElementById('alumno-espera').style.display='block';
+      document.getElementById('alumno-espera-nombre').textContent='Pasaste a la siguiente ronda!';
     } else {
       document.getElementById('alumno-espera').style.display='none';
       document.getElementById('alumno-eliminado').style.display='block';
@@ -2677,15 +2687,16 @@ function buscarMiPartida(sala){
     return;
   }
 
-  // Iniciar duelo del alumno
-  iniciarDueloAlumno(sala, partida, idx, rondaKey);
+  if(!MI_DUELO_INICIADO){
+    MI_DUELO_INICIADO=true;
+    iniciarDueloAlumno(sala,partida,idx,rondaKey);
+  }
 }
 
 function iniciarDueloAlumno(sala, partida, idx, rondaKey){
   document.getElementById('alumno-espera').style.display='none';
-  document.getElementById('alumno-duelo').style.display='block';
+  document.getElementById('t-fase-bot-duelo').style.display='block';
 
-  // Configurar BS para el duelo
   BS.nombreJug    = MI_NOMBRE;
   BS.dificultad   = sala.dificultad||'medio';
   BS.tiempoPorPreg= sala.tiempo||30;
@@ -2693,43 +2704,39 @@ function iniciarDueloAlumno(sala, partida, idx, rondaKey){
   const esJ1 = partida.j1===MI_NOMBRE;
   const rival = esJ1?partida.j2:partida.j1;
 
-  document.getElementById('t-bot-titulo').textContent = '⚔️ '+MI_NOMBRE+' vs '+rival;
-  document.getElementById('t-bot-j1').textContent = MI_NOMBRE;
-  document.getElementById('t-bot-j2').textContent = rival;
+  document.getElementById('t-bot-titulo').textContent='vs '+rival;
+  document.getElementById('t-bot-ronda-label').textContent=rondaKey;
+  document.getElementById('t-bot-j1').textContent=MI_NOMBRE;
+  document.getElementById('t-bot-j2').textContent=rival;
   document.getElementById('t-bot-score-j1').textContent='0';
   document.getElementById('t-bot-score-j2').textContent='0';
 
-  // Generar preguntas (tipo según sala)
-  const tipo = sala.tipo||'sumas';
-  const pregs = tipo==='cuanticos' ? generarPreguntasCuanticos(3) : generarPreguntas(3);
-  BS.preguntasHumano = pregs;
-  BS.preguntasBot    = pregs;
-  BS.duelo.j1 = partida.j1;
-  BS.duelo.j2 = partida.j2;
-  BS.duelo.humPregIdx=0; BS.duelo.humScore=0; BS.duelo.botScore=0;
-  BS.duelo.botRespLog=[]; BS.duelo._humLog=[]; BS.duelo.esperando=false;
+  const tipo=sala.tipo||'sumas';
+  const pregs=tipo==='cuanticos'?generarPreguntasCuanticos(3):generarPreguntas(3);
+  BS.preguntasHumano=pregs;
+  BS.preguntasBot=pregs;
+  BS.duelo.j1=partida.j1;
+  BS.duelo.j2=partida.j2;
+  BS.duelo.humPregIdx=0;BS.duelo.humScore=0;BS.duelo.botScore=0;
+  BS.duelo.botRespLog=[];BS.duelo._humLog=[];BS.duelo.esperando=false;
   BS.duelo.botTimers=[];
+  BS.duelo.fase='humano';
 
-  // Si el rival es bot, simular sus respuestas
   if(esBotNombre(rival)){
     const botObj=getBotObj(rival);
     pregs.forEach((_,qi)=>{
       const t=setTimeout(()=>{
         const ok=Math.random()<(botObj.ac[BS.dificultad]||0.65);
-        if(ok) BS.duelo.botScore+=3;
+        if(ok)BS.duelo.botScore+=3;
         BS.duelo.botRespLog.push({qi,acierta:ok,ans:pregs[qi].ans,txt:pregs[qi].txt});
       },500+(qi*600)+Math.random()*400);
       BS.duelo.botTimers.push(t);
     });
   }
 
-  // Callback al terminar: guardar en Firebase
-  BS.duelo.onDone = ()=>{
-    guardarResultadoFirebase(idx, rondaKey, esJ1);
-  };
-  BS.duelo.partidaRef = partida;
+  BS.duelo.onDone=()=>guardarResultadoFirebase(idx,rondaKey,esJ1);
+  BS.duelo.partidaRef=partida;
 
-  document.getElementById('t-fase-bot-duelo').style.display='block';
   cargarPregHumano();
 }
 
@@ -2866,6 +2873,8 @@ function seleccionarModoAlumno(){
   document.getElementById('t-fase-alumno-join').style.display='block';
   setTimeout(()=>{const inp=document.getElementById('alumno-nombre');if(inp)inp.focus();},100);
 }
+
+
 
 </script>
 
