@@ -123,9 +123,27 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:0;back
 .bk-badge-pulse{animation:parpadeo 1s infinite;}
 @keyframes parpadeo{0%,100%{box-shadow:0 0 0 rgba(251,191,36,0);}50%{box-shadow:0 0 16px rgba(251,191,36,0.5);}}
 
-/* ── DUELO — layout estático y equilibrado ─────────────────── */
+/* ── DUELO — layout estático + sin scroll en móvil ─────────── */
+
+/* Cuando el duelo está activo, bloquear scroll del body */
+body.duelo-activo{overflow:hidden;position:fixed;width:100%;}
+
+/* Wrapper del duelo en móvil: ocupa toda la pantalla disponible */
+#t-fase-bot-duelo{
+  /* En móvil se vuelve overlay fijo sobre el viewport */
+}
+@media(max-width:600px){
+  #t-fase-bot-duelo{
+    position:fixed;inset:0;z-index:200;
+    overflow-y:auto;-webkit-overflow-scrolling:touch;
+    background:var(--bg);
+    padding:0.5rem 0.75rem 1rem;
+    max-width:100%!important;margin:0!important;
+  }
+}
+
 .t-duelo{
-  background:rgba(10,10,28,0.95);
+  background:rgba(10,10,28,0.98);
   border:2px solid rgba(124,58,237,0.45);
   border-radius:20px;
   padding:0;
@@ -721,18 +739,63 @@ nav{overflow:hidden;}
       </div>
 
       <div id="admin-sala-info" style="display:none;" class="t-setup" style="margin-bottom:1rem;">
-        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
-          <div>
-            <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--dim);">CÓDIGO</div>
-            <div style="font-family:'Fraunces',serif;font-size:2.5rem;color:#fbbf24;letter-spacing:0.1em;" id="admin-sala-codigo">---</div>
+
+        <!-- Código + QR -->
+        <div style="display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <div style="flex:1;min-width:160px;">
+            <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--dim);letter-spacing:0.1em;margin-bottom:2px;">CÓDIGO DE SALA</div>
+            <div style="font-family:'Fraunces',serif;font-size:2.8rem;color:#fbbf24;letter-spacing:0.12em;line-height:1;" id="admin-sala-codigo">---</div>
           </div>
           <div id="admin-qr"></div>
         </div>
-        <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#a78bfa;margin-bottom:0.5rem;">
-          CONECTADOS: <span id="admin-conectados-count" style="color:#fbbf24;">0/8</span>
+
+        <!-- Enlace espectador -->
+        <div id="admin-esp-link" style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.25);border-radius:10px;padding:0.7rem 0.9rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+          <span style="font-size:1rem;">👁️</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Space Mono',monospace;font-size:0.55rem;color:#34d399;letter-spacing:0.1em;margin-bottom:2px;">ENLACE ESPECTADOR</div>
+            <div id="admin-esp-url" style="font-family:'Space Mono',monospace;font-size:0.65rem;color:#a7f3d0;word-break:break-all;"></div>
+          </div>
+          <button onclick="copiarEnlaceEsp()" style="background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.35);color:#34d399;border-radius:7px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:0.62rem;cursor:pointer;flex-shrink:0;transition:background 0.2s;" onmouseover="this.style.background='rgba(52,211,153,0.25)'" onmouseout="this.style.background='rgba(52,211,153,0.15)'" id="btn-copiar-esp">
+            Copiar
+          </button>
         </div>
-        <div id="admin-jugadores-lista" style="margin-bottom:1rem;min-height:40px;"></div>
-        <button id="btn-iniciar-sala" class="t-btn t-btn-primary" onclick="iniciarSala()" disabled>INICIAR TORNEO</button>
+
+        <!-- Conectados -->
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.6rem;">
+          <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#a78bfa;">
+            CONECTADOS: <span id="admin-conectados-count" style="color:#fbbf24;font-weight:700;">0/8</span>
+          </div>
+          <!-- Barra de progreso de jugadores -->
+          <div style="flex:1;min-width:80px;max-width:180px;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+            <div id="admin-jug-bar" style="height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:2px;width:0%;transition:width 0.4s cubic-bezier(0.34,1.56,0.64,1);"></div>
+          </div>
+        </div>
+
+        <!-- Lista de jugadores -->
+        <div id="admin-jugadores-lista" style="margin-bottom:0.8rem;min-height:40px;"></div>
+
+        <!-- Rellenar con bots -->
+        <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;">
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#a78bfa;font-weight:700;margin-bottom:2px;">RELLENAR CON BOTS</div>
+            <div id="admin-bots-hint" style="font-family:'Space Mono',monospace;font-size:0.58rem;color:rgba(167,139,250,0.5);">Los lugares vacíos se completarán automáticamente</div>
+          </div>
+          <div style="display:flex;gap:0.4rem;align-items:center;">
+            <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(167,139,250,0.7);">Faltan:</div>
+            <div id="admin-bots-faltan" style="font-family:'Fraunces',serif;font-size:1.3rem;color:#fbbf24;font-weight:700;min-width:24px;text-align:center;">8</div>
+            <button class="t-btn t-btn-outline t-btn-sm" onclick="rellenarConBots()" id="btn-rellenar-bots">
+              🤖 Rellenar
+            </button>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+          <button id="btn-iniciar-sala" class="t-btn t-btn-primary" onclick="iniciarSala()" disabled>▶ INICIAR TORNEO</button>
+          <button class="t-btn t-btn-danger t-btn-sm" onclick="cerrarSalaAdmin()">✕ Cancelar</button>
+        </div>
+
       </div>
 
       <div id="admin-bracket-view" style="display:none;">
@@ -1551,6 +1614,7 @@ function volverModoSelector() {
   document.getElementById('t-fase-modo').style.display='block';
 }
 function reiniciarTorneo() {
+  document.body.classList.remove('duelo-activo');
   clearInterval(BS.duelo.timer); (BS.botTimers||[]).forEach(t=>clearTimeout(t));
   BS.oct=[null,null,null,null]; BS.cuar=[null,null]; BS.gran=[null];
   BS.rondaActiva='oct'; BS.highlights=[]; BS.botTimers=[]; BS.rondaProcesada=false;
@@ -1679,6 +1743,8 @@ function abrirDuelo(arr, idx, onDone) {
   document.getElementById('t-bot-titulo').textContent = `${label(d.j1)} vs ${label(d.j2)}`;
   document.getElementById('t-fase-bot-bracket').style.display='none';
   document.getElementById('t-fase-bot-duelo').style.display='block';
+  document.body.classList.add('duelo-activo');
+  window.scrollTo(0,0);
   cargarPregHumano();
 }
 
@@ -1845,11 +1911,13 @@ function esperarBotYRevelar() {
     p.ganador=ganador; p.scores=humIdx===0?[humScore,botScore]:[botScore,humScore]; p.terminada=true;
     BS.highlights.push({tipo:ganHum2?'humano_gana_duelo':'humano_pierde_duelo',j1:d.j1,j2:d.j2,scores:p.scores});
     document.getElementById('t-bot-resultado').innerHTML += construirTablaAciertos(humNom,botNom,d,ganHum);
-    setTimeout(() => {
+    // Countdown 10 segundos → bracket
+    iniciarContadorRegreso(10, () => {
+      document.body.classList.remove('duelo-activo');
       document.getElementById('t-fase-bot-duelo').style.display='none';
       document.getElementById('t-fase-bot-bracket').style.display='block';
       renderBotBracket(); d.onDone();
-    }, 5500);
+    });
   }, 1600);
 }
 
@@ -1883,6 +1951,38 @@ function construirTablaAciertos(humNom,botNom,d,ganHum) {
     </table>
     <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.25);text-align:center;margin-top:4px;">Volviendo al bracket en 5s…</div>
   </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  COUNTDOWN regreso al bracket
+// ══════════════════════════════════════════════════════════════
+function iniciarContadorRegreso(segundos, onFin) {
+  const rb = document.getElementById('t-bot-resultado');
+  let resto = segundos;
+  // Agregar línea de countdown al resultado
+  const cdId = 't-countdown-line';
+  function tick() {
+    let cdEl = document.getElementById(cdId);
+    if(!cdEl && rb) {
+      const div = document.createElement('div');
+      div.id = cdId;
+      div.style.cssText = 'margin-top:10px;font-family:Space Mono,monospace;font-size:0.65rem;color:rgba(167,139,250,0.6);text-align:center;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;';
+      rb.appendChild(div);
+      cdEl = div;
+    }
+    if(cdEl) {
+      // Barra de progreso del countdown
+      const pct = Math.round(((segundos-resto)/segundos)*100);
+      cdEl.innerHTML = `<div style="margin-bottom:4px;">Volviendo al bracket en <strong style="color:#fbbf24;">${resto}s</strong></div>
+        <div style="height:2px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+          <div style="height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));width:${pct}%;transition:width 0.9s linear;border-radius:2px;"></div>
+        </div>`;
+    }
+    if(resto<=0){ onFin(); return; }
+    resto--;
+    setTimeout(tick, 1000);
+  }
+  tick();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1975,7 +2075,12 @@ function lanzarDesempate(humNom, humIdx, botNom, p, d) {
     rb.innerHTML=`<div style="font-weight:700;font-size:0.85rem;text-align:center;">${ganHum?'🏆 ¡Ganaste el desempate!':'🤖 El bot fue más rápido'}</div><div style="font-size:0.72rem;margin-top:4px;text-align:center;opacity:0.7;">${porQue} — Respuesta: ${preg.ans}</div>`;
     BS.highlights.push({tipo:ganHum?'humano_gana_duelo':'humano_pierde_duelo',j1:d.j1,j2:d.j2});
     d._desempateActivo=false;
-    setTimeout(() => { document.getElementById('t-fase-bot-duelo').style.display='none'; document.getElementById('t-fase-bot-bracket').style.display='block'; renderBotBracket(); d.onDone(); }, 3000);
+    iniciarContadorRegreso(5, () => {
+      document.body.classList.remove('duelo-activo');
+      document.getElementById('t-fase-bot-duelo').style.display='none';
+      document.getElementById('t-fase-bot-bracket').style.display='block';
+      renderBotBracket(); d.onDone();
+    });
   }
   const botTimer = setTimeout(() => {
     const ok = Math.random()<(botObj.ac[dif]||0.65);
@@ -2176,10 +2281,66 @@ function escucharJugadores(codigo) {
   adminJugadoresListener.on('value', snap => {
     const jugs=snap.val()||{}; const lista=Object.values(jugs);
     const total=parseInt(document.getElementById('admin-formato').value)||8;
+    const faltan=Math.max(0,total-lista.length);
+    // Contador
     document.getElementById('admin-conectados-count').textContent=lista.length+'/'+total;
+    // Barra de progreso
+    const bar=document.getElementById('admin-jug-bar');
+    if(bar) bar.style.width=Math.round((lista.length/total)*100)+'%';
+    // Faltan bots
+    const faltanEl=document.getElementById('admin-bots-faltan');
+    if(faltanEl) faltanEl.textContent=faltan;
+    const hint=document.getElementById('admin-bots-hint');
+    if(hint) {
+      if(faltan===0) { hint.textContent='Sala completa — todos son jugadores reales'; hint.style.color='#34d399'; }
+      else if(faltan===total) { hint.textContent='Aun no hay alumnos conectados'; hint.style.color='rgba(167,139,250,0.5)'; }
+      else { hint.textContent=`Faltan ${faltan} lugar${faltan!==1?'es':''} — se rellenarán con bots al iniciar`; hint.style.color='rgba(167,139,250,0.5)'; }
+    }
+    const btnRel=document.getElementById('btn-rellenar-bots');
+    if(btnRel) btnRel.style.display = faltan===0 ? 'none' : '';
+    // Lista visual
     const ul=document.getElementById('admin-jugadores-lista');
-    ul.innerHTML=lista.map(j=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">${makeAvatar(j.nombre,false,22)}<span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#e9d5ff;">${j.nombre}</span><span style="margin-left:auto;font-size:0.6rem;color:#34d399;">✓</span></div>`).join('');
-    const btn=document.getElementById('btn-iniciar-sala'); if(btn) btn.disabled=lista.length<2;
+    if(!ul) return;
+    if(lista.length===0) {
+      ul.innerHTML=`<div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.2);padding:0.5rem 0;text-align:center;">Esperando alumnos...</div>`;
+    } else {
+      ul.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:6px;">`+
+        lista.map(j=>`<div style="display:flex;align-items:center;gap:6px;background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:4px 10px;">
+          ${makeAvatar(j.nombre,true,20)}
+          <span style="font-family:'Space Mono',monospace;font-size:0.68rem;color:#e9d5ff;">${j.nombre}</span>
+          <span style="font-size:0.55rem;color:#34d399;">✓</span>
+        </div>`).join('')+
+        // Mostrar slots vacíos como bots pending
+        Array.from({length:faltan},(_,i)=>`<div style="display:flex;align-items:center;gap:6px;background:rgba(124,58,237,0.06);border:1px dashed rgba(124,58,237,0.2);border-radius:8px;padding:4px 10px;opacity:0.5;">
+          <span style="font-size:1rem;">🤖</span>
+          <span style="font-family:'Space Mono',monospace;font-size:0.63rem;color:rgba(167,139,250,0.5);">Bot ${i+1}</span>
+        </div>`).join('')+
+        `</div>`;
+    }
+    const btn=document.getElementById('btn-iniciar-sala'); if(btn) btn.disabled=lista.length<1;
+  });
+}
+
+function rellenarConBots() {
+  if(!SALA_CODIGO) return;
+  const total=parseInt(document.getElementById('admin-formato').value)||8;
+  db.ref('salas/'+SALA_CODIGO+'/jugadores').once('value').then(snap=>{
+    const jugs=snap.val()||{}; const lista=Object.values(jugs);
+    const nombresActuales=lista.map(j=>j.nombre);
+    const faltan=total-lista.length;
+    if(faltan<=0) return;
+    // Elegir bots que no coincidan con alumnos reales
+    const botsDisp=shuffle2(BOTS_TODOS.filter(b=>!nombresActuales.includes(b.nombre)));
+    const updates={};
+    for(let i=0;i<faltan&&i<botsDisp.length;i++){
+      const bot=botsDisp[i];
+      const key='bot_'+bot.nombre.replace(/\s/g,'_')+'_'+Date.now()+i;
+      updates[key]={nombre:bot.nombre,esBot:true,ts:Date.now()};
+    }
+    db.ref('salas/'+SALA_CODIGO+'/jugadores').update(updates).then(()=>{
+      const btn=document.getElementById('btn-rellenar-bots');
+      if(btn){ btn.textContent='✓ Listo'; btn.style.color='#34d399'; btn.disabled=true; }
+    });
   });
 }
 
@@ -2245,10 +2406,19 @@ function renderAdminBracket(sala) {
   const rondaPartidas=sala.bracket?.[rondaAct]||[];
   const todasTerminadas=rondaPartidas.length>0&&rondaPartidas.every(p=>p&&p.terminada);
   const sigRonda=siguienteRonda(rondaAct);
+  // Es la ronda final si no hay siguiente ronda con jugadores
+  // (aplica tanto a 'gran' en oct8 como a 'semi' en formato 2 jugadores)
+  const esFinal = !sigRonda || (() => {
+    // Verificar si la siguiente ronda ya tendría sentido existir
+    // Para 1v1 (2 jugadores), 'semi' ya es la final
+    const numJug = rondaPartidas.length * 2;
+    return numJug <= 2;
+  })();
   html+=`<div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:0.8rem;">`;
-  if(todasTerminadas&&sigRonda&&sala.estado==='jugando') html+=`<button class="t-btn t-btn-gold t-btn-sm" onclick="avanzarRondaAdmin('${sigRonda}')">Iniciar ${labelRonda(sigRonda)} →</button>`;
-  // ★ Cuando es la final y terminó → botón de ceremonia
-  if(todasTerminadas&&!sigRonda&&sala.estado==='jugando') html+=`<button class="t-btn t-btn-primary t-btn-sm" onclick="cerrarSalaYCeremonia()">🏆 Ver Ceremonia</button>`;
+  if(todasTerminadas&&!esFinal&&sala.estado==='jugando')
+    html+=`<button class="t-btn t-btn-gold t-btn-sm" onclick="avanzarRondaAdmin('${sigRonda}')">Iniciar ${labelRonda(sigRonda)} →</button>`;
+  if(todasTerminadas&&esFinal&&sala.estado==='jugando')
+    html+=`<button class="t-btn t-btn-primary t-btn-sm" onclick="cerrarSalaYCeremonia()">🏆 Ver Ceremonia</button>`;
   html+=`<button class="t-btn t-btn-danger t-btn-sm" onclick="cerrarSalaAdmin()">Cerrar Sala</button></div>`;
   div.innerHTML=html;
 }
@@ -2259,12 +2429,20 @@ function cerrarSalaYCeremonia() {
   db.ref('salas/'+SALA_CODIGO).once('value').then(snap => {
     const sala = snap.val(); if(!sala) return;
     db.ref('salas/'+SALA_CODIGO+'/estado').set('terminado');
-    // Reconstruir bracket para ceremonia
     const oct = sala.bracket?.oct8||[];
     const cuar = sala.bracket?.cuar||[];
-    const gran = sala.bracket?.gran||[sala.bracket?.semi?.[0]||null]; // semi puede ser la final
-    const finalPartida = gran[0] || (sala.bracket?.semi?.[0]||null);
-    if(!finalPartida||!finalPartida.ganador) return;
+    // Buscar la partida final en cualquier ronda (gran, semi, cuar según formato)
+    const ordenBusqueda=['gran','semi','cuar','oct8','oct16'];
+    let finalPartida=null;
+    for(const key of ordenBusqueda){
+      const pts=sala.bracket?.[key]||[];
+      const p=pts.find(x=>x&&x.ganador);
+      if(p){ finalPartida=p; break; }
+    }
+    if(!finalPartida||!finalPartida.ganador) {
+      alert('El torneo no tiene un ganador registrado aún.');
+      return;
+    }
     const camp = finalPartida.ganador;
     const sub2 = finalPartida.ganador===finalPartida.j1?finalPartida.j2:finalPartida.j1;
     const perdCuar = [...cuar].filter(Boolean).map(c=>({nom:c.ganador===c.j1?c.j2:c.j1,pts:Math.min(c.scores[0],c.scores[1])}));
@@ -2316,11 +2494,43 @@ function cerrarSalaAdmin() {
 }
 
 function mostrarQR(codigo) {
-  const url=`https://navegacion-web.github.io/torneo?sala=${codigo}`;
+  const baseUrl='https://navegacion-web.github.io/torneo';
+  const urlAlumno=`${baseUrl}?sala=${codigo}`;
+  const urlEsp=`${baseUrl}?espectador=${codigo}`;
   const qrDiv=document.getElementById('admin-qr'); if(!qrDiv) return;
-  qrDiv.innerHTML=`<div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#a78bfa;margin-bottom:4px;">URL</div>
-    <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#fbbf24;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:6px;padding:6px 10px;word-break:break-all;margin-bottom:6px;">${url}</div>
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(url)}" style="border-radius:8px;border:2px solid rgba(251,191,36,0.3);" width="110" height="110">`;
+  qrDiv.innerHTML=`
+    <div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#a78bfa;margin-bottom:3px;letter-spacing:0.08em;">QR ALUMNOS</div>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(urlAlumno)}" 
+        style="border-radius:8px;border:2px solid rgba(251,191,36,0.3);display:block;" width="110" height="110">
+    </div>`;
+  // Espectador link
+  const espUrlEl=document.getElementById('admin-esp-url');
+  if(espUrlEl) espUrlEl.textContent=urlEsp;
+  // Guardar URL para el botón copiar
+  window._espUrl=urlEsp;
+}
+
+function copiarEnlaceEsp() {
+  const url = window._espUrl || '';
+  if(!url) return;
+  if(navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(()=>{
+      const btn=document.getElementById('btn-copiar-esp');
+      if(btn){ btn.textContent='¡Copiado!'; btn.style.color='#fbbf24'; setTimeout(()=>{ btn.textContent='Copiar'; btn.style.color='#34d399'; },2000); }
+    }).catch(()=> promptCopy(url));
+  } else {
+    promptCopy(url);
+  }
+}
+
+function promptCopy(url) {
+  // Fallback: seleccionar texto
+  const el=document.getElementById('admin-esp-url');
+  if(el) {
+    const range=document.createRange(); range.selectNode(el);
+    window.getSelection().removeAllRanges(); window.getSelection().addRange(range);
+  }
 }
 
 function cargarHistorialAdmin() {
@@ -2384,26 +2594,53 @@ function escucharSalaAlumno(codigo) {
 }
 
 function buscarMiPartida(sala) {
-  const rondaKey=sala.rondaActiva||'oct8';
-  const partidas=sala.bracket?.[rondaKey]||[];
-  const idx=partidas.findIndex(p=>p&&(p.j1===MI_NOMBRE||p.j2===MI_NOMBRE));
+  const rondaKey = sala.rondaActiva||'oct8';
+  const partidas = sala.bracket?.[rondaKey]||[];
+  const idx = partidas.findIndex(p=>p&&(p.j1===MI_NOMBRE||p.j2===MI_NOMBRE));
+
+  // No estoy en la ronda activa
   if(idx===-1) {
-    if(!MI_DUELO_INICIADO) {
+    // ¿Fui ganador de una ronda anterior? Buscar en todas las rondas
+    const todasRondas=['oct16','oct8','cuar','semi','gran'];
+    let fui_ganador_antes=false;
+    for(const k of todasRondas){
+      const pts=sala.bracket?.[k]||[];
+      const miPartida=pts.find(p=>p&&p.terminada&&p.ganador===MI_NOMBRE);
+      if(miPartida){ fui_ganador_antes=true; break; }
+    }
+    if(fui_ganador_antes){
+      // Soy ganador esperando que el admin avance la ronda
+      document.getElementById('alumno-espera').style.display='block';
+      document.getElementById('alumno-eliminado').style.display='none';
+      const el=document.getElementById('alumno-espera-nombre');
+      if(el) el.textContent='🏆 ¡Ganaste tu duelo! Esperando siguiente ronda…';
+      MI_DUELO_INICIADO=false;
+    } else if(!MI_DUELO_INICIADO){
+      // Nunca jugué o fui eliminado
       document.getElementById('alumno-espera').style.display='none';
       document.getElementById('alumno-eliminado').style.display='block';
       cargarRankingAlumno();
     }
     return;
   }
+
   MI_PARTIDA_IDX=idx; MI_RONDA_KEY=rondaKey;
   const partida=partidas[idx];
   const esJ1=partida.j1===MI_NOMBRE;
-  if(partida.terminada) {
+
+  // La partida terminó
+  if(partida.terminada){
     MI_DUELO_INICIADO=false;
+    document.body.classList.remove('duelo-activo');
     document.getElementById('t-fase-bot-duelo').style.display='none';
-    if(partida.ganador===MI_NOMBRE) {
-      document.getElementById('alumno-espera').style.display='block';
-      document.getElementById('alumno-espera-nombre').textContent='🏆 ¡Ganaste! Esperando siguiente ronda…';
+    if(partida.ganador===MI_NOMBRE){
+      // ¿Hay siguiente ronda disponible?
+      const sigRonda=siguienteRondaOnline(rondaKey,sala);
+      if(sigRonda){
+        document.getElementById('alumno-espera').style.display='block';
+        document.getElementById('alumno-espera-nombre').textContent='🏆 ¡Ganaste! Esperando siguiente ronda…';
+      }
+      // Si no hay siguiente ronda, el estado terminado disparará la ceremonia
     } else {
       document.getElementById('alumno-espera').style.display='none';
       document.getElementById('alumno-eliminado').style.display='block';
@@ -2411,22 +2648,48 @@ function buscarMiPartida(sala) {
     }
     return;
   }
+
+  // Ya respondí pero rival no termina
   const yoTermine=esJ1?partida.j1_listo:partida.j2_listo;
-  if(yoTermine&&!partida.terminada) {
+  if(yoTermine&&!partida.terminada){
+    document.getElementById('alumno-espera').style.display='block';
     const el=document.getElementById('alumno-espera-nombre');
     if(el) el.textContent='⏳ Esperando que tu rival termine…';
     return;
   }
-  if(!MI_DUELO_INICIADO) { MI_DUELO_INICIADO=true; iniciarDueloAlumno(sala,partida,idx,rondaKey); }
+
+  // Iniciar duelo
+  if(!MI_DUELO_INICIADO){ MI_DUELO_INICIADO=true; iniciarDueloAlumno(sala,partida,idx,rondaKey); }
 }
 
-// ★ NUEVO: ceremonia completa para el alumno cuando termina el torneo
+// ¿Existe una siguiente ronda ya creada en el bracket?
+function siguienteRondaOnline(rondaKey, sala){
+  const sig=siguienteRonda(rondaKey);
+  if(!sig) return null;
+  const pts=sala.bracket?.[sig];
+  return (pts&&pts.length)? sig : null;
+}
+
+// Ceremonia alumno — busca la partida final en todo el bracket (cualquier formato)
 function mostrarCeremoniaAlumno(sala) {
-  const finalKey = sala.rondaActiva || 'gran';
-  const finalPartidas = sala.bracket?.[finalKey]||[];
-  const finalPartida = finalPartidas[0];
+  document.body.classList.remove('duelo-activo');
+  // Buscar la partida final: la última ronda con ganador definido
+  const ordenRondas = ['gran','semi','cuar','oct8','oct16'];
+  let finalPartida = null;
+  let finalKey = null;
+  for(const key of ordenRondas) {
+    const pts = sala.bracket?.[key];
+    if(!pts||!pts.length) continue;
+    // Para formato 2 jugadores (semi es la final), hay 1 partida
+    const con_ganador = pts.filter(p=>p&&p.ganador);
+    if(con_ganador.length>0) {
+      // Si solo hay 1 duelo en la ronda (o es la ronda gran/semi), usar el primero con ganador
+      finalPartida = con_ganador[0];
+      finalKey = key;
+      break;
+    }
+  }
   if(!finalPartida||!finalPartida.ganador) {
-    // Si no hay ganador aún, mostrar pantalla de fin simple
     document.getElementById('alumno-espera').style.display='none';
     document.getElementById('alumno-fin').style.display='block';
     cargarRankingAlumno();
@@ -2435,26 +2698,30 @@ function mostrarCeremoniaAlumno(sala) {
   const camp = finalPartida.ganador;
   const sub2 = camp===finalPartida.j1?finalPartida.j2:finalPartida.j1;
   const campSoyYo = camp===MI_NOMBRE;
-  const oct = sala.bracket?.oct8||[];
+  // Reconstruir historial de rondas para la narración
+  const oct  = sala.bracket?.oct8||[];
   const cuar = sala.bracket?.cuar||[];
   const gran = [finalPartida];
-  // Ocultar todo y mostrar ceremonia
-  ['alumno-espera','alumno-eliminado','alumno-fin','t-fase-bot-duelo'].forEach(id => {
+  // sub3: perdedor con más puntos en cuar; si no hay cuar, usar oct; si es 1v1 usar sub2
+  const fuenteSub3 = cuar.filter(Boolean).length ? cuar : oct.filter(Boolean);
+  const perdFuente = fuenteSub3.map(p=>({nom:p.ganador===p.j1?p.j2:p.j1,pts:Math.min(p.scores?.[0]||0,p.scores?.[1]||0)}));
+  perdFuente.sort((a,b)=>b.pts-a.pts);
+  const sub3 = perdFuente[0]?.nom||sub2;
+  // Ocultar todo
+  ['alumno-espera','alumno-eliminado','alumno-fin','t-fase-bot-duelo'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.style.display='none';
   });
   const ceremoniaDiv=document.getElementById('alumno-ceremonia');
-  ceremoniaDiv.style.display='block';
+  if(ceremoniaDiv) ceremoniaDiv.style.display='block';
   if(campSoyYo) addScore(20);
-  // Buscar sub3 (perdedor de cuartos con más puntos)
-  const perdCuar = cuar.filter(Boolean).map(c=>({nom:c.ganador===c.j1?c.j2:c.j1,pts:Math.min(c.scores[0],c.scores[1])}));
-  perdCuar.sort((a,b)=>b.pts-a.pts);
-  const sub3 = perdCuar[0]?.nom||sub2;
-  renderCeremonia('podio-ceremonia-online','confetti-canvas-online',camp,campSoyYo,sub2,sub3,0,0,oct,cuar,gran,()=>{ alumnoSalaRef?.off(); volverModoSelector(); });
+  renderCeremonia('podio-ceremonia-online','confetti-canvas-online',camp,campSoyYo,sub2,sub3,0,0,oct,cuar,gran,()=>{ if(alumnoSalaRef) alumnoSalaRef.off(); volverModoSelector(); });
 }
 
 function iniciarDueloAlumno(sala, partida, idx, rondaKey) {
   document.getElementById('alumno-espera').style.display='none';
   document.getElementById('t-fase-bot-duelo').style.display='block';
+  document.body.classList.add('duelo-activo');
+  window.scrollTo(0,0);
   BS.nombreJug=MI_NOMBRE; BS.dificultad=sala.dificultad||'medio'; BS.tiempoPorPreg=sala.tiempo||30;
   BS.temaId=sala.temaId||'sumas'; BS.numPregs=sala.numPregs||3;
   const esJ1=partida.j1===MI_NOMBRE;
@@ -2501,6 +2768,8 @@ function guardarResultadoFirebase(idx, rondaKey, esJ1) {
   if(esJ1) { update['scores/0']=humScore; update['j1_listo']=true; }
   else { update['scores/1']=humScore; update['j2_listo']=true; }
   db.ref(path).update(update).then(() => {
+    // Quitar lock de scroll al terminar de responder
+    document.body.classList.remove('duelo-activo');
     document.getElementById('t-fase-bot-duelo').style.display='none';
     document.getElementById('alumno-espera').style.display='block';
     document.getElementById('alumno-espera-nombre').textContent='⏳ Esperando que tu rival termine…';
@@ -2514,13 +2783,23 @@ function guardarResultadoFirebase(idx, rondaKey, esJ1) {
         else if(score1>score0) ganador=p.j2;
         else ganador=Math.random()<0.5?p.j1:p.j2;
         db.ref(path+'/ganador').transaction(v => { if(v===null) return ganador; }).then(result => {
+          // ganador real = el que ganó según la transaction (puede ser distinto si hubo empate aleatorio en el otro cliente)
+          const ganadorReal = result.snapshot?.val() || ganador;
           if(result.committed) {
             db.ref(path+'/terminada').set(true);
-            if(rondaKey==='gran'||rondaKey==='semi') guardarHistorial(ganador);
+            // Guardar historial si es la ronda final (cualquier formato)
+            const rondasFinales=['gran','semi'];
+            if(rondasFinales.includes(rondaKey)) guardarHistorial(ganadorReal);
           }
-          const yoGane=ganador===MI_NOMBRE;
-          document.getElementById('alumno-espera-nombre').textContent=yoGane?'🏆 ¡Ganaste tu duelo!':'😔 Eliminado. Sigue viendo el bracket.';
-          if(!yoGane) { setTimeout(()=>{ document.getElementById('alumno-espera').style.display='none'; document.getElementById('alumno-eliminado').style.display='block'; cargarRankingAlumno(); },2000); }
+          const yoGane = ganadorReal===MI_NOMBRE;
+          document.getElementById('alumno-espera-nombre').textContent=yoGane?'🏆 ¡Ganaste tu duelo! Esperando siguiente ronda…':'😔 Eliminado. Sigue viendo el bracket.';
+          if(!yoGane) {
+            setTimeout(()=>{
+              document.getElementById('alumno-espera').style.display='none';
+              document.getElementById('alumno-eliminado').style.display='block';
+              cargarRankingAlumno();
+            }, 2000);
+          }
         });
       }
     });
@@ -2593,7 +2872,7 @@ function seleccionarModoAlumno() {
 </script>
 
 <footer class="site-footer">
-torneo con fines educativos
+  ⚗ Torneo de Química · v2.5 · Preguntas compartidas por duelo · Multi-tema
 </footer>
 </body>
 </html>
