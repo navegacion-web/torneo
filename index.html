@@ -771,8 +771,6 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   color:var(--dim);text-transform:uppercase;letter-spacing:0.15em;
 }
 
-
-
 /* ── SCORE BAR ─────────────────────────────────────────────── */
 .score-bar{
   display:flex;align-items:center;gap:0.8rem;
@@ -843,7 +841,7 @@ nav{ overflow:hidden; }
 </nav>
 <div id="aura-overlay"></div>
 
-<!-- BARRA DE PUNTOS (izquierda, dentro de la pagina) -->
+<!-- BARRA DE PUNTOS -->
 <div class="score-bar">
   <span style="font-size:1.2rem;">&#x2B50;</span>
   <div>
@@ -855,17 +853,14 @@ nav{ overflow:hidden; }
 <section id="intro" class="section active">
   <div class="intro-hero">
     <div class="intro-badge">⚗️ Química Atómica — Torneo Interactivo</div>
-
     <div class="intro-title">
       Conoce tus <span>fortalezas</span><br>y vence tus debilidades
     </div>
-
     <p class="intro-sub">
       Este torneo no es solo competir — es una herramienta para que descubras
       en qué áreas eres fuerte y dónde necesitas reforzar antes de tu examen real.
       Cada ronda te muestra exactamente qué acertaste, qué fallaste y por qué.
     </p>
-
     <div class="intro-cards">
       <div class="intro-card">
         <div class="intro-card-icon">🎯</div>
@@ -883,19 +878,12 @@ nav{ overflow:hidden; }
         <div class="intro-card-desc">Las preguntas son las mismas para todos — si el bot gana, sabes qué estudiar.</div>
       </div>
     </div>
-
-    <button class="intro-btn" onclick="showSection('torneo')">
-      ⚔️ IR AL TORNEO →
-    </button>
-
-    <div class="intro-disclaimer">
-      FASE DE PRUEBA · Solo sumas · vs Bots · Próximamente vs Compañeros
-    </div>
+    <button class="intro-btn" onclick="showSection('torneo')">⚔️ IR AL TORNEO →</button>
+    <div class="intro-disclaimer">FASE DE PRUEBA · Solo sumas · vs Bots · Próximamente vs Compañeros</div>
   </div>
 </section>
 
 <!-- ══════════════ SECCIÓN 2: TORNEO ══════════════ -->
-
 <section id="torneo" class="section">
 <div class="t-bg">
 <div class="t-wrap">
@@ -906,28 +894,18 @@ nav{ overflow:hidden; }
   <div id="t-fase-modo" class="t-setup">
     <h3>⚡ Selecciona el modo</h3>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;">
-
       <div class="t-modo-card" onclick="iniciarModoBots()">
         <div class="t-modo-icon">🤖</div>
         <div class="t-modo-titulo">vs Bots</div>
-        <div class="t-modo-desc">
-          Enfrenta a tus compañeros simulados por la computadora.
-          Ideal para practicar y ver tu tabla de aciertos en cada ronda.
-        </div>
+        <div class="t-modo-desc">Enfrenta a tus compañeros simulados por la computadora.</div>
         <div class="t-modo-badge">DISPONIBLE · Sumas</div>
       </div>
-
-      <div class="t-modo-card" 
-           onclick="seleccionarModoAlumno()">
+      <div class="t-modo-card" onclick="seleccionarModoAlumno()">
         <div class="t-modo-icon">👥</div>
         <div class="t-modo-titulo">vs Compañeros</div>
-        <div class="t-modo-desc">
-          Compite en tiempo real contra tus compañeros de clase.
-          Misma lógica que vs Bots pero con jugadores reales.
-        </div>
-        <div class="t-modo-badge t-badge-soon">PRÓXIMAMENTE</div>
+        <div class="t-modo-desc">Compite en tiempo real contra tus compañeros de clase.</div>
+        <div class="t-modo-badge">EN VIVO · Firebase</div>
       </div>
-
     </div>
   </div>
 
@@ -942,18 +920,18 @@ nav{ overflow:hidden; }
       <div>
         <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--dim);margin-bottom:0.4rem;">DIFICULTAD</div>
         <select id="t-dificultad" style="background:#1e1b4b;border:1px solid var(--accent);color:#e9d5ff;padding:0.5rem 0.9rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.8rem;outline:none;cursor:pointer;">
-          <option value="facil" style="background:#1e1b4b;color:#e9d5ff;">🟢 Fácil  (1–20)</option>
-          <option value="medio" selected style="background:#1e1b4b;color:#e9d5ff;">🟡 Medio  (5–80)</option>
-          <option value="dificil" style="background:#1e1b4b;color:#e9d5ff;">🔴 Difícil (20–300)</option>
+          <option value="facil">🟢 Fácil (1–20)</option>
+          <option value="medio" selected>🟡 Medio (5–80)</option>
+          <option value="dificil">🔴 Difícil (20–300)</option>
         </select>
       </div>
       <div>
         <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--dim);margin-bottom:0.4rem;">TIEMPO / PREGUNTA</div>
         <select id="t-tiempo" style="background:#1e1b4b;border:1px solid var(--accent);color:#e9d5ff;padding:0.5rem 0.9rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.8rem;outline:none;cursor:pointer;">
-          <option value="20" style="background:#1e1b4b;color:#e9d5ff;">20 segundos</option>
-          <option value="30" selected style="background:#1e1b4b;color:#e9d5ff;">30 segundos</option>
-          <option value="60" style="background:#1e1b4b;color:#e9d5ff;">60 segundos</option>
-          <option value="0" style="background:#1e1b4b;color:#e9d5ff;">Sin límite</option>
+          <option value="20">20 segundos</option>
+          <option value="30" selected>30 segundos</option>
+          <option value="60">60 segundos</option>
+          <option value="0">Sin límite</option>
         </select>
       </div>
     </div>
@@ -963,7 +941,7 @@ nav{ overflow:hidden; }
     </div>
   </div>
 
-
+  <!-- ALUMNO JOIN -->
   <div id="t-fase-alumno-join" style="display:none;" class="t-setup">
     <h3>Unirse al Torneo</h3>
     <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
@@ -985,6 +963,7 @@ nav{ overflow:hidden; }
       <button class="t-btn t-btn-outline t-btn-sm" onclick="volverModoSelector()">Atras</button>
     </div>
   </div>
+
   <div id="alumno-espera" style="display:none;text-align:center;padding:3rem 1rem;">
     <div style="font-size:2.5rem;margin-bottom:0.8rem;">&#x23F3;</div>
     <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:#fff;margin-bottom:0.4rem;" id="alumno-espera-nombre">Conectado</div>
@@ -1004,12 +983,10 @@ nav{ overflow:hidden; }
 
   <!-- BRACKET -->
   <div id="t-fase-bot-bracket" style="display:none;margin-top:1.2rem;">
-    <div style="display:flex;justify-content:space-between;align-items:center;
-      flex-wrap:wrap;gap:0.6rem;margin-bottom:0.8rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.6rem;margin-bottom:0.8rem;">
       <div>
         <div class="ronda-titulo-label">RONDA ACTUAL</div>
-        <div style="font-family:'Fraunces',serif;font-size:1.2rem;color:#fff;"
-          id="t-bot-ronda-titulo">Octavos de Final</div>
+        <div style="font-family:'Fraunces',serif;font-size:1.2rem;color:#fff;" id="t-bot-ronda-titulo">Octavos de Final</div>
       </div>
       <button class="t-btn t-btn-danger t-btn-sm" onclick="reiniciarTorneo()">✕ SALIR</button>
     </div>
@@ -1024,12 +1001,10 @@ nav{ overflow:hidden; }
       <div class="t-duelo-header">
         <div>
           <div class="t-duelo-titulo" id="t-bot-titulo">Duelo</div>
-          <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--dim);"
-            id="t-bot-ronda-label">Octavos</div>
+          <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--dim);" id="t-bot-ronda-label">Octavos</div>
         </div>
         <div class="t-timer" id="t-bot-timer">—</div>
       </div>
-
       <div class="t-duelo-vs">
         <div class="t-player-card" id="t-bot-card-j1">
           <div style="font-size:0.55rem;font-family:'Space Mono',monospace;color:var(--dim);margin-bottom:2px;">TÚ</div>
@@ -1043,26 +1018,17 @@ nav{ overflow:hidden; }
           <div class="score" id="t-bot-score-j2">0</div>
         </div>
       </div>
-
-      <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--dim);
-        margin-bottom:0.7rem;" id="t-bot-prog-mini">Pregunta 1/3</div>
-
+      <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--dim);margin-bottom:0.7rem;" id="t-bot-prog-mini">Pregunta 1/3</div>
       <div class="t-pregunta-box">
         <div class="t-pregunta-label" id="t-bot-turno-label">▶ TU TURNO:</div>
         <div id="t-bot-pregunta" class="t-pregunta-texto">—</div>
-        <div id="t-bot-pista" style="font-family:'Space Mono',monospace;font-size:0.7rem;
-          color:rgba(147,197,253,0.6);margin-top:0.3rem;min-height:1rem;"></div>
+        <div id="t-bot-pista" style="font-family:'Space Mono',monospace;font-size:0.7rem;color:rgba(147,197,253,0.6);margin-top:0.3rem;min-height:1rem;"></div>
       </div>
-
       <div style="display:flex;gap:0.6rem;align-items:center;margin-bottom:0.7rem;flex-wrap:wrap;">
         <input type="text" inputmode="numeric" pattern="[0-9-]*"
           id="t-bot-resp" placeholder="Tu respuesta…"
-          autocomplete="off" autocorrect="off" autocapitalize="off"
-          spellcheck="false"
-          style="background:rgba(15,25,55,0.85);border:2px solid var(--accent);
-            color:#fff;padding:0.65rem 1rem;border-radius:8px;
-            font-family:'Space Mono',monospace;font-size:1.1rem;outline:none;
-            width:170px;transition:border-color 0.2s;"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          style="background:rgba(15,25,55,0.85);border:2px solid var(--accent);color:#fff;padding:0.65rem 1rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:1.1rem;outline:none;width:170px;transition:border-color 0.2s;"
           onkeydown="if(event.key==='Enter')responderBot()">
         <button class="t-btn t-btn-gold" onclick="responderBot()">✓ RESPONDER</button>
       </div>
@@ -1072,17 +1038,14 @@ nav{ overflow:hidden; }
 
   <!-- CEREMONIA FINAL -->
   <div id="t-fase-bot-resultado" style="display:none;margin-top:1rem;">
-    <canvas id="confetti-canvas"
-      style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;"></canvas>
+    <canvas id="confetti-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;"></canvas>
     <div id="podio-ceremonia" style="text-align:center;padding:1.5rem 0.5rem;"></div>
   </div>
 
-</div><!-- .t-wrap -->
-</div><!-- .t-bg -->
+</div></div>
 </section>
 
-
-
+<!-- ══════════════ SECCIÓN 3: ADMIN ══════════════ -->
 <section id="admin" class="section">
 <div class="t-bg"><div class="t-wrap">
   <div id="admin-login" style="max-width:400px;margin:3rem auto;">
@@ -1160,13 +1123,9 @@ nav{ overflow:hidden; }
 
 <script>
 
-
-
-
 // ── Navigation & Score ──────────────────────────────────────
 let totalScore=0;
 function showSection(id){
-  // Fade out current
   const cur=document.querySelector('.section.active');
   if(cur && cur.id!==id){
     cur.style.opacity='0';cur.style.transform='translateY(-8px)';
@@ -1183,9 +1142,7 @@ function showSection(id){
       s.classList.add('active');
       s.style.opacity='0';s.style.transform='translateY(10px)';
       s.style.transition='opacity 0.35s ease,transform 0.35s ease';
-      requestAnimationFrame(()=>{
-        s.style.opacity='1';s.style.transform='translateY(0)';
-      });
+      requestAnimationFrame(()=>{s.style.opacity='1';s.style.transform='translateY(0)';});
     }
     document.querySelectorAll('.nav-btn').forEach(b=>{
       if((b.getAttribute('onclick')||'').includes("'"+id+"'")) b.classList.add('active');
@@ -1199,15 +1156,10 @@ function addScore(pts){
   if(el){
     el.textContent=totalScore;
     el.style.transition='transform 0.2s cubic-bezier(0.34,1.56,0.64,1),color 0.2s';
-    el.style.transform='scale(1.5)';
-    el.style.color='#fff';
-    setTimeout(()=>{
-      el.style.transform='scale(1)';
-      el.style.color='';
-    },350);
+    el.style.transform='scale(1.5)';el.style.color='#fff';
+    setTimeout(()=>{el.style.transform='scale(1)';el.style.color='';},350);
   }
 }
-function updateProgress(){}
 
 // ── Mode selector ───────────────────────────────────────────
 function iniciarModoBots(){
@@ -1215,8 +1167,9 @@ function iniciarModoBots(){
   document.getElementById('t-fase-setup-bots').style.display='block';
 }
 function volverModoSelector(){
-  ['t-fase-setup-bots','t-fase-setup-multi','t-fase-alumno-join',
-   'alumno-espera','alumno-eliminado','alumno-fin'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['t-fase-setup-bots','t-fase-alumno-join','alumno-espera','alumno-eliminado','alumno-fin'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
+  });
   document.getElementById('t-fase-modo').style.display='block';
 }
 function reiniciarTorneo(){
@@ -1227,8 +1180,9 @@ function reiniciarTorneo(){
   const cv=document.getElementById('confetti-canvas');
   if(cv){const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);}
   const bn=document.getElementById('bk-pre-ronda-banner');if(bn)bn.style.display='none';
-  ['t-fase-bot-duelo','t-fase-bot-resultado','t-fase-bot-bracket',
-   't-fase-setup-bots','alumno-espera','alumno-eliminado','alumno-fin'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['t-fase-bot-duelo','t-fase-bot-resultado','t-fase-bot-bracket','t-fase-setup-bots'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
+  });
   document.getElementById('t-fase-modo').style.display='block';
 }
 
@@ -1251,106 +1205,55 @@ const BOTS_TODOS = [
   {nombre:'Mauricio',   tag:'🦁', av:'#d97706', ac:{facil:0.51,medio:0.69,dificil:0.85}},
 ];
 
-// Generar avatar circular estilo pin de anime/superhéroe
 function makeAvatar(nombre, isHuman, size=28){
   if(isHuman){
-    return `<span style="display:inline-flex;align-items:center;justify-content:center;
-      width:${size}px;height:${size}px;border-radius:50%;
-      background:linear-gradient(135deg,#fbbf24,#f59e0b);
-      border:2px solid #fde68a;font-size:${size*0.5}px;flex-shrink:0;
-      box-shadow:0 0 8px rgba(251,191,36,0.5);">⭐</span>`;
+    return `<span style="display:inline-flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#f59e0b);border:2px solid #fde68a;font-size:${size*0.5}px;flex-shrink:0;box-shadow:0 0 8px rgba(251,191,36,0.5);">⭐</span>`;
   }
-  const b = getBotObj(nombre);
-  const color = b?.av || '#7c3aed';
-  const tag   = b?.tag || '🤖';
-  // Pin circular con gradiente y emoji
-  return `<span style="display:inline-flex;align-items:center;justify-content:center;
-    width:${size}px;height:${size}px;border-radius:50%;
-    background:linear-gradient(135deg,${color}dd,${color}88);
-    border:2px solid ${color};font-size:${size*0.48}px;flex-shrink:0;
-    box-shadow:0 2px 8px ${color}66;">${tag}</span>`;
+  const b=getBotObj(nombre);
+  const color=b?.av||'#7c3aed';
+  const tag=b?.tag||'🤖';
+  return `<span style="display:inline-flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;border-radius:50%;background:linear-gradient(135deg,${color}dd,${color}88);border:2px solid ${color};font-size:${size*0.48}px;flex-shrink:0;box-shadow:0 2px 8px ${color}66;">${tag}</span>`;
 }
-
-// Bracket fijo: 8 jugadores, 4 izquierda, 4 derecha
-// Posiciones: [0,1] = Oct.IZQ top  [2,3] = Oct.IZQ bot
-//             [4,5] = Oct.DER top  [6,7] = Oct.DER bot
-// Cuartos IZQ = ganador(0vs1) vs ganador(2vs3)
-// Cuartos DER = ganador(4vs5) vs ganador(6vs7)
-// Semi IZQ    = ganador Cuartos IZQ
-// Semi DER    = ganador Cuartos DER
-// Final       = Semi IZQ vs Semi DER
 
 let BS = {
   nombreJug:'Jugador', dificultad:'medio', tiempoPorPreg:30,
-  // Bracket completo fijo: siempre 4 rondas
-  oct:  [null,null,null,null],  // 4 partidas octavos
-  cuar: [null,null],             // 2 partidas cuartos
-  semi: [null,null],             // 2 semifinales
-  gran: [null],                  // 1 final
-  rondaActiva: 'oct',            // 'oct'|'cuar'|'semi'|'gran'
-  rondaProcesada: false,
-  botTimers:[],
-  // Preguntas: CADA participante responde 3 independientes
-  preguntasHumano: [],  // 3 preguntas solo para el humano
-  preguntasBot:[],      // 3 preguntas solo para el bot (mismas)
-  highlights:[],
-  pendingEsFinal: false,
-  // Duelo activo
+  oct:[null,null,null,null], cuar:[null,null], semi:[null,null], gran:[null],
+  rondaActiva:'oct', rondaProcesada:false, botTimers:[], highlights:[],
+  preguntasHumano:[], preguntasBot:[],
   duelo:{
-    partidaRef: null,  // referencia a la partida en el bracket
-    lado: null,        // 'oct'|'cuar'|'semi'|'gran'
-    idx: -1,
-    j1:'', j2:'',
-    // humano responde sus 3, bot responde sus 3 en paralelo
-    humPregIdx: 0,
-    humScore: 0,
-    botScore: 0,
-    botRespLog: [],    // guardadas para revelar al final
-    timer:null, tiempoRest:0,
-    botTimers:[], esperando:false,
-    fase:'humano'  // 'humano' | 'revelando' | 'fin'
+    partidaRef:null, lado:null, idx:-1, j1:'', j2:'',
+    humPregIdx:0, humScore:0, botScore:0, botRespLog:[], _humLog:[],
+    timer:null, tiempoRest:0, botTimers:[], esperando:false, fase:'humano'
   }
 };
 
 function generarPreguntas(n){
-  const dif = BS.dificultad || 'medio';
-  const rng = {facil:{mn:1,mx:20}, medio:{mn:5,mx:80}, dificil:{mn:20,mx:300}}[dif]
-            || {mn:5, mx:80};
+  const dif=BS.dificultad||'medio';
+  const rng={facil:{mn:1,mx:20},medio:{mn:5,mx:80},dificil:{mn:20,mx:300}}[dif]||{mn:5,mx:80};
   return Array.from({length:n},()=>{
-    const a = Math.floor(Math.random()*(rng.mx-rng.mn))+rng.mn;
-    const b = Math.floor(Math.random()*(rng.mx-rng.mn))+rng.mn;
+    const a=Math.floor(Math.random()*(rng.mx-rng.mn))+rng.mn;
+    const b=Math.floor(Math.random()*(rng.mx-rng.mn))+rng.mn;
     return {txt:`${a}  +  ${b}  = ?`, ans:a+b};
   });
 }
 
-function shuffle2(arr){ return [...arr].sort(()=>Math.random()-0.5); }
-function esBotNombre(n){ return n!==BS.nombreJug; }
-function getBotObj(n){ return BOTS_TODOS.find(b=>b.nombre===n)||BOTS_TODOS[0]; }
-function getTag(n){ const b=getBotObj(n); return b?b.tag:'🤖'; }
-function label(n){ return (esBotNombre(n)?getTag(n)+' ':'')+n; }
-function newPartida(j1,j2,ronda){ return {j1,j2,ganador:null,scores:[0,0],terminada:false,animando:false,prog:0,ronda}; }
+function shuffle2(arr){return [...arr].sort(()=>Math.random()-0.5);}
+function esBotNombre(n){return n!==BS.nombreJug;}
+function getBotObj(n){return BOTS_TODOS.find(b=>b.nombre===n)||BOTS_TODOS[0];}
+function getTag(n){const b=getBotObj(n);return b?b.tag:'🤖';}
+function label(n){return (esBotNombre(n)?getTag(n)+' ':'')+n;}
+function newPartida(j1,j2,ronda){return {j1,j2,ganador:null,scores:[0,0],terminada:false,animando:false,prog:0,ronda};}
 
 function iniciarTorneoBots(){
-  BS.nombreJug     = document.getElementById('t-nombre-solo').value.trim()||'Jugador';
-  BS.dificultad    = document.getElementById('t-dificultad').value;
-  BS.tiempoPorPreg = parseInt(document.getElementById('t-tiempo').value)||30;
-  BS.botTimers=[]; BS.highlights=[]; BS.rondaProcesada=false;
-
-  const bots7  = shuffle2(BOTS_TODOS).slice(0,7);
-  const todos8 = shuffle2([BS.nombreJug,...bots7.map(b=>b.nombre)]);
-
-  // 4 izquierda, 4 derecha — 4 partidas de octavos
-  // oct[0]: todos8[0] vs todos8[1]  (izq-top)
-  // oct[1]: todos8[2] vs todos8[3]  (izq-bot)
-  // oct[2]: todos8[4] vs todos8[5]  (der-top)
-  // oct[3]: todos8[6] vs todos8[7]  (der-bot)
-  BS.oct  = todos8.reduce((acc,_,i)=>{ if(i%2===0) acc.push(newPartida(todos8[i],todos8[i+1],'Octavos')); return acc; },[]);
-  BS.cuar = [null,null];
-  BS.semi = [null,null];
-  BS.gran = [null];
-  BS.rondaActiva = 'oct';
-  BS.rondaProcesada = false;
-
+  BS.nombreJug=document.getElementById('t-nombre-solo').value.trim()||'Jugador';
+  BS.dificultad=document.getElementById('t-dificultad').value;
+  BS.tiempoPorPreg=parseInt(document.getElementById('t-tiempo').value)||30;
+  BS.botTimers=[];BS.highlights=[];BS.rondaProcesada=false;
+  const bots7=shuffle2(BOTS_TODOS).slice(0,7);
+  const todos8=shuffle2([BS.nombreJug,...bots7.map(b=>b.nombre)]);
+  BS.oct=todos8.reduce((acc,_,i)=>{if(i%2===0)acc.push(newPartida(todos8[i],todos8[i+1],'Octavos'));return acc;},[]);
+  BS.cuar=[null,null];BS.semi=[null,null];BS.gran=[null];
+  BS.rondaActiva='oct';BS.rondaProcesada=false;
   document.getElementById('t-fase-setup-bots').style.display='none';
   document.getElementById('t-fase-bot-bracket').style.display='block';
   document.getElementById('t-bot-ronda-titulo').textContent='Octavos de Final';
@@ -1359,267 +1262,185 @@ function iniciarTorneoBots(){
 }
 
 function lanzarOctavos(){
-  pausaPreRonda('Octavos de Final', '8 jugadores · 4 partidas simultáneas', ()=>{
-    (BS.botTimers||[]).forEach(t=>clearTimeout(t)); BS.botTimers=[];
-    BS.rondaProcesada=false;
+  pausaPreRonda('Octavos de Final','8 jugadores · 4 partidas simultáneas',()=>{
+    (BS.botTimers||[]).forEach(t=>clearTimeout(t));BS.botTimers=[];BS.rondaProcesada=false;
     (BS.oct||[]).forEach((p,i)=>{
-      if(p.terminada) return;
-      if(esBotNombre(p.j1)&&esBotNombre(p.j2)){
-        simularPartida(BS.oct, i, ()=>checkRondaOct());
-      } else {
-        setTimeout(()=>abrirDuelo(BS.oct, i, ()=>checkRondaOct()), 200);
-      }
+      if(p.terminada)return;
+      if(esBotNombre(p.j1)&&esBotNombre(p.j2)) simularPartida(BS.oct,i,()=>checkRondaOct());
+      else setTimeout(()=>abrirDuelo(BS.oct,i,()=>checkRondaOct()),200);
     });
   });
 }
-
 function lanzarCuartos(){
-  BS.cuar[0] = newPartida(BS.oct[0].ganador, BS.oct[1].ganador, 'Cuartos');
-  BS.cuar[1] = newPartida(BS.oct[2].ganador, BS.oct[3].ganador, 'Cuartos');
-  BS.rondaActiva='cuar'; BS.rondaProcesada=false;
+  BS.cuar[0]=newPartida(BS.oct[0].ganador,BS.oct[1].ganador,'Cuartos');
+  BS.cuar[1]=newPartida(BS.oct[2].ganador,BS.oct[3].ganador,'Cuartos');
+  BS.rondaActiva='cuar';BS.rondaProcesada=false;
   document.getElementById('t-bot-ronda-titulo').textContent='Cuartos de Final';
   renderBotBracket();
-  pausaPreRonda('Cuartos de Final', '4 jugadores quedan · 2 partidas simultáneas', ()=>{
+  pausaPreRonda('Cuartos de Final','4 jugadores quedan · 2 partidas simultáneas',()=>{
     (BS.cuar||[]).forEach((p,i)=>{
-      if(esBotNombre(p.j1)&&esBotNombre(p.j2)){
-        simularPartida(BS.cuar, i, ()=>checkRondaCuar());
-      } else {
-        setTimeout(()=>abrirDuelo(BS.cuar, i, ()=>checkRondaCuar()), 200);
-      }
+      if(esBotNombre(p.j1)&&esBotNombre(p.j2)) simularPartida(BS.cuar,i,()=>checkRondaCuar());
+      else setTimeout(()=>abrirDuelo(BS.cuar,i,()=>checkRondaCuar()),200);
     });
   });
 }
-
 function lanzarFinal(){
-  BS.gran[0] = newPartida(BS.cuar[0].ganador, BS.cuar[1].ganador, 'Final');
-  BS.rondaActiva='gran'; BS.rondaProcesada=false;
+  BS.gran[0]=newPartida(BS.cuar[0].ganador,BS.cuar[1].ganador,'Final');
+  BS.rondaActiva='gran';BS.rondaProcesada=false;
   document.getElementById('t-bot-ronda-titulo').textContent='Gran Final';
   renderBotBracket();
-  pausaPreRonda('🏆 Gran Final', '¡Los 2 mejores se enfrentan! Solo uno gana.', ()=>{
+  pausaPreRonda('🏆 Gran Final','¡Los 2 mejores se enfrentan! Solo uno gana.',()=>{
     const p=BS.gran[0];
-  if(esBotNombre(p.j1)&&esBotNombre(p.j2)){
-    simularPartida(BS.gran, 0, ()=>checkRondaFinal());
-  } else {
-    setTimeout(()=>abrirDuelo(BS.gran, 0, ()=>checkRondaFinal()), 200);
-  }
+    if(esBotNombre(p.j1)&&esBotNombre(p.j2)) simularPartida(BS.gran,0,()=>checkRondaFinal());
+    else setTimeout(()=>abrirDuelo(BS.gran,0,()=>checkRondaFinal()),200);
   });
 }
+function checkRondaOct(){if(BS.rondaProcesada)return;if(BS.oct.some(p=>!p.terminada))return;BS.rondaProcesada=true;renderBotBracket();lanzarCuartos();}
+function checkRondaCuar(){if(BS.rondaProcesada)return;if(BS.cuar.some(p=>!p||!p.terminada))return;BS.rondaProcesada=true;renderBotBracket();lanzarFinal();}
+function checkRondaFinal(){if(BS.rondaProcesada)return;if(!BS.gran[0]?.terminada)return;BS.rondaProcesada=true;renderBotBracket();iniciarCeremoniaBots();}
 
-// Check functions
-function checkRondaOct(){
-  if(BS.rondaProcesada) return;
-  if(BS.oct.some(p=>!p.terminada)) return;
-  BS.rondaProcesada=true;
-  renderBotBracket();
-  lanzarCuartos();
-}
-function checkRondaCuar(){
-  if(BS.rondaProcesada) return;
-  if(BS.cuar.some(p=>!p||!p.terminada)) return;
-  BS.rondaProcesada=true;
-  renderBotBracket();
-  lanzarFinal();
-}
-function checkRondaFinal(){
-  if(BS.rondaProcesada) return;
-  if(!BS.gran[0]?.terminada) return;
-  BS.rondaProcesada=true;
-  renderBotBracket();
-  iniciarCeremoniaBots();
-}
-
-function simularPartida(arr, idx, onDone){
+function simularPartida(arr,idx,onDone){
   const p=arr[idx];
-  const b1=getBotObj(p.j1); const b2=getBotObj(p.j2);
+  const b1=getBotObj(p.j1);const b2=getBotObj(p.j2);
   const dif=BS.dificultad;
-  p.animando=true; p.scores=[0,0]; p.prog=0;
+  p.animando=true;p.scores=[0,0];p.prog=0;
   let q=0;
-  const pregs=generarPreguntas(3);
   function sig(){
     if(q>=3){
-      if(p.scores[0]===p.scores[1]){
-        // EMPATE — desempate aleatorio 50/50 para bots
-        p.ganador=Math.random()<0.5?p.j1:p.j2;
-        p.empate=true;
-      } else {
-        p.ganador=p.scores[0]>p.scores[1]?p.j1:p.j2;
-      }
-      p.terminada=true; p.animando=false;
-      renderBotBracket(); onDone(); return;
+      if(p.scores[0]===p.scores[1]) p.ganador=Math.random()<0.5?p.j1:p.j2;
+      else p.ganador=p.scores[0]>p.scores[1]?p.j1:p.j2;
+      p.terminada=true;p.animando=false;renderBotBracket();onDone();return;
     }
     const a1=Math.random()<(b1.ac[dif]||0.6);
     const a2=Math.random()<(b2.ac[dif]||0.6);
-    if(a1&&!a2)p.scores[0]+=3; else if(a2&&!a1)p.scores[1]+=3; else if(a1&&a2){p.scores[0]+=1;p.scores[1]+=1;}
-    p.prog=q+1; q++;
-    renderBotBracket();
-    const t=setTimeout(sig,350+Math.random()*250); BS.botTimers.push(t);
+    if(a1&&!a2)p.scores[0]+=3;else if(a2&&!a1)p.scores[1]+=3;else if(a1&&a2){p.scores[0]+=1;p.scores[1]+=1;}
+    p.prog=q+1;q++;renderBotBracket();
+    const t=setTimeout(sig,350+Math.random()*250);BS.botTimers.push(t);
   }
-  const t0=setTimeout(sig,100+Math.random()*200); BS.botTimers.push(t0);
+  const t0=setTimeout(sig,100+Math.random()*200);BS.botTimers.push(t0);
 }
 
-function abrirDuelo(arr, idx, onDone){
+function abrirDuelo(arr,idx,onDone){
   const p=arr[idx];
-  if(p.terminada) return;
+  if(p.terminada)return;
   const d=BS.duelo;
-  d.partidaRef=p; d.lado=arr; d.idx=idx; d.onDone=onDone;
-  d.j1=p.j1; d.j2=p.j2;
-  d.humPregIdx=0; d.humScore=0; d.botScore=0;
-  d.botRespLog=[]; d._humLog=[]; d.esperando=false;
-  d.fase='humano';
-  clearInterval(d.timer); (d.botTimers||[]).forEach(t=>clearTimeout(t)); d.botTimers=[];
-
-  // Generar 3 preguntas iguales para ambos
+  d.partidaRef=p;d.lado=arr;d.idx=idx;d.onDone=onDone;
+  d.j1=p.j1;d.j2=p.j2;
+  d.humPregIdx=0;d.humScore=0;d.botScore=0;
+  d.botRespLog=[];d._humLog=[];d.esperando=false;d.fase='humano';
+  clearInterval(d.timer);(d.botTimers||[]).forEach(t=>clearTimeout(t));d.botTimers=[];
   const pregs=generarPreguntas(3);
-  BS.preguntasHumano=pregs;
-  BS.preguntasBot=pregs;  // MISMAS preguntas
-
-  // Simular respuestas del bot en paralelo (guardadas, no mostradas)
-  const botNom = esBotNombre(p.j1)?p.j1:p.j2;
-  const botObj = getBotObj(botNom);
-  const dif    = BS.dificultad;
+  BS.preguntasHumano=pregs;BS.preguntasBot=pregs;
+  const botNom=esBotNombre(p.j1)?p.j1:p.j2;
+  const botObj=getBotObj(botNom);
+  const dif=BS.dificultad;
   pregs.forEach((_,qi)=>{
     const delay=200+(qi*400)+Math.random()*300;
     const t=setTimeout(()=>{
       const acierta=Math.random()<(botObj.ac[dif]||0.65);
-      if(acierta) d.botScore+=3;
+      if(acierta)d.botScore+=3;
       const pq=pregs[qi];
-      if(pq) d.botRespLog.push({qi, acierta, ans:pq.ans, txt:pq.txt});
-    }, delay);
+      if(pq)d.botRespLog.push({qi,acierta,ans:pq.ans,txt:pq.txt});
+    },delay);
     d.botTimers.push(t);
   });
-
-  document.getElementById('t-bot-j1').textContent = label(d.j1)+(esBotNombre(d.j1)?'':' ⭐');
-  document.getElementById('t-bot-j2').textContent = label(d.j2)+(esBotNombre(d.j2)?'':' ⭐');
+  document.getElementById('t-bot-j1').textContent=label(d.j1)+(esBotNombre(d.j1)?'':' ⭐');
+  document.getElementById('t-bot-j2').textContent=label(d.j2)+(esBotNombre(d.j2)?'':' ⭐');
   document.getElementById('t-bot-score-j1').textContent='0';
   document.getElementById('t-bot-score-j2').textContent='0';
-  document.getElementById('t-bot-ronda-label').textContent = p.ronda;
-  document.getElementById('t-bot-titulo').textContent = `${label(d.j1)} vs ${label(d.j2)}`;
-
+  document.getElementById('t-bot-ronda-label').textContent=p.ronda;
+  document.getElementById('t-bot-titulo').textContent=`${label(d.j1)} vs ${label(d.j2)}`;
   document.getElementById('t-fase-bot-bracket').style.display='none';
   document.getElementById('t-fase-bot-duelo').style.display='block';
   cargarPregHumano();
 }
 
-function salirDueloBots(){
-  clearInterval(BS.duelo.timer);
-  (BS.duelo.botTimers||[]).forEach(t=>clearTimeout(t));
-  document.getElementById('t-fase-bot-duelo').style.display='none';
-  document.getElementById('t-fase-bot-bracket').style.display='block';
-  renderBotBracket();
-}
-
 function cargarPregHumano(){
-  const d=BS.duelo;
-  d.esperando=false;
+  const d=BS.duelo;d.esperando=false;
   const n=BS.preguntasHumano.length;
-
-  if(d.humPregIdx>=n){
-    // Humano terminó → esperar que bot también termine → revelar
-    esperarBotYRevelar();
-    return;
-  }
-
+  if(d.humPregIdx>=n){esperarBotYRevelar();return;}
   const preg=(BS.preguntasHumano||[])[d.humPregIdx];
-  if(!preg){ terminarDueloBots(); return; }
+  if(!preg){terminarDueloBots();return;}
   const humanNom=esBotNombre(d.j1)?d.j2:d.j1;
-  const humanIdx=esBotNombre(d.j1)?1:0;
-
   document.getElementById('t-bot-prog-mini').textContent=`Tu pregunta ${d.humPregIdx+1} / ${n}`;
   document.getElementById('t-bot-turno-label').textContent=`▶ TU TURNO — ${humanNom}`;
   document.getElementById('t-bot-pregunta').textContent=preg.txt;
-  document.getElementById('t-bot-pista').textContent='(El bot responde sus preguntas en paralelo — ocultas)';
-
+  document.getElementById('t-bot-pista').textContent='(El bot responde sus preguntas en paralelo)';
   const inp=document.getElementById('t-bot-resp');
   const btn=document.querySelector('[onclick="responderBot()"]');
-  inp.value=''; inp.className=''; inp.disabled=false; inp.style.display='block';
-  if(btn) btn.style.display='';
+  inp.value='';inp.className='';inp.disabled=false;inp.style.display='block';
+  if(btn)btn.style.display='';
   document.getElementById('t-bot-resultado').className='t-resultado-box';
   document.getElementById('t-bot-timer').className='t-timer';
-
-  // Actualizar score humano en tarjeta
   const humIdx=esBotNombre(d.j1)?1:0;
-  if(humIdx===0) document.getElementById('t-bot-score-j1').textContent=d.humScore;
-  else           document.getElementById('t-bot-score-j2').textContent=d.humScore;
-
+  if(humIdx===0)document.getElementById('t-bot-score-j1').textContent=d.humScore;
+  else document.getElementById('t-bot-score-j2').textContent=d.humScore;
   setTimeout(()=>document.getElementById('t-bot-resp').focus(),80);
   iniciarTimerDuelo();
 }
 
 function responderBot(){
   const d=BS.duelo;
-  if(d.esperando) return;
+  // Manejar desempate si está activo
+  if(d._desempateActivo){
+    const val=parseFloat(document.getElementById('t-bot-resp').value.replace(/[^0-9.-]/g,''));
+    if(isNaN(val))return;
+    const preg=d._desempatePreg;
+    if(val===preg.ans) d._cerrarDesempate(d._humNom,'¡Respondiste correcto primero!');
+    else d._cerrarDesempate(d._humNom.includes(BS.nombreJug)?
+      (esBotNombre(d.j1)?d.j1:d.j2):'Bot','Respondiste incorrecto');
+    return;
+  }
+  if(d.esperando)return;
   const val=parseFloat(document.getElementById('t-bot-resp').value.replace(/[^0-9.-]/g,''));
   const inp=document.getElementById('t-bot-resp');
   if(isNaN(val)){inp.style.borderColor='#f87171';return;}
-  clearInterval(d.timer);
-  d.esperando=true; inp.disabled=true;
-
+  clearInterval(d.timer);d.esperando=true;inp.disabled=true;
   const preg=(BS.preguntasHumano||[])[d.humPregIdx];
-  if(!preg){ d.esperando=false; return; }
+  if(!preg){d.esperando=false;return;}
   const ok=val===preg.ans;
   d._humLog[d.humPregIdx]={ok,val};
-  if(ok) d.humScore+=3;
-
+  if(ok)d.humScore+=3;
   inp.style.borderColor=ok?'#34d399':'#f87171';
   const rb=document.getElementById('t-bot-resultado');
   rb.className='t-resultado-box show '+(ok?'ok':'mal');
-  rb.style.background=''; rb.style.border=''; rb.style.color='';
+  rb.style.background='';rb.style.border='';rb.style.color='';
   rb.innerHTML=ok?`✅ ¡Correcto! +3 pts`:`❌ Incorrecto — era <strong>${preg.ans}</strong>`;
-
-  if(ok) BS.highlights.push({tipo:'humano_acierto',preg:preg.txt});
+  if(ok)BS.highlights.push({tipo:'humano_acierto',preg:preg.txt});
   d.humPregIdx++;
-
-  // Actualizar score con bounce
   const humIdx2=esBotNombre(d.j1)?1:0;
   const scoreEl=document.getElementById(humIdx2===0?'t-bot-score-j1':'t-bot-score-j2');
-  if(scoreEl && ok){
+  if(scoreEl&&ok){
     scoreEl.style.transition='transform 0.2s cubic-bezier(0.34,1.56,0.64,1)';
-    scoreEl.style.transform='scale(1.6)';
-    scoreEl.textContent=d.humScore;
+    scoreEl.style.transform='scale(1.6)';scoreEl.textContent=d.humScore;
     setTimeout(()=>scoreEl.style.transform='scale(1)',250);
-  } else if(scoreEl){
-    scoreEl.textContent=d.humScore;
-  }
-
+  } else if(scoreEl) scoreEl.textContent=d.humScore;
   setTimeout(()=>cargarPregHumano(),900);
 }
 
 function agotarTiempo(){
-  const d=BS.duelo;
-  if(d.esperando) return;
-  d.esperando=true; clearInterval(d.timer);
-
-  const inp=document.getElementById('t-bot-resp');
-  if(inp) inp.disabled=true;
-
-  // Preguntas vienen de BS.preguntasHumano (asignadas al abrir duelo)
-  const pregs = BS.preguntasHumano || BS.preguntasRonda || [];
-  const preg  = pregs[d.humPregIdx] || {ans:'?'};
-
-  // Registrar como INCORRECTA en el log
-  if(!d._humLog) d._humLog=[];
-  d._humLog[d.humPregIdx]={ok:false, val:'⏱'};
-
+  const d=BS.duelo;if(d.esperando)return;
+  d.esperando=true;clearInterval(d.timer);
+  const inp=document.getElementById('t-bot-resp');if(inp)inp.disabled=true;
+  const pregs=BS.preguntasHumano||[];
+  const preg=pregs[d.humPregIdx]||{ans:'?'};
+  if(!d._humLog)d._humLog=[];
+  d._humLog[d.humPregIdx]={ok:false,val:'⏱'};
   const rb=document.getElementById('t-bot-resultado');
   rb.className='t-resultado-box show mal';
-  rb.style.background='rgba(248,113,113,0.1)';
-  rb.style.border='1px solid rgba(248,113,113,0.3)';
-  rb.style.color='#fecaca';
-  rb.innerHTML=`⏱ <strong>Tiempo agotado — respuesta incorrecta</strong><br>
-    <span style="font-size:0.75rem;opacity:0.8;">La respuesta era: <strong>${preg.ans}</strong></span>`;
-
+  rb.innerHTML=`⏱ <strong>Tiempo agotado</strong><br><span style="font-size:0.75rem;opacity:0.8;">La respuesta era: <strong>${preg.ans}</strong></span>`;
   d.humPregIdx++;
-  setTimeout(()=>cargarPregHumano(), 1200);
+  setTimeout(()=>cargarPregHumano(),1200);
 }
 
 function iniciarTimerDuelo(){
-  const d=BS.duelo; clearInterval(d.timer);
+  const d=BS.duelo;clearInterval(d.timer);
   const seg=BS.tiempoPorPreg;
   if(seg===0){document.getElementById('t-bot-timer').textContent='∞';return;}
-  d.tiempoRest=seg; actualizarTimer();
+  d.tiempoRest=seg;actualizarTimer();
   d.timer=setInterval(()=>{
-    if(d.esperando) return;
-    d.tiempoRest--; actualizarTimer();
+    if(d.esperando)return;
+    d.tiempoRest--;actualizarTimer();
     if(d.tiempoRest<=0){clearInterval(d.timer);agotarTiempo();}
   },1000);
 }
@@ -1630,669 +1451,178 @@ function actualizarTimer(){
 }
 
 function esperarBotYRevelar(){
-  const d=BS.duelo;
-  clearInterval(d.timer);
+  const d=BS.duelo;clearInterval(d.timer);
   const botNom=esBotNombre(d.j1)?d.j1:d.j2;
   const botIdx=esBotNombre(d.j1)?0:1;
-
-  // Mostrar mensaje de espera mientras el bot termina
   const rb=document.getElementById('t-bot-resultado');
   rb.className='t-resultado-box show';
-  rb.style.background='rgba(124,58,237,0.1)';
-  rb.style.border='1px solid rgba(124,58,237,0.3)';
-  rb.style.color='#c4b5fd';
-  rb.innerHTML=`<div style="text-align:center;font-family:'Space Mono',monospace;font-size:0.78rem;">
-    🤖 Esperando que <strong>${label(botNom)}</strong> termine sus preguntas…
-  </div>`;
-
-  // Calcular tiempo máximo del bot: delay máximo es 200+(2*400)+300 = ~1700ms
-  // Esperar 2000ms para asegurar que todos los bots terminaron
-  const BOT_MAX_WAIT = 2000;
-
+  rb.style.background='rgba(124,58,237,0.1)';rb.style.border='1px solid rgba(124,58,237,0.3)';rb.style.color='#c4b5fd';
+  rb.innerHTML=`<div style="text-align:center;font-family:'Space Mono',monospace;font-size:0.78rem;">🤖 Esperando que <strong>${label(botNom)}</strong> termine…</div>`;
   setTimeout(()=>{
-    // Actualizar score del bot en tarjeta
-    if(botIdx===0) document.getElementById('t-bot-score-j1').textContent=d.botScore;
-    else           document.getElementById('t-bot-score-j2').textContent=d.botScore;
-
-    // Revelar respuestas del bot
+    if(botIdx===0)document.getElementById('t-bot-score-j1').textContent=d.botScore;
+    else document.getElementById('t-bot-score-j2').textContent=d.botScore;
     const rb=document.getElementById('t-bot-resultado');
     rb.className='t-resultado-box show';
-    rb.style.background='rgba(20,20,50,0.85)';
-    rb.style.border='1px solid rgba(124,58,237,0.5)';
-    rb.style.color='#e9d5ff';
-
+    rb.style.background='rgba(20,20,50,0.85)';rb.style.border='1px solid rgba(124,58,237,0.5)';rb.style.color='#e9d5ff';
     const humNom=esBotNombre(d.j1)?d.j2:d.j1;
     const humIdx=esBotNombre(d.j1)?1:0;
-    const ganHum = d.humScore >= d.botScore;
-
-    let html=`<div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:#a78bfa;margin-bottom:6px;letter-spacing:0.08em;">
-      📋 RESPUESTAS DE ${label(botNom).toUpperCase()} (reveladas)</div>`;
-
+    const ganHum=d.humScore>=d.botScore;
+    let html=`<div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:#a78bfa;margin-bottom:6px;">📋 RESPUESTAS DE ${label(botNom).toUpperCase()}</div>`;
     (BS.preguntasBot||[]).forEach((preg,qi)=>{
       const log=d.botRespLog.find(r=>r.qi===qi);
       const acerto=log?log.acierta:false;
       const col=acerto?'#34d399':'#f87171';
-      const ico=acerto?'✓':'✗';
       html+=`<div style="display:flex;align-items:center;gap:5px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-        <span style="color:${col};font-weight:700;min-width:14px;">${ico}</span>
+        <span style="color:${col};font-weight:700;min-width:14px;">${acerto?'✓':'✗'}</span>
         <span style="flex:1;font-size:0.7rem;color:#c4b5fd;">${preg.txt}</span>
         <span style="font-family:'Space Mono',monospace;font-size:0.68rem;color:${col};font-weight:700;">${preg.ans}</span>
       </div>`;
     });
-    html+=`<div style="margin-top:8px;text-align:center;font-family:'Space Mono',monospace;font-size:0.78rem;
-      font-weight:700;color:${ganHum?'#fbbf24':'#f87171'};">
+    html+=`<div style="margin-top:8px;text-align:center;font-family:'Space Mono',monospace;font-size:0.78rem;font-weight:700;color:${ganHum?'#fbbf24':'#f87171'};">
       ${ganHum?'🏆 Tú ganas':'😔 Perdiste'} — Tú: ${d.humScore} | ${label(botNom)}: ${d.botScore}
     </div>`;
     rb.innerHTML=html;
-
-    const humScore = d.humScore;
-    const botScore = d.botScore;
-    const p        = d.partidaRef;
-
-    if(humScore === botScore){
-      // ── EMPATE → pregunta extra súbita ──
-      const rbEmp = document.getElementById('t-bot-resultado');
-      rbEmp.className='t-resultado-box show';
-      rbEmp.style.background='rgba(245,158,11,0.12)';
-      rbEmp.style.border='1px solid rgba(245,158,11,0.5)';
-      rbEmp.style.color='#fde68a';
-      rbEmp.innerHTML=`<div style="font-weight:700;margin-bottom:6px;">⚡ ¡EMPATE ${humScore}–${botScore}!</div>
-        <div style="font-size:0.78rem;">Pregunta extra de desempate — ¡el primero en responder correcto gana!</div>`;
-      setTimeout(()=>lanzarDesempate(humNom, humIdx, botNom, p, d), 1800);
-      return;
+    const humScore=d.humScore;const botScore=d.botScore;const p=d.partidaRef;
+    if(humScore===botScore){
+      setTimeout(()=>lanzarDesempate(humNom,humIdx,botNom,p,d),1800);return;
     }
-
-    const ganador = humScore>botScore ? humNom : botNom;
-    const ganHum2 = ganador===humNom;
-    p.ganador  = ganador;
-    p.scores   = humIdx===0 ? [humScore,botScore] : [botScore,humScore];
-    p.terminada= true;
-    BS.highlights.push({tipo:ganHum2?'humano_gana_duelo':'humano_pierde_duelo',
-      j1:d.j1, j2:d.j2, scores:p.scores});
-    // ── Tabla de aciertos ──────────────────────────────────
-    const humNomT=esBotNombre(d.j1)?d.j2:d.j1;
-    const botNomT=esBotNombre(d.j1)?d.j1:d.j2;
-    document.getElementById('t-bot-resultado').innerHTML+=construirTablaAciertos(humNomT,botNomT,d,ganHum);
-    // Mostrar tabla por mínimo 6 segundos para que el jugador la lea bien
+    const ganador=humScore>botScore?humNom:botNom;
+    const ganHum2=ganador===humNom;
+    p.ganador=ganador;p.scores=humIdx===0?[humScore,botScore]:[botScore,humScore];p.terminada=true;
+    BS.highlights.push({tipo:ganHum2?'humano_gana_duelo':'humano_pierde_duelo',j1:d.j1,j2:d.j2,scores:p.scores});
+    document.getElementById('t-bot-resultado').innerHTML+=construirTablaAciertos(humNom,botNom,d,ganHum);
     setTimeout(()=>{
       document.getElementById('t-fase-bot-duelo').style.display='none';
       document.getElementById('t-fase-bot-bracket').style.display='block';
       renderBotBracket();d.onDone();
     },6000);
-  }, 1600);
+  },1600);
 }
 
 function renderBotBracket(){
-  const wrap=document.getElementById('t-bot-bracket');
-  wrap.innerHTML='';
-
-  // Slot vacío o con datos de partida
-  function slot(p, activa){
-    if(!p) return `<div class="bk-slot bk-empty">
-      <div class="bk-row"><div class="bk-avatar-empty"></div><span class="bk-name bk-tbd">Por definir</span></div>
-      <div class="bk-div"></div>
-      <div class="bk-row"><div class="bk-avatar-empty"></div><span class="bk-name bk-tbd">Por definir</span></div>
-    </div>`;
-
-    const g1=p.terminada&&p.ganador===p.j1, g2=p.terminada&&p.ganador===p.j2;
-    const h1=!esBotNombre(p.j1), h2=!esBotNombre(p.j2);
+  const wrap=document.getElementById('t-bot-bracket');wrap.innerHTML='';
+  function slot(p,activa){
+    if(!p)return`<div class="bk-slot bk-empty"><div class="bk-row"><div class="bk-avatar-empty"></div><span class="bk-name bk-tbd">Por definir</span></div><div class="bk-div"></div><div class="bk-row"><div class="bk-avatar-empty"></div><span class="bk-name bk-tbd">Por definir</span></div></div>`;
+    const g1=p.terminada&&p.ganador===p.j1,g2=p.terminada&&p.ganador===p.j2;
+    const h1=!esBotNombre(p.j1),h2=!esBotNombre(p.j2);
     const isMiDuelo=activa&&!p.terminada&&(h1||h2);
     const isLive=activa&&!p.terminada&&p.animando;
     const bw=Math.round((p.prog/3)*100);
-
-    // Power level: puntos / max posible (3 pregs * 3pts = 9)
-    const maxPts = 9;
-    const pw1 = p.terminada ? Math.round((p.scores[0]/maxPts)*100) : 0;
-    const pw2 = p.terminada ? Math.round((p.scores[1]/maxPts)*100) : 0;
-    const winner = p.terminada ? (g1?'j1':'j2') : null;
-
-    const b1=getBotObj(p.j1); const b2=getBotObj(p.j2);
-    const col1 = h1?'#fbbf24':(b1?.av||'#7c3aed');
-    const col2 = h2?'#fbbf24':(b2?.av||'#7c3aed');
-
+    const maxPts=9;const pw1=p.terminada?Math.round((p.scores[0]/maxPts)*100):0;const pw2=p.terminada?Math.round((p.scores[1]/maxPts)*100):0;
+    const b1=getBotObj(p.j1);const b2=getBotObj(p.j2);
+    const col1=h1?'#fbbf24':(b1?.av||'#7c3aed');const col2=h2?'#fbbf24':(b2?.av||'#7c3aed');
     const border=p.terminada?'rgba(52,211,153,0.4)':isMiDuelo?'#fbbf24':isLive?'rgba(124,58,237,0.8)':'rgba(255,255,255,0.1)';
-    const glowStyle=p.terminada?`box-shadow:0 0 14px rgba(52,211,153,0.2);`
-      :isMiDuelo?`box-shadow:0 0 16px rgba(251,191,36,0.3);`
-      :isLive?`box-shadow:0 0 14px rgba(124,58,237,0.25);`:'';
-
-    // Barra de progreso entre preguntas (en vivo)
-    const midHtml=isLive
-      ? `<div class="bk-prog"><div class="bk-prog-fill" style="width:${bw}%"></div></div>`
-      : `<div class="bk-div"></div>`;
-
-    // Power bar del ganador al terminar
-    const powerBar1 = p.terminada
-      ? `<div class="bk-power-wrap"><div class="bk-power-fill" style="width:${pw1}%;background:${g1?col1:'rgba(255,255,255,0.15)'};${g1?'box-shadow:0 0 6px '+col1+'88;':''}"></div></div>` : '';
-    const powerBar2 = p.terminada
-      ? `<div class="bk-power-wrap"><div class="bk-power-fill" style="width:${pw2}%;background:${g2?col2:'rgba(255,255,255,0.15)'};${g2?'box-shadow:0 0 6px '+col2+'88;':''}"></div></div>` : '';
-
-    const statusHtml = p.terminada
-      ? `<div class="bk-status-badge" style="color:#34d399;">
-          ${makeAvatar(p.ganador, !esBotNombre(p.ganador), 14)}
-          <span style="margin-left:4px;">✓ ${p.ganador}</span>
-        </div>`
-      : isMiDuelo
-        ? `<div class="bk-status-badge bk-badge-pulse" style="color:#fbbf24;">▶ TU DUELO</div>`
-        : isLive
-          ? `<div class="bk-status-badge" style="color:#a78bfa;">⚙️ ${p.prog}/3</div>`
-          : '';
-
-    return `<div class="bk-slot${p.terminada?' bk-done':isMiDuelo?' bk-human':isLive?' bk-live':''}"
-      style="border-color:${border};${glowStyle}">
-      <div class="bk-row${g1?' bk-win':p.terminada?' bk-los':''}">
-        ${makeAvatar(p.j1, h1, 24)}
-        <span class="bk-name" style="${g1?'color:'+col1+';font-weight:700;':''}">${p.j1}</span>
-        <span class="bk-sc" style="${g1?'color:'+col1+';font-weight:700;':''}">${p.terminada||p.animando?p.scores[0]:'—'}</span>
-      </div>
-      ${powerBar1}
-      ${midHtml}
-      ${powerBar2}
-      <div class="bk-row${g2?' bk-win':p.terminada?' bk-los':''}">
-        ${makeAvatar(p.j2, h2, 24)}
-        <span class="bk-name" style="${g2?'color:'+col2+';font-weight:700;':''}">${p.j2}</span>
-        <span class="bk-sc" style="${g2?'color:'+col2+';font-weight:700;':''}">${p.terminada||p.animando?p.scores[1]:'—'}</span>
-      </div>
+    const glowStyle=p.terminada?`box-shadow:0 0 14px rgba(52,211,153,0.2);`:isMiDuelo?`box-shadow:0 0 16px rgba(251,191,36,0.3);`:isLive?`box-shadow:0 0 14px rgba(124,58,237,0.25);`:'';
+    const midHtml=isLive?`<div class="bk-prog"><div class="bk-prog-fill" style="width:${bw}%"></div></div>`:`<div class="bk-div"></div>`;
+    const powerBar1=p.terminada?`<div class="bk-power-wrap"><div class="bk-power-fill" style="width:${pw1}%;background:${g1?col1:'rgba(255,255,255,0.15)'};"></div></div>`:'';
+    const powerBar2=p.terminada?`<div class="bk-power-wrap"><div class="bk-power-fill" style="width:${pw2}%;background:${g2?col2:'rgba(255,255,255,0.15)'};"></div></div>`:'';
+    const statusHtml=p.terminada?`<div class="bk-status-badge" style="color:#34d399;">${makeAvatar(p.ganador,!esBotNombre(p.ganador),14)}<span style="margin-left:4px;">✓ ${p.ganador}</span></div>`:isMiDuelo?`<div class="bk-status-badge bk-badge-pulse" style="color:#fbbf24;">▶ TU DUELO</div>`:isLive?`<div class="bk-status-badge" style="color:#a78bfa;">⚙️ ${p.prog}/3</div>`:'';
+    return`<div class="bk-slot${p.terminada?' bk-done':isMiDuelo?' bk-human':isLive?' bk-live':''}" style="border-color:${border};${glowStyle}">
+      <div class="bk-row${g1?' bk-win':p.terminada?' bk-los':''}">${makeAvatar(p.j1,h1,24)}<span class="bk-name" style="${g1?'color:'+col1+';font-weight:700;':''}">${p.j1}</span><span class="bk-sc" style="${g1?'color:'+col1+';font-weight:700;':''}">${p.terminada||p.animando?p.scores[0]:'—'}</span></div>
+      ${powerBar1}${midHtml}${powerBar2}
+      <div class="bk-row${g2?' bk-win':p.terminada?' bk-los':''}">${makeAvatar(p.j2,h2,24)}<span class="bk-name" style="${g2?'color:'+col2+';font-weight:700;':''}">${p.j2}</span><span class="bk-sc" style="${g2?'color:'+col2+';font-weight:700;':''}">${p.terminada||p.animando?p.scores[1]:'—'}</span></div>
       ${statusHtml}
     </div>`;
   }
-
-  const actOct  = BS.rondaActiva==='oct';
-  const actCuar = BS.rondaActiva==='cuar';
-  const actGran = BS.rondaActiva==='gran';
-
-  // Datos
-  const o=BS.oct;   // [0,1,2,3]
-  const c=BS.cuar;  // [0,1]
-  const g=BS.gran;  // [0]
-
-  // Campeón
+  const actOct=BS.rondaActiva==='oct';const actCuar=BS.rondaActiva==='cuar';const actGran=BS.rondaActiva==='gran';
+  const o=BS.oct;const c=BS.cuar;const g=BS.gran;
   const campNom=g[0]&&g[0].ganador?g[0].ganador:'';
-  const campHtml=campNom
-    ? `<div class="bk-camp-name">${esBotNombre(campNom)?getTag(campNom)+' ':''} ${campNom}</div>`
-    : `<div class="bk-camp-tbd">?</div>`;
-
-  wrap.innerHTML=`
-  <div class="bk-fifa">
-
-    <!-- IZQ: Octavos arriba + abajo -->
-    <div class="bk-col-oct">
-      ${slot(o[0], actOct)}
-      <div class="bk-gap"></div>
-      ${slot(o[1], actOct)}
-    </div>
-
-    <!-- Conector oct→cuar IZQ -->
-    <div class="bk-conn-v">
-      <svg width="100%" height="100%" viewBox="0 0 30 160" preserveAspectRatio="none">
-        <path d="M0,40 H15 V80 H30" fill="none" stroke="rgba(251,191,36,0.45)" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M0,120 H15 V80"    fill="none" stroke="rgba(251,191,36,0.45)" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-    </div>
-
-    <!-- Cuartos IZQ -->
-    <div class="bk-col-cuar">
-      ${slot(c[0], actCuar)}
-    </div>
-
-    <!-- Conector cuar→final IZQ -->
-    <div class="bk-conn-h">
-      <svg width="100%" height="100%" viewBox="0 0 30 60" preserveAspectRatio="none">
-        <path d="M0,30 H30" fill="none" stroke="rgba(251,191,36,0.6)" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    </div>
-
-    <!-- FINAL + TROFEO (centro) -->
-    <div class="bk-col-final">
-      <div class="bk-final-header">⚡ GRAN FINAL</div>
-      <div class="bk-trophy">🏆</div>
-      ${campHtml}
-      ${slot(g[0], actGran)}
-    </div>
-
-    <!-- Conector final→cuar DER -->
-    <div class="bk-conn-h">
-      <svg width="100%" height="100%" viewBox="0 0 30 60" preserveAspectRatio="none">
-        <path d="M30,30 H0" fill="none" stroke="rgba(251,191,36,0.6)" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    </div>
-
-    <!-- Cuartos DER -->
-    <div class="bk-col-cuar">
-      ${slot(c[1], actCuar)}
-    </div>
-
-    <!-- Conector cuar→oct DER -->
-    <div class="bk-conn-v">
-      <svg width="100%" height="100%" viewBox="0 0 30 160" preserveAspectRatio="none">
-        <path d="M30,40 H15 V80 H0" fill="none" stroke="rgba(251,191,36,0.45)" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M30,120 H15 V80"   fill="none" stroke="rgba(251,191,36,0.45)" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-    </div>
-
-    <!-- DER: Octavos arriba + abajo -->
-    <div class="bk-col-oct">
-      ${slot(o[2], actOct)}
-      <div class="bk-gap"></div>
-      ${slot(o[3], actOct)}
-    </div>
-
+  const campHtml=campNom?`<div class="bk-camp-name">${esBotNombre(campNom)?getTag(campNom)+' ':''} ${campNom}</div>`:`<div class="bk-camp-tbd">?</div>`;
+  wrap.innerHTML=`<div class="bk-fifa">
+    <div class="bk-col-oct">${slot(o[0],actOct)}<div class="bk-gap"></div>${slot(o[1],actOct)}</div>
+    <div class="bk-conn-v"><svg width="100%" height="100%" viewBox="0 0 30 160" preserveAspectRatio="none"><path d="M0,40 H15 V80 H30" fill="none" stroke="rgba(251,191,36,0.45)" stroke-width="1.5" stroke-linecap="round"/><path d="M0,120 H15 V80" fill="none" stroke="rgba(251,191,36,0.45)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="bk-col-cuar">${slot(c[0],actCuar)}</div>
+    <div class="bk-conn-h"><svg width="100%" height="100%" viewBox="0 0 30 60" preserveAspectRatio="none"><path d="M0,30 H30" fill="none" stroke="rgba(251,191,36,0.6)" stroke-width="2" stroke-linecap="round"/></svg></div>
+    <div class="bk-col-final"><div class="bk-final-header">⚡ GRAN FINAL</div><div class="bk-trophy">🏆</div>${campHtml}${slot(g[0],actGran)}</div>
+    <div class="bk-conn-h"><svg width="100%" height="100%" viewBox="0 0 30 60" preserveAspectRatio="none"><path d="M30,30 H0" fill="none" stroke="rgba(251,191,36,0.6)" stroke-width="2" stroke-linecap="round"/></svg></div>
+    <div class="bk-col-cuar">${slot(c[1],actCuar)}</div>
+    <div class="bk-conn-v"><svg width="100%" height="100%" viewBox="0 0 30 160" preserveAspectRatio="none"><path d="M30,40 H15 V80 H0" fill="none" stroke="rgba(251,191,36,0.45)" stroke-width="1.5" stroke-linecap="round"/><path d="M30,120 H15 V80" fill="none" stroke="rgba(251,191,36,0.45)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="bk-col-oct">${slot(o[2],actOct)}<div class="bk-gap"></div>${slot(o[3],actOct)}</div>
   </div>`;
 }
 
 function iniciarCeremoniaBots(){
-  clearInterval(BS.duelo.timer);
-  (BS.botTimers||[]).forEach(t=>clearTimeout(t));
+  clearInterval(BS.duelo.timer);(BS.botTimers||[]).forEach(t=>clearTimeout(t));
   document.getElementById('t-fase-bot-bracket').style.display='none';
-
-  const p=BS.gran[0];
-  if(!p||!p.ganador){ console.warn('Final sin ganador'); return; }
-  const camp=p.ganador;
-  const sub2=p.ganador===p.j1?p.j2:p.j1;
-  // Tercer lugar: perdedor en cuartos con más puntos
+  const p=BS.gran[0];if(!p||!p.ganador)return;
+  const camp=p.ganador;const sub2=p.ganador===p.j1?p.j2:p.j1;
   const perdCuar=BS.cuar.filter(Boolean).map(c=>({nom:c.ganador===c.j1?c.j2:c.j1,pts:Math.min(c.scores[0],c.scores[1])}));
-  perdCuar.sort((a,b)=>b.pts-a.pts);
-  const sub3=perdCuar[0]?.nom||'Bot';
-
-  const campHum=!esBotNombre(camp);
-  if(campHum) addScore(20);
-
-  const fase=document.getElementById('t-fase-bot-resultado');
-  fase.style.display='block';
-
+  perdCuar.sort((a,b)=>b.pts-a.pts);const sub3=perdCuar[0]?.nom||'Bot';
+  const campHum=!esBotNombre(camp);if(campHum)addScore(20);
+  const fase=document.getElementById('t-fase-bot-resultado');fase.style.display='block';
   const aciertos=BS.highlights.filter(h=>h.tipo==='humano_acierto').length;
-  const duelos  =BS.highlights.filter(h=>h.tipo==='humano_gana_duelo').length;
-
+  const duelos=BS.highlights.filter(h=>h.tipo==='humano_gana_duelo').length;
   document.getElementById('podio-ceremonia').innerHTML=`
-    <div id="intro-video" style="position:relative;overflow:hidden;border-radius:14px;margin-bottom:1.4rem;
-      background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
-      border:2px solid rgba(251,191,36,0.3);box-shadow:0 0 45px rgba(124,58,237,0.4);">
+    <div id="intro-video" style="position:relative;overflow:hidden;border-radius:14px;margin-bottom:1.4rem;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);border:2px solid rgba(251,191,36,0.3);box-shadow:0 0 45px rgba(124,58,237,0.4);">
       <canvas id="intro-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
       <div id="intro-content" style="position:relative;z-index:2;padding:1.8rem 1.2rem;text-align:center;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.5rem;"></div>
     </div>
-    <div class="podio-escenario">
-      <div class="podio-lugares" id="podio-lugares"></div>
-      <div class="podio-mensajes" id="podio-msgs"></div>
-    </div>`;
-
+    <div class="podio-escenario"><div class="podio-lugares" id="podio-lugares"></div><div class="podio-mensajes" id="podio-msgs"></div></div>`;
   animarIntroVideo(camp,campHum,aciertos,duelos);
-  setTimeout(()=>construirPodio([
-    {nombre:camp,pos:1,esHuman:campHum},
-    {nombre:sub2,pos:2,esHuman:!esBotNombre(sub2)},
-    {nombre:sub3,pos:3,esHuman:!esBotNombre(sub3)},
-  ],campHum),4000);
+  setTimeout(()=>construirPodio([{nombre:camp,pos:1,esHuman:campHum},{nombre:sub2,pos:2,esHuman:!esBotNombre(sub2)},{nombre:sub3,pos:3,esHuman:!esBotNombre(sub3)}],campHum),4000);
 }
 
-// Frases épicas de narración por resultado
-const NARR_APLASTO  = ['aplastó sin piedad a','fulminó de un golpe a','destruyó completamente a','barrió el suelo con','no dejó chance alguna a','dominó de principio a fin a','hizo polvo a'];
-const NARR_GANO     = ['venció con maestría a','superó brillantemente a','derrotó con clase a','se impuso sobre','salió victorioso ante','ganó un duelo épico contra','demostró su nivel ante'];
-const NARR_PAREJA   = ['en un duelo de infarto contra','en una batalla reñidísima ante','en un match épico y parejísimo con','al borde del colapso nervioso ante','en lo que fue una guerra total contra'];
-const NARR_APLASTO_BOT = ['el bot no pudo con','la máquina cayó ante','el algoritmo fue silenciado por','ni los bots pudieron frenar a'];
-const OUTRO_CAMP    = ['¡La corona es suya!','¡Nadie lo pudo detener!','¡Historia pura!','¡Leyenda del torneo!','¡Imparable, absoluto, invicto!'];
-const INTRO_EPICO   = [
-  '⚡ En las profundidades del torneo, donde solo sobreviven los más agudos, una mente se alzó sobre todas las demás.',
-  '🔥 No fue suerte. No fue casualidad. Fue pura habilidad, concentración y voluntad de ganar.',
-  '👑 Los libros de historia de este salón recordarán este día.',
-  '🌪️ Como un huracán que no pide permiso, ${camp} arrasó con todo lo que se interpuso en su camino.',
-  '⚔️ Ronda tras ronda, el nivel subió. Y ${camp} también. Hasta alzarse campeón.',
-];
-
-function rnd(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+const NARR_APLASTO=['aplastó sin piedad a','fulminó de un golpe a','destruyó completamente a','barrió el suelo con','dominó de principio a fin a'];
+const NARR_GANO=['venció con maestría a','superó brillantemente a','derrotó con clase a','se impuso sobre','salió victorioso ante'];
+const OUTRO_CAMP=['¡La corona es suya!','¡Nadie lo pudo detener!','¡Historia pura!','¡Leyenda del torneo!','¡Imparable, absoluto, invicto!'];
+const INTRO_EPICO=['⚡ En las profundidades del torneo, una mente se alzó sobre todas las demás.','🔥 No fue suerte. No fue casualidad. Fue pura habilidad y voluntad de ganar.','👑 Los libros de historia de este salón recordarán este día.'];
+function rnd(arr){return arr[Math.floor(Math.random()*arr.length)];}
 
 function buildRutaHtml(camp){
-  const esBotCamp = esBotNombre(camp);
-  
-  // Intro épico
-  const introBase = rnd(INTRO_EPICO).replace('${camp}', camp);
-  let h = `<div style="font-family:'DM Sans',sans-serif;font-size:0.82rem;color:#c4b5fd;
-    line-height:1.7;margin-bottom:10px;font-style:italic;text-align:center;
-    opacity:0;animation:auraFadeIn 0.6s ease 0.1s both;padding:0 0.5rem;">
-    ${introBase}
-  </div>`;
-
-  h += `<div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#a78bfa;
-    letter-spacing:0.18em;text-align:center;margin-bottom:8px;
-    opacity:0;animation:auraFadeIn 0.4s ease 0.3s both;">
-    ── CRÓNICA DEL TORNEO ──
-  </div>`;
-
-  const rondas=[
-    {nom:'Octavos de Final', ps:BS.oct||[], rondaLabel:'la primera prueba'},
-    {nom:'Cuartos de Final', ps:BS.cuar||[], rondaLabel:'los cuartos de final'},
-    {nom:'Gran Final',       ps:BS.gran||[], rondaLabel:'LA GRAN FINAL'},
-  ];
-
+  let h=`<div style="font-family:'DM Sans',sans-serif;font-size:0.82rem;color:#c4b5fd;line-height:1.7;margin-bottom:10px;font-style:italic;text-align:center;opacity:0;animation:auraFadeIn 0.6s ease 0.1s both;">${rnd(INTRO_EPICO)}</div>`;
+  h+=`<div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#a78bfa;letter-spacing:0.18em;text-align:center;margin-bottom:8px;opacity:0;animation:auraFadeIn 0.4s ease 0.3s both;">── CRÓNICA DEL TORNEO ──</div>`;
+  const rondas=[{nom:'Octavos de Final',ps:BS.oct||[]},{nom:'Cuartos de Final',ps:BS.cuar||[]},{nom:'Gran Final',ps:BS.gran||[]}];
   let delay=0.45;
   rondas.forEach((r,ri)=>{
     const p=(r.ps||[]).find(x=>x&&(x.j1===camp||x.j2===camp));
-    if(!p||!p.terminada) return;
-
-    const gano   = p.ganador===camp;
-    const rival  = camp===p.j1?p.j2:p.j1;
-    const ms     = camp===p.j1?p.scores[0]:p.scores[1];
-    const ts     = camp===p.j1?p.scores[1]:p.scores[0];
-    const diff   = ms - ts;
-    const esFinal= r.nom==='Gran Final';
-    const botRival = esBotNombre(rival);
-
-    // Elegir verbo según diferencia de puntos
-    let verbo;
-    if(gano){
-      if(diff>=6)       verbo = rnd(NARR_APLASTO);
-      else if(diff>=3)  verbo = rnd(NARR_GANO);
-      else              verbo = rnd(NARR_GANO);
-    } else {
-      verbo = 'cayó ante';
-    }
-
-    // Descripción de la partida
-    let desc;
-    if(gano && diff===0){
-      desc = `Empate que se resolvió en desempate súbito. Los nervios a flor de piel.`;
-    } else if(gano && ms===9){
-      desc = `¡Puntaje perfecto! Tres respuestas, tres aciertos. Demoledor.`;
-    } else if(gano && diff>=6){
-      desc = `No hubo historia. Dominó desde el primer segundo. ${ms}–${ts}.`;
-    } else if(gano && esFinal){
-      desc = `${diff<=2?'¡Partido épico! Un solo punto de diferencia al final.':diff===3?'Controlado pero sudando la gota gorda.':'Autoridad total. Marcador '+ms+'–'+ts+'.'}`;
-    } else if(gano){
-      desc = `Marcador ${ms}–${ts}. ${diff<=3?'Estuvo cerrado, pero '+camp+' no tembló.':'Sin contemplaciones.'}`;
-    } else {
-      desc = `Cayó ${ms}–${ts}. Esa derrota quedará grabada para siempre.`;
-    }
-
-    const iconRonda = esFinal?'🏆':ri===0?'⚔️':'🔥';
-    const colorRonda = esFinal?'#fbbf24':gano?'#34d399':'#f87171';
-    const bgRonda = esFinal?'rgba(251,191,36,0.08)':gano?'rgba(52,211,153,0.07)':'rgba(248,113,113,0.06)';
-    const borderRonda = esFinal?'rgba(251,191,36,0.3)':gano?'rgba(52,211,153,0.25)':'rgba(248,113,113,0.2)';
-
-    h += `<div style="opacity:0;animation:auraFadeIn 0.5s ease ${delay}s both;
-      background:${bgRonda};border:1px solid ${borderRonda};border-radius:8px;
-      padding:0.5rem 0.8rem;margin:0.3rem 0;">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
-        <span style="font-size:0.9rem;">${iconRonda}</span>
-        <span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:${colorRonda};
-          letter-spacing:0.1em;text-transform:uppercase;font-weight:700;">${r.nom}</span>
-        <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.35);margin-left:auto;">${ms}–${ts}</span>
-      </div>
-      <div style="font-family:'DM Sans',sans-serif;font-size:0.8rem;color:#e9d5ff;line-height:1.6;">
-        <strong style="color:${colorRonda};">${camp}</strong> ${verbo} <strong>${rival}</strong>. ${desc}
-      </div>
+    if(!p||!p.terminada)return;
+    const gano=p.ganador===camp;const rival=camp===p.j1?p.j2:p.j1;
+    const ms=camp===p.j1?p.scores[0]:p.scores[1];const ts=camp===p.j1?p.scores[1]:p.scores[0];
+    const diff=ms-ts;const esFinal=r.nom==='Gran Final';
+    const verbo=gano?(diff>=6?rnd(NARR_APLASTO):rnd(NARR_GANO)):'cayó ante';
+    const desc=gano?(ms===9?'¡Puntaje perfecto! Tres aciertos consecutivos.':`Marcador ${ms}–${ts}.`):`Cayó ${ms}–${ts}.`;
+    const iconRonda=esFinal?'🏆':ri===0?'⚔️':'🔥';
+    const colorRonda=esFinal?'#fbbf24':gano?'#34d399':'#f87171';
+    h+=`<div style="opacity:0;animation:auraFadeIn 0.5s ease ${delay}s both;background:${esFinal?'rgba(251,191,36,0.08)':gano?'rgba(52,211,153,0.07)':'rgba(248,113,113,0.06)'};border:1px solid ${colorRonda}44;border-radius:8px;padding:0.5rem 0.8rem;margin:0.3rem 0;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;"><span>${iconRonda}</span><span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:${colorRonda};letter-spacing:0.1em;">${r.nom}</span><span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.35);margin-left:auto;">${ms}–${ts}</span></div>
+      <div style="font-family:'DM Sans',sans-serif;font-size:0.8rem;color:#e9d5ff;"><strong style="color:${colorRonda};">${camp}</strong> ${verbo} <strong>${rival}</strong>. ${desc}</div>
     </div>`;
-    delay += 0.18;
+    delay+=0.18;
   });
-
-  // Cierre épico
-  const outro = rnd(OUTRO_CAMP);
-  h += `<div style="opacity:0;animation:auraFadeIn 0.5s ease ${delay+0.1}s both;
-    font-family:'Fraunces',serif;font-size:1rem;color:#fbbf24;
-    text-align:center;margin-top:10px;font-weight:700;
-    text-shadow:0 0 16px rgba(251,191,36,0.4);">
-    ${outro}
-  </div>`;
-
+  h+=`<div style="opacity:0;animation:auraFadeIn 0.5s ease ${delay+0.1}s both;font-family:'Fraunces',serif;font-size:1rem;color:#fbbf24;text-align:center;margin-top:10px;font-weight:700;">${rnd(OUTRO_CAMP)}</div>`;
   return h;
 }
 
 function animarIntroVideo(camp,campHum,aciertos,duelos){
-  const canvas=document.getElementById('intro-canvas');
-  if(!canvas) return;
-  const ctx=canvas.getContext('2d');
-  const cont=document.getElementById('intro-content');
-  canvas.width=canvas.parentElement.offsetWidth||560; canvas.height=240;
-  const parts=Array.from({length:45},()=>({
-    x:Math.random()*canvas.width,y:Math.random()*canvas.height,
-    vx:(Math.random()-0.5)*0.6,vy:(Math.random()-0.5)*0.6,
-    r:1+Math.random()*2,a:Math.random(),
-    c:['#7c3aed','#4f46e5','#fbbf24','#34d399'][Math.floor(Math.random()*4)]
-  }));
+  const canvas=document.getElementById('intro-canvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d');const cont=document.getElementById('intro-content');
+  canvas.width=canvas.parentElement.offsetWidth||560;canvas.height=240;
+  const parts=Array.from({length:45},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-0.5)*0.6,vy:(Math.random()-0.5)*0.6,r:1+Math.random()*2,a:Math.random(),c:['#7c3aed','#4f46e5','#fbbf24','#34d399'][Math.floor(Math.random()*4)]}));
   let running=true;
-  function draw(){
-    if(!running)return;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    parts.forEach(p=>{
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;
-      if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=p.c;ctx.globalAlpha=p.a*0.5;ctx.fill();
-    });
-    ctx.globalAlpha=1;
-    requestAnimationFrame(draw);
-  }
+  function draw(){if(!running)return;ctx.clearRect(0,0,canvas.width,canvas.height);parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.globalAlpha=p.a*0.5;ctx.fill();});ctx.globalAlpha=1;requestAnimationFrame(draw);}
   draw();
   const screens=[
-    {d:0,   h:`<div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#a78bfa;opacity:0;animation:auraFadeIn 0.5s ease 0.2s both;letter-spacing:0.3em;">TORNEO COMPLETADO</div><div style="font-family:'Fraunces',serif;font-size:clamp(1.8rem,5vw,2.6rem);font-weight:700;color:#fff;text-shadow:0 0 28px rgba(251,191,36,0.6);opacity:0;animation:auraFadeIn 0.5s ease 0.5s both;">${campHum?'¡CAMPEÓN!':'Bien jugado'}</div><div style="font-size:2.8rem;opacity:0;animation:auraFadeIn 0.4s ease 0.9s both;">${campHum?'👑':'🏆'}</div>`},
-    {d:1900,h:`<div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#a78bfa;opacity:0;animation:auraFadeIn 0.4s ease 0.1s both;letter-spacing:0.2em;">CAMPEÓN</div><div style="font-family:'Fraunces',serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fbbf24;text-shadow:0 0 35px rgba(251,191,36,0.8);opacity:0;animation:auraFadeIn 0.5s ease 0.3s both;">${camp}</div><div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#c4b5fd;opacity:0;animation:auraFadeIn 0.4s ease 0.7s both;">${duelos} duelo${duelos!==1?'s':''} ganado${duelos!==1?'s':''} · ${aciertos} acierto${aciertos!==1?'s':''}</div>`},
+    {d:0,h:`<div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#a78bfa;opacity:0;animation:auraFadeIn 0.5s ease 0.2s both;letter-spacing:0.3em;">TORNEO COMPLETADO</div><div style="font-family:'Fraunces',serif;font-size:clamp(1.8rem,5vw,2.6rem);font-weight:700;color:#fff;text-shadow:0 0 28px rgba(251,191,36,0.6);opacity:0;animation:auraFadeIn 0.5s ease 0.5s both;">${campHum?'¡CAMPEÓN!':'Bien jugado'}</div><div style="font-size:2.8rem;opacity:0;animation:auraFadeIn 0.4s ease 0.9s both;">${campHum?'👑':'🏆'}</div>`},
+    {d:1900,h:`<div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#a78bfa;opacity:0;animation:auraFadeIn 0.4s ease 0.1s both;">CAMPEÓN</div><div style="font-family:'Fraunces',serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fbbf24;text-shadow:0 0 35px rgba(251,191,36,0.8);opacity:0;animation:auraFadeIn 0.5s ease 0.3s both;">${camp}</div><div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#c4b5fd;opacity:0;animation:auraFadeIn 0.4s ease 0.7s both;">${duelos} duelo${duelos!==1?'s':''} ganado${duelos!==1?'s':''} · ${aciertos} acierto${aciertos!==1?'s':''}</div>`},
     {d:3800,h:buildRutaHtml(camp)},
   ];
   screens.forEach(s=>setTimeout(()=>{cont.innerHTML=s.h;},s.d));
   setTimeout(()=>running=false,5500);
 }
 
-function construirPodio(top3,campHum){
-  const lugs=document.getElementById('podio-lugares');
-  const msgs=document.getElementById('podio-msgs');
-  if(!lugs||!msgs)return;
-  lugs.innerHTML='';msgs.innerHTML='';
-  const orden=[1,0,2];
-  const cols=['#fbbf24','#94a3b8','#b45309'];
-  const alts=[88,62,48];
-  const meds=['🥇','🥈','🥉'];
-  orden.forEach((pi,vi)=>{
-    const j=top3[pi];
-    const div=document.createElement('div');
-    div.className=`podio-lugar podio-${pi+1}`;
-    div.style.transitionDelay=`${vi*0.35}s`;
-    div.innerHTML=`${pi===0?`<div style="font-size:1.2rem;margin-bottom:0.2rem;animation:flota 2s ease-in-out infinite;">👑</div>`:''}
-      <div class="podio-avatar" style="border-color:${cols[pi]};${pi===0?'width:76px;height:76px;box-shadow:0 0 26px '+cols[pi]+'55;':''}">${makeAvatar(j.nombre,j.esHuman,pi===0?40:30)}</div>
-      <div class="podio-nombre" style="color:${pi===0?cols[pi]:'#e9d5ff'};">${j.nombre}</div>
-      <div class="podio-plataforma" style="height:${alts[pi]}px;">${meds[pi]}</div>
-      <div class="podio-base"></div>`;
-    lugs.appendChild(div);
-    setTimeout(()=>div.classList.add('visible'),(vi+1)*360);
-  });
-  msgs.innerHTML=`
-    <div class="podio-msg-principal">${campHum?'¡'+top3[0].nombre+'!':'¡Bien jugado!'}</div>
-    <div class="podio-msg-sub">${campHum?'Conquistaste el torneo. +20 pts 🎉':'Sigue entrenando — puedes lograrlo.'}</div>
-    <div style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;margin-top:0.9rem;">
-      <button class="t-btn t-btn-primary" onclick="reiniciarTorneo()">🔄 NUEVO TORNEO</button>
-      <button class="t-btn t-btn-outline t-btn-sm" onclick="verBracketFinal()">📊 VER BRACKET</button>
-    </div>`;
-  setTimeout(()=>msgs.classList.add('visible'),1600);
-  lanzarConfetti(campHum);
-}
-
-function verBracketFinal(){
-  document.getElementById('t-fase-bot-resultado').style.display='none';
-  document.getElementById('t-fase-bot-bracket').style.display='block';
-  renderBotBracket();
-  // Botón para volver al podio
-  let banner=document.getElementById('bk-pre-ronda-banner');
-  if(!banner){
-    banner=document.createElement('div');
-    banner.id='bk-pre-ronda-banner';
-    const bd=document.getElementById('t-fase-bot-bracket');
-    bd.insertBefore(banner,bd.firstChild);
-  }
-  banner.style.cssText='background:linear-gradient(135deg,rgba(15,12,40,0.97),rgba(25,18,60,0.97));border:2px solid rgba(251,191,36,0.5);border-radius:14px;padding:0.9rem 1.2rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;';
-  banner.innerHTML=`
-    <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:#a78bfa;">📊 Bracket Final del Torneo</div>
-    <button onclick="volverAlPodio()" style="background:linear-gradient(90deg,#d97706,#f59e0b);color:#1e1b4b;border:none;padding:0.5rem 1.2rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;cursor:pointer;">← VER PODIO</button>`;
-}
-
-function volverAlPodio(){
-  const banner=document.getElementById('bk-pre-ronda-banner');
-  if(banner) banner.style.display='none';
-  document.getElementById('t-fase-bot-bracket').style.display='none';
-  document.getElementById('t-fase-bot-resultado').style.display='block';
-}
-
-function pausaPreRonda(titulo, subtitulo, onStart){
-  // Asegurarse de que el bracket sea visible
-  document.getElementById('t-fase-bot-duelo').style.display='none';
-  document.getElementById('t-fase-bot-bracket').style.display='block';
-
-  // Banner fijo encima del bracket con countdown y botón
-  let banner = document.getElementById('bk-pre-ronda-banner');
-  if(!banner){
-    banner = document.createElement('div');
-    banner.id = 'bk-pre-ronda-banner';
-    const bracketDiv = document.getElementById('t-fase-bot-bracket');
-    bracketDiv.insertBefore(banner, bracketDiv.firstChild);
-  }
-
-  let secsLeft = 0; // sin auto-countdown — el jugador decide
-  banner.style.cssText=`
-    background:linear-gradient(135deg,rgba(15,12,40,0.97),rgba(25,18,60,0.97));
-    border:2px solid rgba(251,191,36,0.5);
-    border-radius:14px;padding:1rem 1.4rem;
-    margin-bottom:1rem;
-    display:flex;align-items:center;justify-content:space-between;
-    flex-wrap:wrap;gap:0.8rem;
-    box-shadow:0 0 30px rgba(251,191,36,0.15);
-    animation:auraFadeIn 0.4s ease both;`;
-
-  banner.innerHTML=`
-    <div>
-      <div style="font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;
-        color:#fbbf24;text-shadow:0 0 12px rgba(251,191,36,0.4);margin-bottom:2px;">
-        ⚔️ ${titulo}
-      </div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.65rem;
-        color:rgba(255,255,255,0.45);letter-spacing:0.08em;">
-        ${subtitulo} · Revisa el bracket antes de empezar
-      </div>
-    </div>
-    <button id="bk-start-btn" onclick="iniciarDesdeParusa()"
-      style="background:linear-gradient(90deg,#d97706,#f59e0b);
-        color:#1e1b4b;border:none;padding:0.6rem 1.4rem;border-radius:8px;
-        font-family:'Space Mono',monospace;font-size:0.78rem;font-weight:700;
-        cursor:pointer;letter-spacing:0.06em;white-space:nowrap;
-        box-shadow:0 4px 16px rgba(217,119,6,0.4);
-        transition:transform 0.15s,box-shadow 0.15s;"
-      onmouseover="this.style.transform='scale(1.04)'"
-      onmouseout="this.style.transform='scale(1)'">
-      ▶ ¡COMENZAR!
-    </button>`;
-
-  BS._onStartRonda = ()=>{
-    // Quitar el banner al iniciar
-    if(banner) banner.style.display='none';
-    onStart();
-  };
-}
-
-function iniciarDesdeParusa(){
-  if(BS._onStartRonda) BS._onStartRonda();
-}
-
-function lanzarDesempate(humNom, humIdx, botNom, p, d){
-  const preg = generarPreguntas(1)[0];
-  const botObj = getBotObj(botNom);
-  const dif = BS.dificultad;
-
-  // El bot responde en 1–4 segundos
-  const botDelay = 1000 + Math.random()*3000;
-  let resuelto = false;
-
-  const rb = document.getElementById('t-bot-resultado');
-  rb.className='t-resultado-box show';
-  rb.style.background='rgba(124,58,237,0.15)';
-  rb.style.border='1px solid rgba(124,58,237,0.5)';
-  rb.style.color='#e9d5ff';
-
-  const inp = document.getElementById('t-bot-resp');
-  const btn = document.querySelector('[onclick="responderBot()"]');
-  inp.value=''; inp.className=''; inp.disabled=false; inp.style.display='block';
-  if(btn) btn.style.display='';
-
-  document.getElementById('t-bot-turno-label').textContent='⚡ DESEMPATE — responde primero:';
-  document.getElementById('t-bot-pregunta').textContent=preg?.txt||'?';
-  document.getElementById('t-bot-pista').textContent='El bot también está respondiendo ahora mismo…';
-  document.getElementById('t-bot-timer').textContent='⚡';
-  document.getElementById('t-bot-timer').className='t-timer';
-
-  rb.innerHTML=`<div style="text-align:center;">
-    <span style="font-size:1.1rem;">⚡</span>
-    <span style="font-family:'Space Mono',monospace;font-size:0.78rem;"> Responde más rápido que el bot</span>
-  </div>`;
-
-  function cerrarDesempate(ganador, porQue){
-    if(resuelto) return;
-    resuelto = true;
-    clearTimeout(botTimer);
-    clearInterval(d.timer);
-    inp.disabled=true; inp.style.display='none';
-    if(btn) btn.style.display='none';
-
-    const ganHum = ganador===humNom;
-    p.ganador   = ganador;
-    p.scores    = humIdx===0
-      ? [d.humScore+(ganHum?1:0), d.botScore+(ganHum?0:1)]
-      : [d.botScore+(ganHum?0:1), d.humScore+(ganHum?1:0)];
-    p.terminada = true;
-    p.empate    = true;
-
-    rb.style.background=ganHum?'rgba(52,211,153,0.12)':'rgba(248,113,113,0.1)';
-    rb.style.border=`1px solid ${ganHum?'rgba(52,211,153,0.4)':'rgba(248,113,113,0.3)'}`;
-    rb.style.color=ganHum?'#a7f3d0':'#fecaca';
-    rb.innerHTML=`<div style="font-weight:700;font-size:0.85rem;text-align:center;">
-      ${ganHum?'🏆 ¡Ganaste el desempate!':'🤖 El bot fue más rápido'}
-    </div>
-    <div style="font-size:0.72rem;margin-top:4px;text-align:center;opacity:0.7;">${porQue} — Respuesta: ${preg.ans}</div>`;
-
-    BS.highlights.push({tipo:ganHum?'humano_gana_duelo':'humano_pierde_duelo',
-      j1:d.j1, j2:d.j2, scores:p.scores});
-
-    setTimeout(()=>{
-      document.getElementById('t-fase-bot-duelo').style.display='none';
-      document.getElementById('t-fase-bot-bracket').style.display='block';
-      renderBotBracket();
-      d.onDone();
-    },3000);
-  }
-
-  // Bot responde automáticamente después del delay
-  const botTimer = setTimeout(()=>{
-    const acierta = Math.random()<(botObj.ac[dif]||0.65);
-    if(acierta){
-      cerrarDesempate(botNom, 'El bot respondió primero');
-    } else {
-      // Bot falló — humano gana automáticamente si no ha respondido aún
-      if(!resuelto){
-        cerrarDesempate(humNom, '¡El bot falló — tú ganas!');
-      }
-    }
-  }, botDelay);
-
-  // Reemplazar responderBot temporalmente para el desempate
-  d._desempateActivo = true;
-  d._desempatePreg   = preg;
-  d._cerrarDesempate = cerrarDesempate;
-  d._humNom          = humNom;
-  setTimeout(()=>inp.focus(), 80);
-}
-
 function construirTablaAciertos(humNom,botNom,d,ganHum){
   let rows='';
-  (BS.preguntasRonda||[]).forEach((preg,qi)=>{
-    const hLog=d._humLog&&d._humLog[qi];
-    const hOk=hLog?hLog.ok:false;
-    const hVal=hLog?hLog.val:'—';
-    const bLog=(d.botRespLog||[]).find(r=>r.qi===qi);
-    const bOk=bLog?bLog.acierta:false;
-    if(!preg) return;
-    rows+=`<tr>
-      <td style="color:#93c5fd;font-size:0.68rem;padding:3px 6px;">${preg.txt||'—'}</td>
-      <td style="text-align:center;padding:3px 4px;"><span style="color:${hOk?'#34d399':'#f87171'};font-weight:700;">${hOk?'✓':'✗'}</span>
-        <span style="color:rgba(255,255,255,0.35);font-size:0.6rem;"> ${hVal}</span></td>
+  (BS.preguntasHumano||[]).forEach((preg,qi)=>{
+    const hLog=d._humLog&&d._humLog[qi];const hOk=hLog?hLog.ok:false;const hVal=hLog?hLog.val:'—';
+    const bLog=(d.botRespLog||[]).find(r=>r.qi===qi);const bOk=bLog?bLog.acierta:false;
+    if(!preg)return;
+    rows+=`<tr><td style="color:#93c5fd;font-size:0.68rem;padding:3px 6px;">${preg.txt||'—'}</td>
+      <td style="text-align:center;padding:3px 4px;"><span style="color:${hOk?'#34d399':'#f87171'};font-weight:700;">${hOk?'✓':'✗'}</span><span style="color:rgba(255,255,255,0.35);font-size:0.6rem;"> ${hVal}</span></td>
       <td style="text-align:center;padding:3px 4px;"><span style="color:${bOk?'#34d399':'#f87171'};font-weight:700;">${bOk?'✓':'✗'}</span></td>
-      <td style="text-align:center;font-weight:700;color:#fbbf24;padding:3px 6px;">${preg.ans}</td>
-    </tr>`;
+      <td style="text-align:center;font-weight:700;color:#fbbf24;padding:3px 6px;">${preg.ans}</td></tr>`;
   });
-  return `<div style="margin-top:10px;border-top:1px solid rgba(124,58,237,0.3);padding-top:8px;">
-    <div style="font-family:'Space Mono',monospace;font-size:0.63rem;color:#a78bfa;
-      letter-spacing:0.1em;margin-bottom:5px;text-align:center;">📊 TABLA DE ACIERTOS</div>
+  return`<div style="margin-top:10px;border-top:1px solid rgba(124,58,237,0.3);padding-top:8px;">
+    <div style="font-family:'Space Mono',monospace;font-size:0.63rem;color:#a78bfa;letter-spacing:0.1em;margin-bottom:5px;text-align:center;">📊 TABLA DE ACIERTOS</div>
     <table style="width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;">
       <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
         <th style="font-size:0.58rem;color:#6b7280;font-weight:400;text-align:left;padding:2px 6px;">Pregunta</th>
@@ -2308,68 +1638,117 @@ function construirTablaAciertos(humNom,botNom,d,ganHum){
         <td></td>
       </tr></tfoot>
     </table>
-    <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.25);
-      text-align:center;margin-top:4px;">Volviendo al bracket en 5s…</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.25);text-align:center;margin-top:4px;">Volviendo al bracket en 5s…</div>
   </div>`;
 }
 
 function lanzarConfetti(epico){
-  const canvas=document.getElementById('confetti-canvas');
-  if(!canvas) return;
-  const ctx=canvas.getContext('2d');
-  canvas.width=window.innerWidth;
-  canvas.height=window.innerHeight;
-
-  const colors=epico
-    ?['#fbbf24','#f59e0b','#7c3aed','#4f46e5','#34d399','#f87171','#fff','#c4b5fd']
-    :['#7c3aed','#4f46e5','#a78bfa','#c4b5fd','#fff'];
-
-  const particulas=Array.from({length:epico?180:80},()=>({
-    x:Math.random()*canvas.width,
-    y:-20-Math.random()*200,
-    vx:(Math.random()-0.5)*4,
-    vy:2+Math.random()*4,
-    rot:Math.random()*360,
-    rotV:(Math.random()-0.5)*8,
-    size:5+Math.random()*10,
-    color:colors[Math.floor(Math.random()*colors.length)],
-    shape:Math.random()>0.5?'rect':'circle',
-    alpha:1
-  }));
-
+  const canvas=document.getElementById('confetti-canvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d');canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const colors=epico?['#fbbf24','#f59e0b','#7c3aed','#4f46e5','#34d399','#f87171','#fff']:['#7c3aed','#4f46e5','#a78bfa','#fff'];
+  const particulas=Array.from({length:epico?180:80},()=>({x:Math.random()*canvas.width,y:-20-Math.random()*200,vx:(Math.random()-0.5)*4,vy:2+Math.random()*4,rot:Math.random()*360,rotV:(Math.random()-0.5)*8,size:5+Math.random()*10,color:colors[Math.floor(Math.random()*colors.length)],shape:Math.random()>0.5?'rect':'circle',alpha:1}));
   let frame=0;
   function animarConfetti(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    let vivos=0;
+    ctx.clearRect(0,0,canvas.width,canvas.height);let vivos=0;
     particulas.forEach(p=>{
-      if(p.alpha<=0) return;
-      vivos++;
-      p.x+=p.vx; p.y+=p.vy; p.rot+=p.rotV;
-      if(p.y>canvas.height+20) p.alpha=0;
-      if(frame>120) p.alpha=Math.max(0,p.alpha-0.008);
-      ctx.save();
-      ctx.translate(p.x,p.y);
-      ctx.rotate(p.rot*Math.PI/180);
-      ctx.globalAlpha=p.alpha;
-      ctx.fillStyle=p.color;
-      if(p.shape==='rect'){
-        ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2);
-      } else {
-        ctx.beginPath();
-        ctx.arc(0,0,p.size/2,0,Math.PI*2);
-        ctx.fill();
-      }
+      if(p.alpha<=0)return;vivos++;p.x+=p.vx;p.y+=p.vy;p.rot+=p.rotV;
+      if(p.y>canvas.height+20)p.alpha=0;if(frame>120)p.alpha=Math.max(0,p.alpha-0.008);
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.globalAlpha=p.alpha;ctx.fillStyle=p.color;
+      if(p.shape==='rect')ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2);
+      else{ctx.beginPath();ctx.arc(0,0,p.size/2,0,Math.PI*2);ctx.fill();}
       ctx.restore();
     });
-    frame++;
-    if(vivos>0) requestAnimationFrame(animarConfetti);
-    else ctx.clearRect(0,0,canvas.width,canvas.height);
+    frame++;if(vivos>0)requestAnimationFrame(animarConfetti);else ctx.clearRect(0,0,canvas.width,canvas.height);
   }
   requestAnimationFrame(animarConfetti);
 }
 
+function construirPodio(top3,campHum){
+  const lugs=document.getElementById('podio-lugares');const msgs=document.getElementById('podio-msgs');
+  if(!lugs||!msgs)return;lugs.innerHTML='';msgs.innerHTML='';
+  const orden=[1,0,2];const cols=['#fbbf24','#94a3b8','#b45309'];const alts=[88,62,48];const meds=['🥇','🥈','🥉'];
+  orden.forEach((pi,vi)=>{
+    const j=top3[pi];const div=document.createElement('div');
+    div.className=`podio-lugar podio-${pi+1}`;div.style.transitionDelay=`${vi*0.35}s`;
+    div.innerHTML=`${pi===0?`<div style="font-size:1.2rem;margin-bottom:0.2rem;animation:flota 2s ease-in-out infinite;">👑</div>`:''}
+      <div class="podio-avatar" style="border-color:${cols[pi]};">${makeAvatar(j.nombre,j.esHuman,pi===0?40:30)}</div>
+      <div class="podio-nombre" style="color:${pi===0?cols[pi]:'#e9d5ff'};">${j.nombre}</div>
+      <div class="podio-plataforma" style="height:${alts[pi]}px;">${meds[pi]}</div>
+      <div class="podio-base"></div>`;
+    lugs.appendChild(div);setTimeout(()=>div.classList.add('visible'),(vi+1)*360);
+  });
+  msgs.innerHTML=`<div class="podio-msg-principal">${campHum?'¡'+top3[0].nombre+'!':'¡Bien jugado!'}</div>
+    <div class="podio-msg-sub">${campHum?'Conquistaste el torneo. +20 pts 🎉':'Sigue entrenando — puedes lograrlo.'}</div>
+    <div style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;margin-top:0.9rem;">
+      <button class="t-btn t-btn-primary" onclick="reiniciarTorneo()">🔄 NUEVO TORNEO</button>
+      <button class="t-btn t-btn-outline t-btn-sm" onclick="verBracketFinal()">📊 VER BRACKET</button>
+    </div>`;
+  setTimeout(()=>msgs.classList.add('visible'),1600);
+  lanzarConfetti(campHum);
+}
 
+function verBracketFinal(){
+  document.getElementById('t-fase-bot-resultado').style.display='none';
+  document.getElementById('t-fase-bot-bracket').style.display='block';
+  renderBotBracket();
+  let banner=document.getElementById('bk-pre-ronda-banner');
+  if(!banner){banner=document.createElement('div');banner.id='bk-pre-ronda-banner';const bd=document.getElementById('t-fase-bot-bracket');bd.insertBefore(banner,bd.firstChild);}
+  banner.style.cssText='background:linear-gradient(135deg,rgba(15,12,40,0.97),rgba(25,18,60,0.97));border:2px solid rgba(251,191,36,0.5);border-radius:14px;padding:0.9rem 1.2rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;';
+  banner.innerHTML=`<div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:#a78bfa;">📊 Bracket Final del Torneo</div>
+    <button onclick="volverAlPodio()" style="background:linear-gradient(90deg,#d97706,#f59e0b);color:#1e1b4b;border:none;padding:0.5rem 1.2rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;cursor:pointer;">← VER PODIO</button>`;
+}
+function volverAlPodio(){
+  const banner=document.getElementById('bk-pre-ronda-banner');if(banner)banner.style.display='none';
+  document.getElementById('t-fase-bot-bracket').style.display='none';
+  document.getElementById('t-fase-bot-resultado').style.display='block';
+}
 
+function pausaPreRonda(titulo,subtitulo,onStart){
+  document.getElementById('t-fase-bot-duelo').style.display='none';
+  document.getElementById('t-fase-bot-bracket').style.display='block';
+  let banner=document.getElementById('bk-pre-ronda-banner');
+  if(!banner){banner=document.createElement('div');banner.id='bk-pre-ronda-banner';const bracketDiv=document.getElementById('t-fase-bot-bracket');bracketDiv.insertBefore(banner,bracketDiv.firstChild);}
+  banner.style.cssText=`background:linear-gradient(135deg,rgba(15,12,40,0.97),rgba(25,18,60,0.97));border:2px solid rgba(251,191,36,0.5);border-radius:14px;padding:1rem 1.4rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;box-shadow:0 0 30px rgba(251,191,36,0.15);animation:auraFadeIn 0.4s ease both;`;
+  banner.innerHTML=`<div><div style="font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;color:#fbbf24;margin-bottom:2px;">⚔️ ${titulo}</div><div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.45);">${subtitulo}</div></div>
+    <button id="bk-start-btn" onclick="iniciarDesdeParusa()" style="background:linear-gradient(90deg,#d97706,#f59e0b);color:#1e1b4b;border:none;padding:0.6rem 1.4rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.78rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(217,119,6,0.4);">▶ ¡COMENZAR!</button>`;
+  BS._onStartRonda=()=>{if(banner)banner.style.display='none';onStart();};
+}
+function iniciarDesdeParusa(){if(BS._onStartRonda)BS._onStartRonda();}
+
+function lanzarDesempate(humNom,humIdx,botNom,p,d){
+  const preg=generarPreguntas(1)[0];const botObj=getBotObj(botNom);const dif=BS.dificultad;
+  const botDelay=1000+Math.random()*3000;let resuelto=false;
+  const rb=document.getElementById('t-bot-resultado');
+  rb.className='t-resultado-box show';rb.style.background='rgba(245,158,11,0.12)';rb.style.border='1px solid rgba(245,158,11,0.5)';rb.style.color='#fde68a';
+  rb.innerHTML=`<div style="font-weight:700;margin-bottom:6px;">⚡ ¡EMPATE!</div><div style="font-size:0.78rem;">Pregunta extra — ¡el primero en responder correcto gana!</div>`;
+  const inp=document.getElementById('t-bot-resp');const btn=document.querySelector('[onclick="responderBot()"]');
+  inp.value='';inp.className='';inp.disabled=false;inp.style.display='block';if(btn)btn.style.display='';
+  document.getElementById('t-bot-turno-label').textContent='⚡ DESEMPATE — responde primero:';
+  document.getElementById('t-bot-pregunta').textContent=preg?.txt||'?';
+  document.getElementById('t-bot-pista').textContent='El bot también está respondiendo…';
+  document.getElementById('t-bot-timer').textContent='⚡';
+  function cerrarDesempate(ganador,porQue){
+    if(resuelto)return;resuelto=true;clearTimeout(botTimer);clearInterval(d.timer);
+    inp.disabled=true;inp.style.display='none';if(btn)btn.style.display='none';
+    const ganHum=ganador===humNom;
+    p.ganador=ganador;p.scores=humIdx===0?[d.humScore+(ganHum?1:0),d.botScore+(ganHum?0:1)]:[d.botScore+(ganHum?0:1),d.humScore+(ganHum?1:0)];
+    p.terminada=true;p.empate=true;
+    rb.style.background=ganHum?'rgba(52,211,153,0.12)':'rgba(248,113,113,0.1)';
+    rb.style.border=`1px solid ${ganHum?'rgba(52,211,153,0.4)':'rgba(248,113,113,0.3)'}`;
+    rb.style.color=ganHum?'#a7f3d0':'#fecaca';
+    rb.innerHTML=`<div style="font-weight:700;font-size:0.85rem;text-align:center;">${ganHum?'🏆 ¡Ganaste el desempate!':'🤖 El bot fue más rápido'}</div><div style="font-size:0.72rem;margin-top:4px;text-align:center;opacity:0.7;">${porQue} — Respuesta: ${preg.ans}</div>`;
+    BS.highlights.push({tipo:ganHum?'humano_gana_duelo':'humano_pierde_duelo',j1:d.j1,j2:d.j2,scores:p.scores});
+    d._desempateActivo=false;
+    setTimeout(()=>{document.getElementById('t-fase-bot-duelo').style.display='none';document.getElementById('t-fase-bot-bracket').style.display='block';renderBotBracket();d.onDone();},3000);
+  }
+  const botTimer=setTimeout(()=>{
+    const acierta=Math.random()<(botObj.ac[dif]||0.65);
+    if(acierta)cerrarDesempate(botNom,'El bot respondió primero');
+    else if(!resuelto)cerrarDesempate(humNom,'¡El bot falló — tú ganas!');
+  },botDelay);
+  d._desempateActivo=true;d._desempatePreg=preg;d._cerrarDesempate=cerrarDesempate;d._humNom=humNom;
+  setTimeout(()=>inp.focus(),80);
+}
 
 // ================================================================
 //  FIREBASE CONFIG
@@ -2384,52 +1763,28 @@ const FIREBASE_CONFIG = {
   appId: "1:491506606716:web:807adec488483685445ff9"
 };
 
-// ================================================================
-//  FIREBASE INIT (usando CDN compat)
-// ================================================================
-let db = null;
-let salaRef = null;
-let SALA_CODIGO = null;
-let ROL = null; // 'admin' | 'alumno'
-let MI_NOMBRE = null;
+let db=null,salaRef=null,SALA_CODIGO=null,ROL=null,MI_NOMBRE=null;
 
 function initFirebase(){
-  if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-  db = firebase.database();
+  if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);
+  db=firebase.database();
 }
 
-// ================================================================
-//  UTILIDADES DE SALA
-// ================================================================
 function generarCodigo(){
-  const letras='ABCDEFGHJKLMNPQRSTUVWXYZ';
-  const nums='23456789';
-  const pool=letras+nums;
-  let c='';
-  for(let i=0;i<6;i++) c+=pool[Math.floor(Math.random()*pool.length)];
+  const letras='ABCDEFGHJKLMNPQRSTUVWXYZ';const nums='23456789';const pool=letras+nums;
+  let c='';for(let i=0;i<6;i++)c+=pool[Math.floor(Math.random()*pool.length)];
   return c.slice(0,3)+'-'+c.slice(3);
 }
+function formatoLabel(f){return {16:'Dieciseisavos',8:'Octavos de Final',4:'Cuartos de Final',2:'Semifinal'}[f]||'Octavos de Final';}
 
-function formatoLabel(f){
-  return {16:'Dieciseisavos',8:'Octavos de Final',4:'Cuartos de Final',2:'Semifinal'}[f]||'Octavos de Final';
-}
-
-// ================================================================
-//  PANEL ADMIN
-// ================================================================
-let adminSalaListener = null;
-let adminJugadoresListener = null;
+let adminJugadoresListener=null;
 
 function mostrarAdmin(){
-  const pwd = document.getElementById('admin-pwd').value;
-  if(pwd !== 'quimica2025'){
-    document.getElementById('admin-pwd-err').textContent='Contraseña incorrecta';
-    return;
-  }
+  const pwd=document.getElementById('admin-pwd').value;
+  if(pwd!=='quimica2025'){document.getElementById('admin-pwd-err').textContent='Contraseña incorrecta';return;}
   document.getElementById('admin-login').style.display='none';
   document.getElementById('admin-panel').style.display='block';
-  initFirebase();
-  cargarHistorialAdmin();
+  initFirebase();cargarHistorialAdmin();
 }
 
 function crearSala(){
@@ -2437,71 +1792,43 @@ function crearSala(){
   const formato=parseInt(document.getElementById('admin-formato').value)||8;
   const tiempo=parseInt(document.getElementById('admin-tiempo').value)||30;
   const tipo=document.getElementById('admin-tipo').value||'cuanticos';
-  SALA_CODIGO=codigo; ROL='admin';
-  const salaData={
-    codigo,formato,tiempo,tipo,
-    estado:'esperando',
-    rondaActiva:'espera',
-    creada:Date.now(),
-    jugadores:{},
-    bracket:{oct16:[],oct8:[],cuar:[],semi:[],gran:[]},
-  };
+  SALA_CODIGO=codigo;ROL='admin';
+  const salaData={codigo,formato,tiempo,tipo,estado:'esperando',rondaActiva:'espera',creada:Date.now(),jugadores:{},bracket:{oct16:[],oct8:[],cuar:[],semi:[],gran:[]}};
   db.ref('salas/'+codigo).set(salaData).then(()=>{
     document.getElementById('admin-sala-codigo').textContent=codigo;
     document.getElementById('admin-sala-info').style.display='block';
     document.getElementById('admin-crear-sala').style.display='none';
-    actualizarLimitador(formato);
-    escucharJugadores(codigo);
-    mostrarQR(codigo);
+    actualizarLimitador(formato);escucharJugadores(codigo);mostrarQR(codigo);
   });
 }
 
 function escucharJugadores(codigo){
-  if(adminJugadoresListener) adminJugadoresListener.off();
-  adminJugadoresListener = db.ref('salas/'+codigo+'/jugadores');
-  adminJugadoresListener.on('value', snap=>{
-    const jugs = snap.val()||{};
-    const lista = Object.values(jugs);
-    const total = parseInt(document.getElementById('admin-formato').value)||8;
-    document.getElementById('admin-conectados-count').textContent = lista.length+'/'+total;
-    const ul = document.getElementById('admin-jugadores-lista');
-    ul.innerHTML = lista.map(j=>`
-      <div style="display:flex;align-items:center;gap:8px;padding:4px 0;">
-        ${makeAvatar(j.nombre,false,22)}
-        <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#e9d5ff;">${j.nombre}</span>
-        <span style="margin-left:auto;font-size:0.6rem;color:#34d399;">✓</span>
-      </div>`).join('');
-    // Habilitar botón iniciar si hay suficientes
-    const btn = document.getElementById('btn-iniciar-sala');
-    if(btn) btn.disabled = lista.length < 2;
+  if(adminJugadoresListener)adminJugadoresListener.off();
+  adminJugadoresListener=db.ref('salas/'+codigo+'/jugadores');
+  adminJugadoresListener.on('value',snap=>{
+    const jugs=snap.val()||{};const lista=Object.values(jugs);
+    const total=parseInt(document.getElementById('admin-formato').value)||8;
+    document.getElementById('admin-conectados-count').textContent=lista.length+'/'+total;
+    const ul=document.getElementById('admin-jugadores-lista');
+    ul.innerHTML=lista.map(j=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">${makeAvatar(j.nombre,false,22)}<span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#e9d5ff;">${j.nombre}</span><span style="margin-left:auto;font-size:0.6rem;color:#34d399;">✓</span></div>`).join('');
+    const btn=document.getElementById('btn-iniciar-sala');if(btn)btn.disabled=lista.length<2;
   });
 }
 
 function iniciarSala(){
-  if(!SALA_CODIGO) return;
+  if(!SALA_CODIGO)return;
   const formato=parseInt(document.getElementById('admin-formato').value)||8;
   db.ref('salas/'+SALA_CODIGO+'/jugadores').once('value').then(snap=>{
-    const jugs=Object.values(snap.val()||{});
-    let nombres=jugs.map(j=>j.nombre);
-    // Rellenar con bots si faltan
+    const jugs=Object.values(snap.val()||{});let nombres=jugs.map(j=>j.nombre);
     const botsDisp=shuffle2(BOTS_TODOS.filter(b=>!nombres.includes(b.nombre)));
     let bi=0;
-    while(nombres.length<formato){
-      const b=botsDisp[bi++%Math.max(botsDisp.length,1)];
-      if(b&&!nombres.includes(b.nombre))nombres.push(b.nombre);
-      else if(!b)nombres.push('Bot '+(nombres.length+1));
-    }
+    while(nombres.length<formato){const b=botsDisp[bi++%Math.max(botsDisp.length,1)];if(b&&!nombres.includes(b.nombre))nombres.push(b.nombre);else if(!b)nombres.push('Bot '+(nombres.length+1));}
     nombres=shuffle2(nombres).slice(0,formato);
-    // Construir primera ronda según formato
     const {rondaKey,rondaNom}=primeraRonda(formato);
     const partidas=construirPartidas(nombres,rondaNom);
     const bracket={oct16:[],oct8:[],cuar:[],semi:[],gran:[]};
     bracket[rondaKey]=partidas;
-    db.ref('salas/'+SALA_CODIGO).update({
-      estado:'jugando',bracket,
-      rondaActiva:rondaKey,
-      nombresOrden:nombres
-    }).then(()=>{
+    db.ref('salas/'+SALA_CODIGO).update({estado:'jugando',bracket,rondaActiva:rondaKey,nombresOrden:nombres}).then(()=>{
       document.getElementById('admin-sala-info').style.display='none';
       document.getElementById('admin-bracket-view').style.display='block';
       escucharBracketAdmin();
@@ -2510,141 +1837,91 @@ function iniciarSala(){
 }
 
 function escucharBracketAdmin(){
-  db.ref('salas/'+SALA_CODIGO).on('value', snap=>{
-    const sala = snap.val();
-    if(!sala) return;
-    renderAdminBracket(sala);
+  db.ref('salas/'+SALA_CODIGO).on('value',snap=>{
+    const sala=snap.val();if(!sala)return;renderAdminBracket(sala);
   });
 }
 
-
-// ── Helpers de bracket ────────────────────────────────────────
 function primeraRonda(formato){
-  if(formato>=16) return {rondaKey:'oct16',rondaNom:'Dieciseisavos'};
-  if(formato>=8)  return {rondaKey:'oct8', rondaNom:'Octavos de Final'};
-  if(formato>=4)  return {rondaKey:'cuar', rondaNom:'Cuartos de Final'};
-  return {rondaKey:'semi',rondaNom:'Semifinal'};
+  if(formato>=16)return{rondaKey:'oct16',rondaNom:'Dieciseisavos'};
+  if(formato>=8)return{rondaKey:'oct8',rondaNom:'Octavos de Final'};
+  if(formato>=4)return{rondaKey:'cuar',rondaNom:'Cuartos de Final'};
+  return{rondaKey:'semi',rondaNom:'Semifinal'};
 }
-
-function labelRonda(key){
-  return {oct16:'Dieciseisavos',oct8:'Octavos de Final',
-          cuar:'Cuartos de Final',semi:'Semifinal',gran:'Final'}[key]||key;
-}
-
-function siguienteRonda(key){
-  return {oct16:'oct8',oct8:'cuar',cuar:'semi',semi:'gran'}[key]||null;
-}
-
+function labelRonda(key){return{oct16:'Dieciseisavos',oct8:'Octavos de Final',cuar:'Cuartos de Final',semi:'Semifinal',gran:'Final'}[key]||key;}
+function siguienteRonda(key){return{oct16:'oct8',oct8:'cuar',cuar:'semi',semi:'gran'}[key]||null;}
 function construirPartidas(nombres,rondaNom){
-  const out=[];
-  for(let i=0;i<nombres.length;i+=2){
-    out.push({j1:nombres[i],j2:nombres[i+1]||'Bot',
-      scores:[0,0],terminada:false,ganador:null,ronda:rondaNom});
-  }
+  const out=[];for(let i=0;i<nombres.length;i+=2)out.push({j1:nombres[i],j2:nombres[i+1]||'Bot',scores:[0,0],terminada:false,ganador:null,j1_listo:false,j2_listo:false,ronda:rondaNom});
   return out;
 }
+function actualizarLimitador(formato){const el=document.getElementById('admin-conectados-count');if(el)el.textContent='0/'+formato;}
 
-function actualizarLimitador(formato){
-  const el=document.getElementById('admin-conectados-count');
-  if(el)el.textContent='0/'+formato;
-}
-
-// ── Admin: escuchar bracket ───────────────────────────────────
 function renderAdminBracket(sala){
-  const div=document.getElementById('admin-bracket-live');
-  if(!div)return;
+  const div=document.getElementById('admin-bracket-live');if(!div)return;
   const rondaAct=sala.rondaActiva||'oct8';
   const rondas=['oct16','oct8','cuar','semi','gran'];
-  let html='';
-
-  // Estado general
-  html+=`<div style="font-family:'Space Mono',monospace;font-size:0.62rem;
-    color:#a78bfa;letter-spacing:0.08em;margin-bottom:10px;">
-    SALA: ${sala.codigo} &nbsp;·&nbsp; ${labelRonda(rondaAct).toUpperCase()}
-    &nbsp;·&nbsp; ${sala.estado}
-  </div>`;
-
-  // Mostrar cada ronda que tenga datos
+  let html=`<div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#a78bfa;letter-spacing:0.08em;margin-bottom:10px;">SALA: ${sala.codigo} &nbsp;·&nbsp; ${labelRonda(rondaAct).toUpperCase()} &nbsp;·&nbsp; ${sala.estado}</div>`;
   rondas.forEach(r=>{
-    const pts=sala.bracket?.[r];
-    if(!pts||!pts.length)return;
+    const pts=sala.bracket?.[r];if(!pts||!pts.length)return;
     const activa=r===rondaAct;
-    html+=`<div style="margin-bottom:12px;">
-      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;
-        color:${activa?'#fbbf24':'rgba(255,255,255,0.35)'};
-        letter-spacing:0.12em;margin-bottom:5px;text-transform:uppercase;">
-        ${activa?'▶ ':''} ${labelRonda(r)}
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;">
-        ${pts.map((p,i)=>slotAdmin(p,i,activa)).join('')}
-      </div>
-    </div>`;
+    html+=`<div style="margin-bottom:12px;"><div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:${activa?'#fbbf24':'rgba(255,255,255,0.35)'};letter-spacing:0.12em;margin-bottom:5px;text-transform:uppercase;">${activa?'▶ ':''} ${labelRonda(r)}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">${pts.map((p,i)=>slotAdmin(p,i,activa)).join('')}</div></div>`;
   });
-
-  // Controles
   const rondaPartidas=sala.bracket?.[rondaAct]||[];
   const todasTerminadas=rondaPartidas.length>0&&rondaPartidas.every(p=>p&&p.terminada);
   const sigRonda=siguienteRonda(rondaAct);
   html+=`<div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:0.8rem;">`;
-  if(todasTerminadas&&sigRonda&&sala.estado==='jugando')
-    html+=`<button class="t-btn t-btn-gold t-btn-sm" onclick="avanzarRondaAdmin('${sigRonda}')">
-      Iniciar ${labelRonda(sigRonda)} &rarr;</button>`;
-  if(todasTerminadas&&!sigRonda)
-    html+=`<button class="t-btn t-btn-primary t-btn-sm" onclick="terminarTorneoAdmin()">
-      Ver Campeon</button>`;
-  html+=`<button class="t-btn t-btn-danger t-btn-sm" onclick="cerrarSalaAdmin()">Cerrar Sala</button>`;
-  html+=`</div>`;
-
+  if(todasTerminadas&&sigRonda&&sala.estado==='jugando')html+=`<button class="t-btn t-btn-gold t-btn-sm" onclick="avanzarRondaAdmin('${sigRonda}')">Iniciar ${labelRonda(sigRonda)} &rarr;</button>`;
+  if(todasTerminadas&&!sigRonda)html+=`<button class="t-btn t-btn-primary t-btn-sm" onclick="terminarTorneoAdmin()">Ver Campeon</button>`;
+  html+=`<button class="t-btn t-btn-danger t-btn-sm" onclick="cerrarSalaAdmin()">Cerrar Sala</button></div>`;
   div.innerHTML=html;
 }
 
-function terminarTorneoAdmin(){
-  if(!SALA_CODIGO)return;
-  db.ref('salas/'+SALA_CODIGO+'/estado').set('terminado');
-}
+function terminarTorneoAdmin(){if(!SALA_CODIGO)return;db.ref('salas/'+SALA_CODIGO+'/estado').set('terminado');}
 
-
-
-function slotAdmin(p, i){
-  if(!p) return `<div class="bk-slot bk-empty" style="margin:2px;"><div class="bk-row"><span class="bk-name bk-tbd">Por definir</span></div></div>`;
-  const g1=p.terminada&&p.ganador===p.j1;
-  const g2=p.terminada&&p.ganador===p.j2;
+function slotAdmin(p,i){
+  if(!p)return`<div class="bk-slot bk-empty" style="margin:2px;"><div class="bk-row"><span class="bk-name bk-tbd">Por definir</span></div></div>`;
+  const g1=p.terminada&&p.ganador===p.j1,g2=p.terminada&&p.ganador===p.j2;
   const border=p.terminada?'rgba(52,211,153,0.4)':p.animando?'rgba(124,58,237,0.7)':'rgba(255,255,255,0.1)';
-  return `<div class="bk-slot${p.terminada?' bk-done':''}" style="border-color:${border};margin:3px;min-width:160px;">
+  // Mostrar estado de quien ya respondió
+  const j1ListoIcon = p.j1_listo ? '✓' : '…';
+  const j2ListoIcon = p.j2_listo ? '✓' : '…';
+  const j1Color = p.j1_listo ? '#34d399' : 'rgba(255,255,255,0.3)';
+  const j2Color = p.j2_listo ? '#34d399' : 'rgba(255,255,255,0.3)';
+  return`<div class="bk-slot${p.terminada?' bk-done':''}" style="border-color:${border};margin:3px;min-width:180px;">
     <div class="bk-row${g1?' bk-win':p.terminada?' bk-los':''}">
       ${makeAvatar(p.j1,!esBotNombre(p.j1),18)}
       <span class="bk-name" style="margin-left:4px;">${p.j1}</span>
-      <span class="bk-sc">${p.terminada?p.scores[0]:'—'}</span>
+      <span style="font-size:0.6rem;color:${j1Color};margin-right:2px;">${j1ListoIcon}</span>
+      <span class="bk-sc">${p.terminada?p.scores[0]:(p.j1_listo?p.scores[0]:'—')}</span>
     </div>
     <div class="bk-div"></div>
     <div class="bk-row${g2?' bk-win':p.terminada?' bk-los':''}">
       ${makeAvatar(p.j2,!esBotNombre(p.j2),18)}
       <span class="bk-name" style="margin-left:4px;">${p.j2}</span>
-      <span class="bk-sc">${p.terminada?p.scores[1]:'—'}</span>
+      <span style="font-size:0.6rem;color:${j2Color};margin-right:2px;">${j2ListoIcon}</span>
+      <span class="bk-sc">${p.terminada?p.scores[1]:(p.j2_listo?p.scores[1]:'—')}</span>
     </div>
-    ${p.terminada?`<div class="bk-status" style="color:#34d399;">✓ ${p.ganador}</div>`:''}
+    ${p.terminada?`<div class="bk-status" style="color:#34d399;">✓ Ganador: ${p.ganador}</div>`:
+      (p.j1_listo||p.j2_listo)?`<div class="bk-status" style="color:#fbbf24;">⏳ Esperando rival...</div>`:''}
   </div>`;
 }
 
 function avanzarRondaAdmin(sigRonda){
-  if(!SALA_CODIGO) return;
+  if(!SALA_CODIGO)return;
   db.ref('salas/'+SALA_CODIGO).once('value').then(snap=>{
-    const sala=snap.val();
-    const rondaAct=sala.rondaActiva;
+    const sala=snap.val();const rondaAct=sala.rondaActiva;
     const partidas=sala.bracket[rondaAct]||[];
     const ganadores=partidas.map(p=>p.ganador).filter(Boolean);
     if(!ganadores.length){alert('No hay ganadores registrados aun');return;}
     const nuevas=construirPartidas(ganadores,labelRonda(sigRonda));
-    const update={};
-    update['bracket/'+sigRonda]=nuevas;
-    update['rondaActiva']=sigRonda;
+    const update={};update['bracket/'+sigRonda]=nuevas;update['rondaActiva']=sigRonda;
     db.ref('salas/'+SALA_CODIGO).update(update);
   });
 }
 
 function cerrarSalaAdmin(){
-  if(!SALA_CODIGO) return;
-  if(!confirm('¿Cerrar la sala y terminar el torneo?')) return;
+  if(!SALA_CODIGO)return;if(!confirm('¿Cerrar la sala?'))return;
   db.ref('salas/'+SALA_CODIGO+'/estado').set('terminado');
   db.ref('salas/'+SALA_CODIGO).off();
   document.getElementById('admin-bracket-view').style.display='none';
@@ -2653,172 +1930,142 @@ function cerrarSalaAdmin(){
 }
 
 function mostrarQR(codigo){
-  const url = `https://navegacion-web.github.io/torneo?sala=${codigo}`;
-  const qrDiv = document.getElementById('admin-qr');
-  if(!qrDiv) return;
-  qrDiv.innerHTML=`
-    <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#a78bfa;margin-bottom:4px;">URL PARA ALUMNOS</div>
-    <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#fbbf24;
-      background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);
-      border-radius:6px;padding:6px 10px;word-break:break-all;margin-bottom:6px;">${url}</div>
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(url)}"
-      style="border-radius:8px;border:2px solid rgba(251,191,36,0.3);" width="120" height="120">`;
+  const url=`https://navegacion-web.github.io/torneo?sala=${codigo}`;
+  const qrDiv=document.getElementById('admin-qr');if(!qrDiv)return;
+  qrDiv.innerHTML=`<div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#a78bfa;margin-bottom:4px;">URL PARA ALUMNOS</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#fbbf24;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:6px;padding:6px 10px;word-break:break-all;margin-bottom:6px;">${url}</div>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(url)}" style="border-radius:8px;border:2px solid rgba(251,191,36,0.3);" width="120" height="120">`;
 }
 
 function cargarHistorialAdmin(){
   db.ref('historial').limitToLast(5).once('value').then(snap=>{
-    const data=snap.val()||{};
-    const items=Object.values(data).reverse();
-    const div=document.getElementById('admin-historial');
-    if(!div) return;
-    if(!items.length){ div.innerHTML='<div style="font-size:0.75rem;color:rgba(255,255,255,0.3);">Sin torneos previos</div>'; return; }
-    div.innerHTML=items.map(t=>`
-      <div style="display:flex;justify-content:space-between;align-items:center;
-        padding:5px 8px;border-radius:6px;background:rgba(255,255,255,0.03);
-        border:1px solid rgba(255,255,255,0.06);margin-bottom:4px;">
-        <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:#c4b5fd;">${t.fecha||'—'}</span>
-        <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:#fbbf24;">🏆 ${t.campeon||'—'}</span>
-        <span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(255,255,255,0.35);">${t.formato||''}</span>
-      </div>`).join('');
+    const data=snap.val()||{};const items=Object.values(data).reverse();
+    const div=document.getElementById('admin-historial');if(!div)return;
+    if(!items.length){div.innerHTML='<div style="font-size:0.75rem;color:rgba(255,255,255,0.3);">Sin torneos previos</div>';return;}
+    div.innerHTML=items.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);margin-bottom:4px;">
+      <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:#c4b5fd;">${t.fecha||'—'}</span>
+      <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:#fbbf24;">🏆 ${t.campeon||'—'}</span>
+      <span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(255,255,255,0.35);">${t.formato||''}</span>
+    </div>`).join('');
   });
 }
 
 // ================================================================
-//  ALUMNO — UNIRSE A SALA
+//  ALUMNO — UNIRSE A SALA  ✅ CORREGIDO
 // ================================================================
-let alumnoSalaRef = null;
-let alumnoDueloRef = null;
-let MI_PARTIDA_IDX = null;
-let MI_RONDA_KEY = null;
-let MI_DUELO_INICIADO = false;
+let alumnoSalaRef=null;
+let MI_PARTIDA_IDX=null,MI_RONDA_KEY=null,MI_DUELO_INICIADO=false;
 
 function unirseASala(){
   const nombre=document.getElementById('alumno-nombre').value.trim();
   const codigoRaw=document.getElementById('alumno-codigo').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
   const codigo=codigoRaw.length===6?codigoRaw.slice(0,3)+'-'+codigoRaw.slice(3):codigoRaw;
-  const errEl=document.getElementById('alumno-err');
-  errEl.textContent='';
+  const errEl=document.getElementById('alumno-err');errEl.textContent='';
   if(!nombre){errEl.textContent='Escribe tu nombre';return;}
   if(codigoRaw.length<5){errEl.textContent='Escribe el codigo';return;}
   errEl.style.color='#a78bfa';errEl.textContent='Conectando...';
-  initFirebase();
-  MI_NOMBRE=nombre;SALA_CODIGO=codigo;ROL='alumno';
+  initFirebase();MI_NOMBRE=nombre;SALA_CODIGO=codigo;ROL='alumno';
   db.ref('salas/'+codigo).once('value').then(snap=>{
-    const sala=snap.val();
-    errEl.style.color='#f87171';
+    const sala=snap.val();errEl.style.color='#f87171';
     if(!sala){errEl.textContent='Sala no encontrada';return;}
     if(sala.estado==='terminado'){errEl.textContent='El torneo ya termino';return;}
-    // Registrar sin validar nombre duplicado
     const key=nombre.replace(/[^a-zA-Z0-9]/g,'_').slice(0,20)+'_'+Date.now();
     const jugRef=db.ref('salas/'+codigo+'/jugadores/'+key);
     jugRef.set({nombre,conectado:true,ts:Date.now()}).then(()=>{
-      jugRef.onDisconnect().remove();
-      errEl.textContent='';
-      MI_DUELO_INICIADO = false; // reset para nueva sala
+      jugRef.onDisconnect().remove();errEl.textContent='';MI_DUELO_INICIADO=false;
       document.getElementById('t-fase-alumno-join').style.display='none';
       document.getElementById('alumno-espera').style.display='block';
       document.getElementById('alumno-espera-nombre').textContent='Hola, '+nombre+'!';
       escucharSalaAlumno(codigo);
-    }).catch(err=>{
-      errEl.textContent='No se pudo registrar. Verifica reglas de Firebase.';
-      console.error(err);
-    });
-  }).catch(err=>{
-    errEl.style.color='#f87171';
-    errEl.textContent='Error de conexion.';
-    console.error(err);
-  });
+    }).catch(err=>{errEl.textContent='No se pudo registrar. Verifica reglas de Firebase.';console.error(err);});
+  }).catch(err=>{errEl.style.color='#f87171';errEl.textContent='Error de conexion.';console.error(err);});
 }
 
-
 function escucharSalaAlumno(codigo){
-  if(alumnoSalaRef) alumnoSalaRef.off();
+  if(alumnoSalaRef)alumnoSalaRef.off();
   alumnoSalaRef=db.ref('salas/'+codigo);
   alumnoSalaRef.on('value',snap=>{
-    const sala=snap.val();
-    if(!sala){console.warn('Sala no encontrada');return;}
-
+    const sala=snap.val();if(!sala)return;
     const enEspera=document.getElementById('alumno-espera').style.display!=='none';
     if(enEspera){
       const jugs=Object.values(sala.jugadores||{});
       const el=document.getElementById('alumno-espera-count');
       if(el)el.textContent='Conectados: '+jugs.length+' jugadores';
     }
-
-    if(sala.estado==='jugando'&&!MI_DUELO_INICIADO){
-      buscarMiPartida(sala);
-    }
-    if(sala.estado==='terminado'){
-      mostrarFinAlumno(sala);
-    }
+    if(sala.estado==='jugando')buscarMiPartida(sala);
+    if(sala.estado==='terminado')mostrarFinAlumno(sala);
   });
 }
 
+// ✅ FUNCIÓN CORREGIDA — buscarMiPartida
 function buscarMiPartida(sala){
-  const rondaKey=sala.rondaActiva||'oct';
-  const partidas=sala.bracket[rondaKey]||[];
+  const rondaKey=sala.rondaActiva||'oct8';
+  const partidas=sala.bracket?.[rondaKey]||[];
   const idx=partidas.findIndex(p=>p&&(p.j1===MI_NOMBRE||p.j2===MI_NOMBRE));
 
   if(idx===-1){
+    // No estoy en esta ronda — fui eliminado
     if(!MI_DUELO_INICIADO){
       document.getElementById('alumno-espera').style.display='none';
       document.getElementById('alumno-eliminado').style.display='block';
+      cargarRankingAlumno();
     }
     return;
   }
 
-  MI_PARTIDA_IDX=idx;
-  MI_RONDA_KEY=rondaKey;
+  MI_PARTIDA_IDX=idx;MI_RONDA_KEY=rondaKey;
   const partida=partidas[idx];
+  const esJ1=partida.j1===MI_NOMBRE;
 
+  // Si la partida ya terminó completamente
   if(partida.terminada){
     MI_DUELO_INICIADO=false;
     document.getElementById('t-fase-bot-duelo').style.display='none';
     if(partida.ganador===MI_NOMBRE){
       document.getElementById('alumno-espera').style.display='block';
-      document.getElementById('alumno-espera-nombre').textContent='Pasaste a la siguiente ronda!';
+      document.getElementById('alumno-espera-nombre').textContent='🏆 ¡Ganaste! Esperando siguiente ronda…';
     } else {
       document.getElementById('alumno-espera').style.display='none';
       document.getElementById('alumno-eliminado').style.display='block';
+      cargarRankingAlumno();
     }
     return;
   }
 
+  // Si yo ya terminé pero el rival no ha terminado
+  const yoTermine=esJ1?partida.j1_listo:partida.j2_listo;
+  if(yoTermine&&!partida.terminada){
+    const espEl=document.getElementById('alumno-espera-nombre');
+    if(espEl)espEl.textContent='⏳ Esperando que tu rival termine…';
+    return;
+  }
+
+  // Iniciar duelo si no ha comenzado aún
   if(!MI_DUELO_INICIADO){
     MI_DUELO_INICIADO=true;
     iniciarDueloAlumno(sala,partida,idx,rondaKey);
   }
 }
 
-function iniciarDueloAlumno(sala, partida, idx, rondaKey){
+function iniciarDueloAlumno(sala,partida,idx,rondaKey){
   document.getElementById('alumno-espera').style.display='none';
   document.getElementById('t-fase-bot-duelo').style.display='block';
-
-  BS.nombreJug    = MI_NOMBRE;
-  BS.dificultad   = sala.dificultad||'medio';
-  BS.tiempoPorPreg= sala.tiempo||30;
-
-  const esJ1 = partida.j1===MI_NOMBRE;
-  const rival = esJ1?partida.j2:partida.j1;
-
+  BS.nombreJug=MI_NOMBRE;BS.dificultad=sala.dificultad||'medio';BS.tiempoPorPreg=sala.tiempo||30;
+  const esJ1=partida.j1===MI_NOMBRE;
+  const rival=esJ1?partida.j2:partida.j1;
   document.getElementById('t-bot-titulo').textContent='vs '+rival;
-  document.getElementById('t-bot-ronda-label').textContent=rondaKey;
-  document.getElementById('t-bot-j1').textContent=MI_NOMBRE;
-  document.getElementById('t-bot-j2').textContent=rival;
+  document.getElementById('t-bot-ronda-label').textContent=labelRonda(rondaKey);
+  document.getElementById('t-bot-j1').textContent=MI_NOMBRE+' ⭐';
+  document.getElementById('t-bot-j2').textContent=rival+(esBotNombre(rival)?'':' ⭐');
   document.getElementById('t-bot-score-j1').textContent='0';
   document.getElementById('t-bot-score-j2').textContent='0';
-
   const tipo=sala.tipo||'sumas';
   const pregs=tipo==='cuanticos'?generarPreguntasCuanticos(3):generarPreguntas(3);
-  BS.preguntasHumano=pregs;
-  BS.preguntasBot=pregs;
-  BS.duelo.j1=partida.j1;
-  BS.duelo.j2=partida.j2;
+  BS.preguntasHumano=pregs;BS.preguntasBot=pregs;
+  BS.duelo.j1=partida.j1;BS.duelo.j2=partida.j2;
   BS.duelo.humPregIdx=0;BS.duelo.humScore=0;BS.duelo.botScore=0;
-  BS.duelo.botRespLog=[];BS.duelo._humLog=[];BS.duelo.esperando=false;
-  BS.duelo.botTimers=[];
-  BS.duelo.fase='humano';
-
+  BS.duelo.botRespLog=[];BS.duelo._humLog=[];BS.duelo.esperando=false;BS.duelo.botTimers=[];BS.duelo.fase='humano';
+  // Si el rival es bot, simular respuestas en paralelo
   if(esBotNombre(rival)){
     const botObj=getBotObj(rival);
     pregs.forEach((_,qi)=>{
@@ -2830,44 +2077,89 @@ function iniciarDueloAlumno(sala, partida, idx, rondaKey){
       BS.duelo.botTimers.push(t);
     });
   }
-
+  // ✅ onDone ahora llama a la función corregida
   BS.duelo.onDone=()=>guardarResultadoFirebase(idx,rondaKey,esJ1);
   BS.duelo.partidaRef=partida;
-
   cargarPregHumano();
 }
 
-function guardarResultadoFirebase(idx, rondaKey, esJ1){
+// ✅ FUNCIÓN CORREGIDA — guardarResultadoFirebase
+// Cada jugador guarda solo su propio score.
+// Solo cuando AMBOS están listos se calcula y guarda el ganador.
+function guardarResultadoFirebase(idx,rondaKey,esJ1){
   const d=BS.duelo;
   const humScore=d.humScore;
-  const botScore=d.botScore;
-  const ganador=humScore>botScore?MI_NOMBRE:(esJ1?d.j2:d.j1);
-  const scores=esJ1?[humScore,botScore]:[botScore,humScore];
-
   const path=`salas/${SALA_CODIGO}/bracket/${rondaKey}/${idx}`;
-  db.ref(path).update({
-    scores, ganador, terminada:true
-  }).then(()=>{
-    // Guardar en historial si es la final
-    if(rondaKey==='gran'){
-      guardarHistorial(ganador);
-    }
+
+  // Actualizar solo el score y flag del jugador actual
+  const update={};
+  if(esJ1){
+    update['scores/0']=humScore;
+    update['j1_listo']=true;
+  } else {
+    update['scores/1']=humScore;
+    update['j2_listo']=true;
+  }
+
+  db.ref(path).update(update).then(()=>{
+    // Actualizar pantalla del alumno inmediatamente
     document.getElementById('t-fase-bot-duelo').style.display='none';
     document.getElementById('alumno-espera').style.display='block';
-    document.getElementById('alumno-espera-nombre').textContent=
-      ganador===MI_NOMBRE?'🏆 ¡Ganaste tu duelo! Esperando siguiente ronda…':'😔 Eliminado. Sigue viendo el bracket.';
+    document.getElementById('alumno-espera-nombre').textContent='⏳ Esperando que tu rival termine…';
+
+    // Leer estado actual para ver si ambos ya terminaron
+    db.ref(path).once('value').then(snap2=>{
+      const p=snap2.val();if(!p)return;
+      const j1Listo=p.j1_listo||false;
+      const j2Listo=p.j2_listo||false;
+
+      if(j1Listo&&j2Listo){
+        // Ambos terminaron — calcular ganador
+        const score0=Array.isArray(p.scores)?p.scores[0]:0;
+        const score1=Array.isArray(p.scores)?p.scores[1]:0;
+        let ganador;
+        if(score0>score1)      ganador=p.j1;
+        else if(score1>score0) ganador=p.j2;
+        else                   ganador=Math.random()<0.5?p.j1:p.j2; // empate: aleatorio
+
+        // Guardar ganador — solo una vez (usar transaction para evitar condición de carrera)
+        db.ref(path+'/ganador').transaction(valorActual=>{
+          if(valorActual===null)return ganador; // Solo escribir si aún no hay ganador
+          return; // Ya hay ganador, no sobreescribir
+        }).then(result=>{
+          if(result.committed){
+            // Esta instancia fue la que guardó el ganador
+            db.ref(path+'/terminada').set(true);
+            if(rondaKey==='gran'||rondaKey==='semi'){
+              guardarHistorial(ganador);
+            }
+          }
+          // Actualizar pantalla según resultado
+          const yoGane=ganador===MI_NOMBRE;
+          document.getElementById('alumno-espera-nombre').textContent=
+            yoGane?'🏆 ¡Ganaste tu duelo! Esperando siguiente ronda…':'😔 Eliminado. Sigue viendo el bracket.';
+          if(!yoGane){
+            setTimeout(()=>{
+              document.getElementById('alumno-espera').style.display='none';
+              document.getElementById('alumno-eliminado').style.display='block';
+              cargarRankingAlumno();
+            },2000);
+          }
+        });
+      } else {
+        // Todavía esperando al rival — el listener de Firebase actualizará cuando termine
+        document.getElementById('alumno-espera-nombre').textContent='⏳ Esperando que tu rival termine…';
+      }
+    });
+  }).catch(err=>{
+    console.error('Error guardando resultado:', err);
+    document.getElementById('alumno-espera-nombre').textContent='❌ Error al guardar. Recarga la página.';
   });
 }
 
 function guardarHistorial(campeon){
   const fecha=new Date().toLocaleDateString('es-MX');
-  db.ref('historial').push({
-    campeon, fecha,
-    sala: SALA_CODIGO,
-    formato: formatoLabel(8),
-    ts: Date.now()
-  });
-  // Actualizar ranking global
+  db.ref('historial').push({campeon,fecha,sala:SALA_CODIGO,formato:formatoLabel(8),ts:Date.now()});
   const rankRef=db.ref('ranking/'+campeon.replace(/\s/g,'_'));
   rankRef.transaction(val=>(val||0)+1);
 }
@@ -2875,74 +2167,55 @@ function guardarHistorial(campeon){
 function mostrarFinAlumno(sala){
   document.getElementById('alumno-espera').style.display='none';
   document.getElementById('alumno-fin').style.display='block';
-  // Cargar ranking
   cargarRankingAlumno();
 }
 
 function cargarRankingAlumno(){
+  if(!db)return;
   db.ref('ranking').orderByValue().limitToLast(5).once('value').then(snap=>{
-    const data=snap.val()||{};
-    const items=Object.entries(data).sort((a,b)=>b[1]-a[1]);
-    const div=document.getElementById('alumno-ranking');
-    if(!div) return;
-    const medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
-    div.innerHTML=`<div style="font-family:'Space Mono',monospace;font-size:0.65rem;
-      color:#a78bfa;letter-spacing:0.1em;margin-bottom:6px;">🏆 RANKING GLOBAL</div>`+
-      items.map(([n,pts],i)=>`
-        <div style="display:flex;align-items:center;gap:8px;padding:4px 8px;
-          border-radius:6px;background:${i===0?'rgba(251,191,36,0.1)':'rgba(255,255,255,0.03)'};
-          margin-bottom:3px;">
+    const data=snap.val()||{};const items=Object.entries(data).sort((a,b)=>b[1]-a[1]);
+    // Llenar ambos contenedores si existen
+    ['alumno-ranking','alumno-ranking-fin'].forEach(divId=>{
+      const div=document.getElementById(divId);if(!div)return;
+      const medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
+      div.innerHTML=`<div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:#a78bfa;letter-spacing:0.1em;margin-bottom:6px;">🏆 RANKING GLOBAL</div>`+
+        items.map(([n,pts],i)=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:6px;background:${i===0?'rgba(251,191,36,0.1)':'rgba(255,255,255,0.03)'};margin-bottom:3px;">
           <span style="font-size:0.9rem;">${medals[i]||'·'}</span>
-          <span style="font-family:'Space Mono',monospace;font-size:0.72rem;
-            color:${i===0?'#fbbf24':'#e9d5ff'};flex:1;">${n.replace(/_/g,' ')}</span>
+          <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:${i===0?'#fbbf24':'#e9d5ff'};flex:1;">${n.replace(/_/g,' ')}</span>
           <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#a78bfa;">${pts} vic</span>
         </div>`).join('');
+    });
   });
 }
 
 // ================================================================
 //  PREGUNTAS DE NÚMEROS CUÁNTICOS
 // ================================================================
-const tElementosCuanticos = [
-  {sym:'H', Z:1, dif:'1s¹', n:1,l:0,ml:0,ms:0.5},
-  {sym:'He',Z:2, dif:'1s²', n:1,l:0,ml:0,ms:-0.5},
-  {sym:'Li',Z:3, dif:'2s¹', n:2,l:0,ml:0,ms:0.5},
-  {sym:'Be',Z:4, dif:'2s²', n:2,l:0,ml:0,ms:-0.5},
-  {sym:'B', Z:5, dif:'2p¹', n:2,l:1,ml:-1,ms:0.5},
-  {sym:'C', Z:6, dif:'2p²', n:2,l:1,ml:0,ms:0.5},
-  {sym:'N', Z:7, dif:'2p³', n:2,l:1,ml:1,ms:0.5},
-  {sym:'O', Z:8, dif:'2p⁴', n:2,l:1,ml:-1,ms:-0.5},
-  {sym:'F', Z:9, dif:'2p⁵', n:2,l:1,ml:0,ms:-0.5},
-  {sym:'Ne',Z:10,dif:'2p⁶', n:2,l:1,ml:1,ms:-0.5},
-  {sym:'Na',Z:11,dif:'3s¹', n:3,l:0,ml:0,ms:0.5},
-  {sym:'Mg',Z:12,dif:'3s²', n:3,l:0,ml:0,ms:-0.5},
-  {sym:'Al',Z:13,dif:'3p¹', n:3,l:1,ml:-1,ms:0.5},
-  {sym:'Si',Z:14,dif:'3p²', n:3,l:1,ml:0,ms:0.5},
-  {sym:'P', Z:15,dif:'3p³', n:3,l:1,ml:1,ms:0.5},
-  {sym:'S', Z:16,dif:'3p⁴', n:3,l:1,ml:-1,ms:-0.5},
-  {sym:'Cl',Z:17,dif:'3p⁵', n:3,l:1,ml:0,ms:-0.5},
-  {sym:'Ar',Z:18,dif:'3p⁶', n:3,l:1,ml:1,ms:-0.5},
-  {sym:'K', Z:19,dif:'4s¹', n:4,l:0,ml:0,ms:0.5},
-  {sym:'Ca',Z:20,dif:'4s²', n:4,l:0,ml:0,ms:-0.5},
+const tElementosCuanticos=[
+  {sym:'H', Z:1, n:1,l:0,ml:0,ms:0.5},{sym:'He',Z:2, n:1,l:0,ml:0,ms:-0.5},
+  {sym:'Li',Z:3, n:2,l:0,ml:0,ms:0.5},{sym:'Be',Z:4, n:2,l:0,ml:0,ms:-0.5},
+  {sym:'B', Z:5, n:2,l:1,ml:-1,ms:0.5},{sym:'C', Z:6, n:2,l:1,ml:0,ms:0.5},
+  {sym:'N', Z:7, n:2,l:1,ml:1,ms:0.5},{sym:'O', Z:8, n:2,l:1,ml:-1,ms:-0.5},
+  {sym:'F', Z:9, n:2,l:1,ml:0,ms:-0.5},{sym:'Ne',Z:10,n:2,l:1,ml:1,ms:-0.5},
+  {sym:'Na',Z:11,n:3,l:0,ml:0,ms:0.5},{sym:'Mg',Z:12,n:3,l:0,ml:0,ms:-0.5},
+  {sym:'Al',Z:13,n:3,l:1,ml:-1,ms:0.5},{sym:'Si',Z:14,n:3,l:1,ml:0,ms:0.5},
+  {sym:'P', Z:15,n:3,l:1,ml:1,ms:0.5},{sym:'S', Z:16,n:3,l:1,ml:-1,ms:-0.5},
+  {sym:'Cl',Z:17,n:3,l:1,ml:0,ms:-0.5},{sym:'Ar',Z:18,n:3,l:1,ml:1,ms:-0.5},
+  {sym:'K', Z:19,n:4,l:0,ml:0,ms:0.5},{sym:'Ca',Z:20,n:4,l:0,ml:0,ms:-0.5},
 ];
-
-const CUANTICO_PREGUNTAS_TIPOS = [
-  (e)=>({ txt:`¿Cuál es el número cuántico principal (n) del e⁻ diferenciador del ${e.sym}?`, ans:e.n }),
-  (e)=>({ txt:`¿Cuál es el número cuántico azimutal (ℓ) del e⁻ diferenciador del ${e.sym}?`, ans:e.l }),
-  (e)=>({ txt:`¿Cuál es el número cuántico magnético (mℓ) del e⁻ diferenciador del ${e.sym}?`, ans:e.ml }),
-  (e)=>({ txt:`¿Cuál es el número cuántico de espín (ms×2) del e⁻ diferenciador del ${e.sym}? (responde 1 o -1)`, ans:e.ms*2 }),
+const CUANTICO_PREGUNTAS_TIPOS=[
+  (e)=>({txt:`¿Cuál es el número cuántico principal (n) del e⁻ diferenciador del ${e.sym}?`,ans:e.n}),
+  (e)=>({txt:`¿Cuál es el número cuántico azimutal (ℓ) del e⁻ diferenciador del ${e.sym}?`,ans:e.l}),
+  (e)=>({txt:`¿Cuál es el número cuántico magnético (mℓ) del e⁻ diferenciador del ${e.sym}?`,ans:e.ml}),
+  (e)=>({txt:`¿Cuál es el número cuántico de espín (ms×2) del e⁻ diferenciador del ${e.sym}? (responde 1 o -1)`,ans:e.ms*2}),
 ];
-
 function generarPreguntasCuanticos(n){
-  const pregs=[];
-  const usados=new Set();
+  const pregs=[];const usados=new Set();
   while(pregs.length<n){
     const elem=tElementosCuanticos[Math.floor(Math.random()*tElementosCuanticos.length)];
     const tipo=CUANTICO_PREGUNTAS_TIPOS[Math.floor(Math.random()*CUANTICO_PREGUNTAS_TIPOS.length)];
     const key=elem.sym+'_'+tipo.toString().slice(0,20);
-    if(usados.has(key)) continue;
-    usados.add(key);
-    pregs.push(tipo(elem));
+    if(usados.has(key))continue;usados.add(key);pregs.push(tipo(elem));
   }
   return pregs;
 }
@@ -2954,30 +2227,23 @@ document.addEventListener('DOMContentLoaded',()=>{
   const params=new URLSearchParams(window.location.search);
   const salaParam=params.get('sala');
   if(salaParam){
-    // Auto-rellenar código
     const inp=document.getElementById('alumno-codigo');
-    if(inp){ inp.value=salaParam.toUpperCase(); }
-    // Ir directo a sección torneo → modo alumno
-    showSection('torneo');
-    seleccionarModoAlumno();
+    if(inp)inp.value=salaParam.toUpperCase();
+    showSection('torneo');seleccionarModoAlumno();
   }
 });
 
 function seleccionarModoAlumno(){
   document.getElementById('t-fase-modo').style.display='none';
-  const err=document.getElementById('alumno-err');
-  if(err){err.textContent='';err.style.color='#f87171';}
+  const err=document.getElementById('alumno-err');if(err){err.textContent='';err.style.color='#f87171';}
   document.getElementById('t-fase-alumno-join').style.display='block';
   setTimeout(()=>{const inp=document.getElementById('alumno-nombre');if(inp)inp.focus();},100);
 }
 
-
-
-
 </script>
 
 <footer class="site-footer">
-  &#x26DB; Torneo de Qu&iacute;mica &nbsp;&middot;&nbsp; v2.3 &nbsp;&middot;&nbsp;
+  &#x26DB; Torneo de Qu&iacute;mica &nbsp;&middot;&nbsp; v2.4 &nbsp;&middot;&nbsp;
   Desarrollado para uso educativo
 </footer>
 </body>
