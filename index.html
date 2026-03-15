@@ -134,29 +134,45 @@ body.duelo-activo{
   /* top se setea por JS con el scroll actual */
 }
 
-/* Duelo: overlay full-screen en móvil Y desktop */
+/* ── Duelo: overlay full-screen fijo, viewport-fit ──────────── */
 #t-fase-bot-duelo{
-  position:fixed;inset:0;z-index:200;
-  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  position:fixed;
+  inset:0;
+  z-index:200;
   background:var(--bg);
-  padding:0.75rem 1rem 2rem;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:env(safe-area-inset-top,0.5rem) 0.75rem calc(env(safe-area-inset-bottom,0px) + 0.75rem);
   max-width:100%!important;
   margin:0!important;
-  /* Animación de entrada */
-  animation:dueloSlideIn 0.3s cubic-bezier(0.16,1,0.3,1) both;
+  animation:dueloSlideIn 0.28s cubic-bezier(0.16,1,0.3,1) both;
 }
 @keyframes dueloSlideIn{
-  from{opacity:0;transform:translateY(32px);}
+  from{opacity:0;transform:translateY(24px);}
   to{opacity:1;transform:translateY(0);}
 }
-/* En desktop limitar ancho y centrar */
-@media(min-width:600px){
+#t-fase-bot-duelo .t-duelo{
+  width:100%;
+  max-width:480px;
+  flex-shrink:0;
+}
+/* Hacer que la pregunta siempre quepa sin scroll ─────────── */
+.t-pregunta-box{
+  min-height:unset!important;
+}
+.t-pregunta-texto{
+  font-size:clamp(1rem,5vw,2rem)!important;
+  word-break:break-word;
+  hyphens:auto;
+}
+/* En desktop: centrar verticalmente */
+@media(min-height:700px){
   #t-fase-bot-duelo{
-    display:flex;align-items:flex-start;justify-content:center;
-    padding:2rem 1rem;
-  }
-  #t-fase-bot-duelo .t-duelo{
-    width:100%;max-width:480px;
+    justify-content:center;
   }
 }
 
@@ -883,7 +899,17 @@ nav{overflow:hidden;}
       </div>
 
       <div class="t-setup" style="margin-top:1rem;">
-        <h3>Historial</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.8rem;">
+          <h3 style="margin-bottom:0;">📋 Historial</h3>
+          <div style="display:flex;gap:0.4rem;">
+            <button class="t-btn t-btn-danger t-btn-sm" onclick="borrarHistorial()" title="Elimina todos los torneos del historial y reinicia el Salón de la Fama">
+              🗑️ Borrar historial
+            </button>
+          </div>
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:rgba(167,139,250,0.4);margin-bottom:0.7rem;">
+          Borrar historial también reinicia el Salón de la Fama y el ranking global.
+        </div>
         <div id="admin-historial"><div style="font-size:0.75rem;color:rgba(255,255,255,0.3);">Cargando...</div></div>
       </div>
     </div>
@@ -1282,15 +1308,42 @@ function aplicarPaleta(id) {
   const pal = PALETAS[id]; if(!pal) return;
   PALETA_ACTIVA = id;
   const root = document.documentElement;
+  // Aplicar variables CSS
   Object.entries(pal).forEach(([k,v]) => {
     if(k.startsWith('--')) root.style.setProperty(k, v);
   });
-  // Nav background override
+  // Nav
   const nav = document.querySelector('nav');
   if(nav && pal._navBg) nav.style.background = pal._navBg;
-  if(nav && pal._navBorder) nav.style.borderBottomColor = pal._navBorder.replace('rgba','rgba');
+  if(nav && pal._navBorder) nav.style.borderBottomColor = pal._navBorder;
+
+  // Fondo animado (body::before) via regla CSS dinámica
+  let styleTag = document.getElementById('paleta-style-override');
+  if(!styleTag){ styleTag=document.createElement('style'); styleTag.id='paleta-style-override'; document.head.appendChild(styleTag); }
+  const a = pal['--accent']||'#7c3aed';
+  const g = pal['--gold']||'#fbbf24';
+  const tl = pal['--teal']||'#34d399';
+  const bg = pal['--bg']||'#07071a';
+  // Extraer rgb del accent para rgba
+  const hex2rgb = h => { const x=h.replace('#',''); return [parseInt(x.slice(0,2),16),parseInt(x.slice(2,4),16),parseInt(x.slice(4,6),16)]; };
+  const ar = hex2rgb(a), gr = hex2rgb(g);
+  styleTag.textContent = `
+    body::before { background: ${pal._bodyBefore||'none'}; }
+    .t-bg { background: linear-gradient(160deg,${bg} 0%,${a}22 40%,${bg} 100%) !important; }
+    .t-btn-primary { background: linear-gradient(135deg,${a},${pal['--accent2']||a}) !important; box-shadow: 0 4px 16px rgba(${ar[0]},${ar[1]},${ar[2]},0.4) !important; }
+    .t-btn-primary:hover { box-shadow: 0 8px 28px rgba(${ar[0]},${ar[1]},${ar[2]},0.55) !important; }
+    .t-modo-card:hover { border-color: rgba(${ar[0]},${ar[1]},${ar[2]},0.6) !important; box-shadow: 0 16px 40px rgba(${ar[0]},${ar[1]},${ar[2]},0.25) !important; }
+    .t-duelo { border-color: rgba(${ar[0]},${ar[1]},${ar[2]},0.45) !important; }
+    .t-num-input-wrap { border-color: rgba(${ar[0]},${ar[1]},${ar[2]},0.6) !important; }
+    .intro-card:hover { border-color: rgba(${ar[0]},${ar[1]},${ar[2]},0.5) !important; }
+    .bk-slot.bk-live { border-color: rgba(${ar[0]},${ar[1]},${ar[2]},0.8) !important; }
+    .score-bar { background: rgba(${gr[0]},${gr[1]},${gr[2]},0.06) !important; border-bottom-color: rgba(${gr[0]},${gr[1]},${gr[2]},0.1) !important; }
+    .fama-card.primer-lugar { border-color: rgba(${gr[0]},${gr[1]},${gr[2]},0.3) !important; background: rgba(${gr[0]},${gr[1]},${gr[2]},0.05) !important; }
+    .t-input-jug:focus { border-color: rgba(${ar[0]},${ar[1]},${ar[2]},0.7) !important; background: rgba(${ar[0]},${ar[1]},${ar[2]},0.15) !important; }
+    .palette-card[data-active="true"], .palette-card.selected { border-color: ${g} !important; }
+    .tema-card.expanded { border-color: rgba(${ar[0]},${ar[1]},${ar[2]},0.5) !important; }
+  `;
   renderPaletteActive();
-  // Guardar en localStorage para persistir
   try { localStorage.setItem('torneopaleta', id); } catch(e){}
 }
 
@@ -2638,14 +2691,35 @@ function promptCopy(url) {
 }
 
 function cargarHistorialAdmin() {
-  db.ref('historial').limitToLast(5).once('value').then(snap => {
-    const data=snap.val()||{}; const items=Object.values(data).reverse();
+  db.ref('historial').limitToLast(8).once('value').then(snap => {
+    const data=snap.val()||{}; const items=Object.values(data).sort((a,b)=>(b.ts||0)-(a.ts||0));
     const div=document.getElementById('admin-historial'); if(!div) return;
-    if(!items.length) { div.innerHTML='<div style="font-size:0.75rem;color:rgba(255,255,255,0.3);">Sin torneos previos</div>'; return; }
-    div.innerHTML=items.map(t=>`<div style="display:flex;justify-content:space-between;padding:5px 8px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);margin-bottom:4px;">
-      <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:#c4b5fd;">${t.fecha||'—'}</span>
-      <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:#fbbf24;">🏆 ${t.campeon||'—'}</span>
+    if(!items.length) { div.innerHTML='<div style="font-size:0.75rem;color:rgba(255,255,255,0.25);padding:0.5rem 0;">Sin torneos previos</div>'; return; }
+    div.innerHTML=items.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);margin-bottom:4px;">
+      <span style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#a78bfa;">${t.fecha||'—'}</span>
+      <span style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#fbbf24;font-weight:700;">🏆 ${t.campeon||'—'}</span>
+      <span style="font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(255,255,255,0.2);">${t.sala||''}</span>
     </div>`).join('');
+  });
+}
+
+function borrarHistorial() {
+  if(!confirm('¿Borrar TODO el historial y reiniciar el Salón de la Fama? Esta acción no se puede deshacer.')) return;
+  const div = document.getElementById('admin-historial');
+  if(div) div.innerHTML='<div style="font-size:0.75rem;color:rgba(251,191,36,0.5);animation:cargando 1s infinite;">Borrando...</div>';
+  // Borrar historial y ranking en paralelo
+  Promise.all([
+    db.ref('historial').remove(),
+    db.ref('ranking').remove()
+  ]).then(() => {
+    if(div) div.innerHTML='<div style="font-size:0.75rem;color:#34d399;padding:0.4rem 0;">✓ Historial y ranking eliminados</div>';
+    // Refrescar salón de la fama en sección torneo
+    _salonCargado=false;
+    const lista=document.getElementById('salon-fama-lista');
+    if(lista) lista.innerHTML='<div style="grid-column:1/-1;font-family:Space Mono,monospace;font-size:0.65rem;color:rgba(255,255,255,0.2);padding:1rem;text-align:center;border:1px dashed rgba(255,255,255,0.06);border-radius:10px;">Salón de la Fama reiniciado — sin registros</div>';
+    setTimeout(()=>cargarHistorialAdmin(), 1500);
+  }).catch(err => {
+    if(div) div.innerHTML='<div style="font-size:0.75rem;color:#f87171;">Error al borrar: '+err.message+'</div>';
   });
 }
 
@@ -2874,6 +2948,8 @@ function iniciarDueloAlumno(sala, partida, idx, rondaKey) {
   BS.duelo.humPregIdx=0; BS.duelo.humScore=0; BS.duelo.botScore=0;
   BS.duelo.botRespLog=[]; BS.duelo._humLog=[]; BS.duelo.esperando=false;
   BS.duelo.botTimers=BS.duelo.botTimers||[];
+  // Asegurar que el timer usa el valor correcto de la sala
+  BS.tiempoPorPreg = parseInt(sala.tiempo)||30;
   if(esBotNombre(rival)) {
     const botObj=getBotObj(rival); const dif=BS.dificultad;
     pregs.forEach((_,qi) => {
@@ -2890,48 +2966,104 @@ function guardarResultadoFirebase(idx, rondaKey, esJ1) {
   const d=BS.duelo;
   const humScore=d.humScore;
   const path=`salas/${SALA_CODIGO}/bracket/${rondaKey}/${idx}`;
+
+  // Quitar duelo UI de inmediato
+  document.body.classList.remove('duelo-activo');
+  document.body.style.top='';
+  window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
+  document.getElementById('t-fase-bot-duelo').style.display='none';
+  document.getElementById('alumno-espera').style.display='block';
+  document.getElementById('alumno-espera-nombre').textContent='⏳ Guardando resultado…';
+
   const update={};
   if(esJ1) { update['scores/0']=humScore; update['j1_listo']=true; }
   else { update['scores/1']=humScore; update['j2_listo']=true; }
+
   db.ref(path).update(update).then(() => {
-    // Quitar lock de scroll al terminar de responder
-    document.body.classList.remove('duelo-activo');
-  document.body.style.top='';
-  window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
-    document.getElementById('t-fase-bot-duelo').style.display='none';
-    document.getElementById('alumno-espera').style.display='block';
     document.getElementById('alumno-espera-nombre').textContent='⏳ Esperando que tu rival termine…';
+    // Leer estado actual una vez
     db.ref(path).once('value').then(snap2 => {
       const p=snap2.val(); if(!p) return;
       if(p.j1_listo&&p.j2_listo) {
-        const score0=Array.isArray(p.scores)?p.scores[0]:0;
-        const score1=Array.isArray(p.scores)?p.scores[1]:0;
-        let ganador;
-        if(score0>score1) ganador=p.j1;
-        else if(score1>score0) ganador=p.j2;
-        else ganador=Math.random()<0.5?p.j1:p.j2;
-        db.ref(path+'/ganador').transaction(v => { if(v===null) return ganador; }).then(result => {
-          // ganador real = el que ganó según la transaction (puede ser distinto si hubo empate aleatorio en el otro cliente)
-          const ganadorReal = result.snapshot?.val() || ganador;
-          if(result.committed) {
-            db.ref(path+'/terminada').set(true);
-            // Guardar historial si es la ronda final (cualquier formato)
-            const rondasFinales=['gran','semi'];
-            if(rondasFinales.includes(rondaKey)) guardarHistorial(ganadorReal);
-          }
-          const yoGane = ganadorReal===MI_NOMBRE;
-          document.getElementById('alumno-espera-nombre').textContent=yoGane?'🏆 ¡Ganaste tu duelo! Esperando siguiente ronda…':'😔 Eliminado. Sigue viendo el bracket.';
-          if(!yoGane) {
-            setTimeout(()=>{
-              document.getElementById('alumno-espera').style.display='none';
-              document.getElementById('alumno-eliminado').style.display='block';
-              cargarRankingAlumno();
-            }, 2000);
-          }
-        });
+        // Ambos respondieron: resolver ganador
+        resolverGanadorPartida(p, path, rondaKey);
+      } else {
+        // Rival no terminó: escuchar en tiempo real hasta que termine
+        escucharPartidaHastaTerminar(path, rondaKey);
       }
     });
-  }).catch(err => { console.error('Error guardando:',err); });
+  }).catch(err => {
+    console.error('Error guardando:',err);
+    document.getElementById('alumno-espera-nombre').textContent='❌ Error al guardar. Recarga la página.';
+  });
+}
+
+// Listener en tiempo real sobre la partida — espera a que j1_listo && j2_listo
+let _partida_listener_ref = null;
+function escucharPartidaHastaTerminar(path, rondaKey) {
+  if(_partida_listener_ref) { _partida_listener_ref.off(); _partida_listener_ref=null; }
+  _partida_listener_ref = db.ref(path);
+  _partida_listener_ref.on('value', snap => {
+    const p=snap.val(); if(!p) return;
+    if(p.terminada) {
+      _partida_listener_ref.off(); _partida_listener_ref=null;
+      // Partida ya resuelta (otro cliente hizo la transaction)
+      const ganadorReal = p.ganador || '';
+      actualizarUIPostDuelo(ganadorReal, rondaKey);
+      return;
+    }
+    if(p.j1_listo && p.j2_listo) {
+      _partida_listener_ref.off(); _partida_listener_ref=null;
+      resolverGanadorPartida(p, path, rondaKey);
+    }
+  });
+}
+
+function resolverGanadorPartida(p, path, rondaKey) {
+  const score0=Array.isArray(p.scores)?p.scores[0]:0;
+  const score1=Array.isArray(p.scores)?p.scores[1]:0;
+  let ganador;
+  if(score0>score1) ganador=p.j1;
+  else if(score1>score0) ganador=p.j2;
+  else ganador=Math.random()<0.5?p.j1:p.j2;
+
+  // Transaction: solo el primero que llega escribe el ganador
+  db.ref(path+'/ganador').transaction(v => {
+    if(v===null) return ganador;
+    return; // ya hay ganador, no cambiar
+  }).then(result => {
+    const ganadorReal = result.snapshot?.val() || ganador;
+    if(result.committed) {
+      db.ref(path+'/terminada').set(true);
+      // Verificar si es la ronda final del torneo
+      const esUltimaRonda = !siguienteRonda(rondaKey);
+      if(esUltimaRonda) guardarHistorial(ganadorReal);
+      // Si el torneo solo tiene esta ronda (formato 2), cerrar sala
+      db.ref('salas/'+SALA_CODIGO+'/bracket').once('value').then(bSnap => {
+        const bracket=bSnap.val()||{};
+        const todasRondas=['oct16','oct8','cuar','semi','gran'];
+        const rondaActual=SALA_CODIGO?db.ref('salas/'+SALA_CODIGO+'/rondaActiva'):null;
+        if(esUltimaRonda) {
+          // Marcar sala como terminada
+          db.ref('salas/'+SALA_CODIGO+'/estado').set('terminado');
+        }
+      });
+    }
+    actualizarUIPostDuelo(result.snapshot?.val()||ganador, rondaKey);
+  });
+}
+
+function actualizarUIPostDuelo(ganadorReal, rondaKey) {
+  const yoGane = ganadorReal===MI_NOMBRE;
+  document.getElementById('alumno-espera').style.display='block';
+  document.getElementById('alumno-espera-nombre').textContent=yoGane?'🏆 ¡Ganaste tu duelo! Esperando siguiente ronda…':'😔 Eliminado. Sigue viendo el bracket.';
+  if(!yoGane) {
+    setTimeout(()=>{
+      document.getElementById('alumno-espera').style.display='none';
+      document.getElementById('alumno-eliminado').style.display='block';
+      cargarRankingAlumno();
+    }, 2000);
+  }
 }
 
 function guardarHistorial(campeon) {
