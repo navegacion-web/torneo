@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#07071a">
-<meta name="description" content="Torneo interactivo de Química para estudiantes — preguntas en tiempo real, bracket eliminatorio y fases de grupos.">
-<title>⚗ Torneo Interactivo · Química</title>
+<meta name="description" content="Torneo interactivo de preguntas para estudiantes — bracket eliminatorio en tiempo real, cualquier tema o materia.">
+<title>⚡ Torneo Interactivo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -495,9 +495,17 @@ nav{overflow:hidden;}
 <body>
 
 <nav>
-  <div class="nav-logo">⚗ QuímicaTorneo</div>
+  <div class="nav-logo">⚡ Torneo</div>
   <button class="nav-btn active" onclick="showSection('intro')">INICIO</button>
   <button class="nav-btn" onclick="showSection('torneo')">TORNEO</button>
+  <!-- Botón sonido -->
+  <button id="btn-sonido" onclick="toggleSonido()" title="Activar/desactivar música"
+    style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.1);border-radius:8px;
+    color:var(--dim);font-size:.8rem;padding:0 .7rem;height:32px;cursor:pointer;
+    display:flex;align-items:center;gap:.3rem;transition:all .2s;white-space:nowrap;">
+    <span id="sonido-icon">🔇</span>
+    <span style="font-family:'Space Mono',monospace;font-size:.55rem;">SONIDO</span>
+  </button>
 </nav>
 
 <!-- score bar removida -->
@@ -506,9 +514,9 @@ nav{overflow:hidden;}
 <!-- ═══ INTRO ═══════════════════════════════════════════════════ -->
 <section id="intro" class="section active">
   <div class="intro-hero">
-    <div class="intro-badge">⚗️ Tecnológico Nacional de México · Campus Tantoyuca</div>
+    <div class="intro-badge">⚡ Torneo Interactivo — Cualquier tema o materia</div>
     <div class="intro-title">Vence tus <span>fortalezas</span><br>y debilidades</div>
-    <p class="intro-sub">Torneo interactivo de Química en tiempo real. Compite contra tus compañeros, demuestra lo que sabes y descubre qué temas necesitas reforzar.</p>
+    <p class="intro-sub">Torneo eliminatorio en tiempo real. Compite contra tus compañeros, demuestra lo que sabes y descubre qué temas necesitas reforzar — en cualquier materia.</p>
 
     <!-- Estadísticas / highlights -->
     <div style="display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin-top:-.4rem;animation:fadeUp .7s ease .28s both;">
@@ -553,7 +561,7 @@ nav{overflow:hidden;}
       <button class="intro-btn" onclick="showSection('torneo')">⚔️ ENTRAR AL TORNEO →</button>
     </div>
 
-    <div class="intro-disclaimer">v2.8 · Firebase RT · Multi-tema · TecNM Campus Tantoyuca</div>
+    <div class="intro-disclaimer">v2.9 · Firebase RT · IA generativa · Multi-tema · TecNM Campus Tantoyuca</div>
   </div>
 </section>
 
@@ -664,17 +672,34 @@ nav{overflow:hidden;}
     </div>
   </div>
 
-  <div id="alumno-espera" style="display:none;text-align:center;padding:3rem 1rem;">
-    <div style="font-size:2.5rem;margin-bottom:.8rem;">⏳</div>
+  <!-- ESPERA: conectado, esperando maestro / siguiente ronda -->
+  <div id="alumno-espera" style="display:none;text-align:center;padding:2.5rem 1rem;">
+    <div style="font-size:2.5rem;margin-bottom:.8rem;" id="alumno-espera-icon">⏳</div>
     <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:#fff;margin-bottom:.4rem;" id="alumno-espera-nombre">Conectado</div>
-    <div style="font-family:'Space Mono',monospace;font-size:.68rem;color:var(--dim);" id="alumno-espera-count">Esperando al maestro...</div>
+    <div style="font-family:'Space Mono',monospace;font-size:.68rem;color:var(--dim);margin-bottom:1.5rem;" id="alumno-espera-count">Esperando al maestro...</div>
+    <!-- Mini bracket en vivo para quien espera -->
+    <div id="alumno-espera-bracket" style="display:none;max-width:600px;margin:0 auto;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--dim);letter-spacing:.12em;margin-bottom:.5rem;text-transform:uppercase;">📊 Bracket en vivo</div>
+      <div id="alumno-espera-bracket-content" style="overflow-x:auto;"></div>
+    </div>
   </div>
-  <div id="alumno-eliminado" style="display:none;text-align:center;padding:3rem 1rem;">
-    <div style="font-size:2.5rem;margin-bottom:.8rem;">😔</div>
-    <div style="font-family:'Fraunces',serif;font-size:1.3rem;color:#f87171;margin-bottom:.4rem;">Eliminado</div>
-    <div style="font-family:'Space Mono',monospace;font-size:.7rem;color:var(--dim);margin-bottom:1rem;">Sigue el torneo en el pizarrón</div>
-    <div id="alumno-ranking" style="max-width:320px;margin:0 auto;"></div>
+
+  <!-- ELIMINADO: ve el bracket, puede salir -->
+  <div id="alumno-eliminado" style="display:none;padding:1.5rem 1rem;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <div style="font-size:2.2rem;margin-bottom:.5rem;">😔</div>
+      <div style="font-family:'Fraunces',serif;font-size:1.3rem;color:#f87171;margin-bottom:.3rem;">Eliminado</div>
+      <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:var(--dim);margin-bottom:1rem;">Quedaste fuera esta vez — sigue mirando el bracket</div>
+      <button class="t-btn t-btn-outline t-btn-sm" onclick="alumnoSalir()" style="margin-bottom:1.2rem;">
+        ✕ Salir del torneo
+      </button>
+    </div>
+    <!-- Bracket en vivo para el eliminado -->
+    <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--dim);letter-spacing:.12em;margin-bottom:.5rem;text-transform:uppercase;">📊 Bracket en vivo</div>
+    <div id="alumno-eliminado-bracket" style="overflow-x:auto;"></div>
+    <div id="alumno-ranking" style="max-width:320px;margin:1rem auto 0;"></div>
   </div>
+
   <div id="alumno-fin" style="display:none;text-align:center;padding:2rem 1rem;">
     <div style="font-size:2.5rem;margin-bottom:.8rem;">🏆</div>
     <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:#fbbf24;margin-bottom:1rem;">¡Torneo terminado!</div>
@@ -2016,7 +2041,7 @@ function borrarHistorial(){
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  ALUMNO — FLUJO SIMPLIFICADO (nombre + código)
+//  ALUMNO — FLUJO SIMPLIFICADO (nombre + codigo)
 // ═══════════════════════════════════════════════════════════════
 function focoEnCodigo(){
   const n=document.getElementById('alumno-nombre').value.trim();
@@ -2031,8 +2056,7 @@ function entrarASala(){
   const codigo=codigoRaw.length===6?codigoRaw.slice(0,3)+'-'+codigoRaw.slice(3):codigoRaw;
   const errEl=document.getElementById('alumno-err');errEl.textContent='';
   if(!nombre){errEl.textContent='Escribe tu nombre';document.getElementById('alumno-nombre').focus();return;}
-  if(codigoRaw.length<5){errEl.textContent='El código debe tener 6 caracteres';document.getElementById('alumno-codigo').focus();return;}
-  // Mostrar spinner de conectando
+  if(codigoRaw.length<5){errEl.textContent='El codigo debe tener 6 caracteres';document.getElementById('alumno-codigo').focus();return;}
   document.getElementById('join-paso-nombre').style.display='none';
   document.getElementById('join-paso-conectando').style.display='block';
   document.getElementById('join-msg').textContent='Conectando...';
@@ -2051,57 +2075,63 @@ function seleccionarModoAlumno(){
   setTimeout(()=>document.getElementById('alumno-nombre').focus(),80);
 }
 
-// Leer código desde URL (QR) y pre-rellenar automáticamente
 function aplicarCodigoURL(codigo){
   document.getElementById('alumno-codigo').value=codigo.toUpperCase();
-  // Si hay nombre, conectar directo; si no, solo focus al nombre
   const nombre=document.getElementById('alumno-nombre').value.trim();
   if(nombre)entrarASala();
-  else{
-    document.getElementById('alumno-nombre').focus();
-    mostrarNotif('📱 Código cargado del QR — escribe tu nombre y presiona Entrar');
-  }
+  else{document.getElementById('alumno-nombre').focus();mostrarNotif('QR cargado - escribe tu nombre y presiona Entrar');}
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  ALUMNO — UNIRSE A SALA (online)
-// ═══════════════════════════════════════════════════════════════
+function alumnoSalir(){
+  if(_salaRef){_salaRef.off();_salaRef=null;}
+  if(_partListener){_partListener.off();_partListener=null;}
+  ['alumno-eliminado','alumno-espera','alumno-fin','alumno-ceremonia','t-fase-bot-duelo'].forEach(id=>{
+    const e=document.getElementById(id);if(e)e.style.display='none';
+  });
+  document.body.classList.remove('duelo-activo');document.body.style.top='';
+  window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
+  volverModoSelector();
+}
+
+// ══════════════════════════════════════════════════════
+//  ALUMNO — UNIRSE A SALA
+// ══════════════════════════════════════════════════════
 let _salaRef=null;
 let MI_IDX=null,MI_RONDA=null,MI_DUELO=false;
 let MI_JUGADOS=new Set();
+let MI_CRONICA=[];
 
 function unirseASala(nombre,codigo){
   const msgEl=document.getElementById('join-msg');
   const subEl=document.getElementById('join-sub');
   const errEl=document.getElementById('alumno-err');
   function setErr(txt){
-    // Volver al formulario con mensaje de error
     document.getElementById('join-paso-conectando').style.display='none';
     document.getElementById('join-paso-nombre').style.display='block';
     if(errEl)errEl.textContent=txt;
   }
   if(msgEl)msgEl.textContent='Conectando...';
   if(subEl)subEl.textContent='Sala: '+codigo;
-  initFB();MI=nombre;SALA=codigo;MI_JUGADOS=new Set();
+  initFB();MI=nombre;SALA=codigo;MI_JUGADOS=new Set();MI_CRONICA=[];
   db.ref('salas/'+codigo).once('value').then(snap=>{
     const sala=snap.val();
-    if(!sala){setErr('❌ Sala no encontrada — verifica el código');return;}
-    if(sala.estado==='terminado'){setErr('❌ Este torneo ya terminó');return;}
+    if(!sala){setErr('Sala no encontrada - verifica el codigo');return;}
+    if(sala.estado==='terminado'){setErr('Este torneo ya termino');return;}
     if(msgEl)msgEl.textContent='Registrando jugador...';
     const key=nombre.replace(/[^a-zA-Z0-9]/g,'_').slice(0,20)+'_'+Date.now();
     const jugRef=db.ref('salas/'+codigo+'/jugadores/'+key);
     jugRef.set({nombre,conectado:true,ts:Date.now()}).then(()=>{
       jugRef.onDisconnect().remove();MI_DUELO=false;
-      if(msgEl)msgEl.textContent='✓ ¡Conectado!';
-      if(subEl)subEl.textContent='Sala '+codigo+' — esperando inicio...';
+      if(msgEl)msgEl.textContent='Conectado!';
+      if(subEl)subEl.textContent='Sala '+codigo+' - esperando inicio...';
       setTimeout(()=>{
         document.getElementById('t-fase-alumno-join').style.display='none';
         document.getElementById('alumno-espera').style.display='block';
-        document.getElementById('alumno-espera-nombre').textContent='Hola, '+nombre+'! 👋';
+        document.getElementById('alumno-espera-nombre').textContent='Hola, '+nombre+'!';
         escucharSalaAlumno(codigo);
       },700);
-    }).catch(()=>setErr('❌ Error al registrar — intenta de nuevo'));
-  }).catch(()=>setErr('❌ Sin conexión — verifica tu internet'));
+    }).catch(()=>setErr('Error al registrar - intenta de nuevo'));
+  }).catch(()=>setErr('Sin conexion - verifica tu internet'));
 }
 
 function escucharSalaAlumno(codigo){
@@ -2109,46 +2139,142 @@ function escucharSalaAlumno(codigo){
   _salaRef=db.ref('salas/'+codigo);
   _salaRef.on('value',snap=>{
     const sala=snap.val();if(!sala)return;
+    actualizarBracketEnVivo(sala);
     const enEspera=document.getElementById('alumno-espera').style.display!=='none';
-    if(enEspera){const jugs=Object.values(sala.jugadores||{});const el=document.getElementById('alumno-espera-count');if(el)el.textContent='Conectados: '+jugs.length+' · Esperando al maestro...';}
+    if(enEspera){
+      const jugs=Object.values(sala.jugadores||{});
+      const el=document.getElementById('alumno-espera-count');
+      if(el)el.textContent='Sala: '+codigo+' - '+jugs.length+' conectados';
+    }
     if(sala.estado==='jugando')buscarMiPartida(sala);
     if(sala.estado==='terminado')mostrarCeremoniaAlumno(sala);
   });
 }
 
+// Bracket compacto para espectadores/eliminados
+function actualizarBracketEnVivo(sala){
+  ['alumno-espera-bracket-content','alumno-eliminado-bracket'].forEach(function(divId){
+    const div=document.getElementById(divId);if(!div)return;
+    const rAct=sala.rondaActiva||'oct8';
+    const rondas=['oct16','oct8','cuar','semi','gran'];
+    let html='';
+    rondas.forEach(function(r){
+      const pts=sala.bracket?.[r];if(!pts||!pts.length)return;
+      const activa=r===rAct;
+      html+='<div style="margin-bottom:.7rem;">';
+      html+='<div style="font-family:Space Mono,monospace;font-size:.55rem;color:'+(activa?'#fbbf24':'rgba(255,255,255,.28)')+';letter-spacing:.1em;text-transform:uppercase;margin-bottom:.3rem;">'+(activa?'> ':'')+lblRonda(r)+'</div>';
+      html+='<div style="display:flex;flex-wrap:wrap;gap:4px;">';
+      pts.forEach(function(p){
+        if(!p){html+='<div style="min-width:130px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:4px 7px;font-family:Space Mono,monospace;font-size:.52rem;color:rgba(255,255,255,.2);">Por definir</div>';return;}
+        const g1=p.terminada&&p.ganador===p.j1;
+        const g2=p.terminada&&p.ganador===p.j2;
+        const esMio=(p.j1===MI||p.j2===MI);
+        const border=p.terminada?'rgba(52,211,153,.35)':esMio?'rgba(251,191,36,.55)':'rgba(255,255,255,.07)';
+        html+='<div style="min-width:130px;background:rgba(8,14,38,.9);border:1px solid '+border+';border-radius:8px;overflow:hidden;">';
+        html+='<div style="display:flex;justify-content:space-between;padding:4px 7px;background:'+(g1?'rgba(251,191,36,.1)':'')+'">';
+        html+='<span style="font-family:Space Mono,monospace;font-size:.55rem;color:'+(g1?'#fbbf24':p.j1===MI?'#38bdf8':'var(--text)')+';font-weight:'+(g1?700:400)+';overflow:hidden;text-overflow:ellipsis;max-width:90px;white-space:nowrap;">'+p.j1+'</span>';
+        html+='<span style="font-family:Space Mono,monospace;font-size:.55rem;color:'+(g1?'#fbbf24':'rgba(255,255,255,.3)')+';">'+((p.terminada||p.j1_listo)?p.scores[0]:'—')+'</span>';
+        html+='</div><div style="height:1px;background:rgba(255,255,255,.05);"></div>';
+        html+='<div style="display:flex;justify-content:space-between;padding:4px 7px;background:'+(g2?'rgba(251,191,36,.1)':'')+'">';
+        html+='<span style="font-family:Space Mono,monospace;font-size:.55rem;color:'+(g2?'#fbbf24':p.j2===MI?'#38bdf8':'var(--text)')+';font-weight:'+(g2?700:400)+';overflow:hidden;text-overflow:ellipsis;max-width:90px;white-space:nowrap;">'+p.j2+'</span>';
+        html+='<span style="font-family:Space Mono,monospace;font-size:.55rem;color:'+(g2?'#fbbf24':'rgba(255,255,255,.3)')+';">'+((p.terminada||p.j2_listo)?p.scores[1]:'—')+'</span>';
+        html+='</div></div>';
+      });
+      html+='</div></div>';
+    });
+    div.innerHTML=html||'<div style="font-family:Space Mono,monospace;font-size:.62rem;color:rgba(255,255,255,.2);padding:.5rem;">Bracket no disponible aun...</div>';
+  });
+  const hayBracket=Object.values(sala.bracket||{}).some(function(r){return Array.isArray(r)&&r.length>0;});
+  const bw=document.getElementById('alumno-espera-bracket');
+  if(bw)bw.style.display=hayBracket?'block':'none';
+}
+
+// Logica central: sincronizacion por rondaActiva
 function buscarMiPartida(sala){
-  let rk=sala.rondaActiva||'oct8';
-  let parts=sala.bracket?.[rk]||[];
-  let idx=parts.findIndex(p=>p&&(p.j1===MI||p.j2===MI));
+  const rAct=sala.rondaActiva||'oct8';
+  const partsAct=sala.bracket?.[rAct]||[];
+
+  let idx=partsAct.findIndex(function(p){return p&&(p.j1===MI||p.j2===MI);});
+  let rk=rAct;
+  let parts=partsAct;
+
   if(idx===-1){
-    for(const k of['oct16','oct8','cuar','semi','gran']){const pts=sala.bracket?.[k]||[];const i=pts.findIndex(p=>p&&(p.j1===MI||p.j2===MI));if(i!==-1){rk=k;parts=pts;idx=i;break;}}
+    for(const k of['oct16','oct8','cuar','semi','gran']){
+      const pts=sala.bracket?.[k]||[];
+      const i=pts.findIndex(function(p){return p&&(p.j1===MI||p.j2===MI);});
+      if(i!==-1){rk=k;parts=pts;idx=i;break;}
+    }
   }
+
   if(idx===-1){
-    let gane=false;
-    for(const k of['oct16','oct8','cuar','semi','gran']){if((sala.bracket?.[k]||[]).find(p=>p?.terminada&&p.ganador===MI)){gane=true;break;}}
-    if(gane&&!MI_DUELO){document.getElementById('alumno-espera').style.display='block';const e=document.getElementById('alumno-espera-nombre');if(e)e.textContent='🏆 ¡Ganaste tu duelo! Esperando siguiente ronda…';}
-    else if(!MI_DUELO){document.getElementById('alumno-espera').style.display='none';document.getElementById('alumno-eliminado').style.display='block';cargarRankingAlumno();}
+    if(!MI_DUELO){
+      document.getElementById('alumno-espera').style.display='none';
+      document.getElementById('alumno-eliminado').style.display='block';
+      cargarRankingAlumno();
+    }
     return;
   }
-  MI_IDX=idx;MI_RONDA=rk;
-  const partida=parts[idx];const clave=rk+'_'+idx;
+
+  const partida=parts[idx];
+  const clave=rk+'_'+idx;
+
   if(partida.terminada){
-    MI_DUELO=false;document.body.classList.remove('duelo-activo');document.body.style.top='';window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));document.getElementById('t-fase-bot-duelo').style.display='none';MI_JUGADOS.add(clave);
-    if(partida.ganador===MI){document.getElementById('alumno-espera').style.display='block';document.getElementById('alumno-espera-nombre').textContent='🏆 ¡Ganaste! Esperando siguiente ronda…';}
-    else{document.getElementById('alumno-espera').style.display='none';document.getElementById('alumno-eliminado').style.display='block';cargarRankingAlumno();}
+    if(!MI_JUGADOS.has(clave)){
+      MI_JUGADOS.add(clave);
+      const esJ1b=partida.j1===MI;
+      const miS=esJ1b?(partida.scores?.[0]||0):(partida.scores?.[1]||0);
+      const riS=esJ1b?(partida.scores?.[1]||0):(partida.scores?.[0]||0);
+      const rival=esJ1b?partida.j2:partida.j1;
+      MI_CRONICA.push({ronda:lblRonda(rk),rival:rival,miScore:miS,rivalScore:riS,gane:partida.ganador===MI});
+    }
+    MI_DUELO=false;
+    document.body.classList.remove('duelo-activo');document.body.style.top='';
+    window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
+    document.getElementById('t-fase-bot-duelo').style.display='none';
+
+    if(partida.ganador===MI){
+      // Gane — esperar que admin inicie siguiente ronda
+      document.getElementById('alumno-espera').style.display='block';
+      document.getElementById('alumno-eliminado').style.display='none';
+      const icon=document.getElementById('alumno-espera-icon');if(icon)icon.textContent='🏆';
+      const en=document.getElementById('alumno-espera-nombre');if(en)en.textContent='Ganaste tu duelo!';
+      const ec=document.getElementById('alumno-espera-count');if(ec)ec.textContent='Esperando que el maestro inicie la siguiente ronda...';
+    } else {
+      document.getElementById('alumno-espera').style.display='none';
+      document.getElementById('alumno-eliminado').style.display='block';
+      cargarRankingAlumno();
+    }
     return;
   }
-  const esJ1=partida.j1===MI;const yoListo=esJ1?partida.j1_listo:partida.j2_listo;
-  if(yoListo&&!partida.terminada){document.getElementById('alumno-espera').style.display='block';const e=document.getElementById('alumno-espera-nombre');if(e)e.textContent='⏳ Esperando que tu rival termine…';return;}
-  if(!MI_DUELO&&!MI_JUGADOS.has(clave)){MI_DUELO=true;MI_JUGADOS.add(clave);iniciarDueloAlumno(sala,partida,idx,rk);}
+
+  const esJ1p=partida.j1===MI;
+  const yoListo=esJ1p?partida.j1_listo:partida.j2_listo;
+  if(yoListo&&!partida.terminada){
+    document.getElementById('alumno-espera').style.display='block';
+    const icon=document.getElementById('alumno-espera-icon');if(icon)icon.textContent='⏳';
+    const en=document.getElementById('alumno-espera-nombre');if(en)en.textContent='Respuestas enviadas';
+    const ec=document.getElementById('alumno-espera-count');if(ec)ec.textContent='Esperando que tu rival termine...';
+    return;
+  }
+
+  // Iniciar duelo: solo si es la ronda activa
+  if(rk===rAct&&!MI_DUELO&&!MI_JUGADOS.has(clave)){
+    MI_DUELO=true;
+    iniciarDueloAlumno(sala,partida,idx,rk);
+  } else if(rk!==rAct&&!MI_DUELO){
+    document.getElementById('alumno-espera').style.display='block';
+    const en=document.getElementById('alumno-espera-nombre');if(en)en.textContent='Hola, '+MI+'!';
+    const ec=document.getElementById('alumno-espera-count');if(ec)ec.textContent='Esperando que el maestro inicie la ronda...';
+  }
 }
 
 function iniciarDueloAlumno(sala,partida,idx,rk){
   document.getElementById('alumno-espera').style.display='none';
   document.getElementById('t-fase-bot-duelo').style.display='block';
   const rz=document.getElementById('t-respuesta-zone');if(rz)rz.style.display='flex';
-  const scrollY=window.scrollY||0;document.body.style.top=`-${scrollY}px`;document.body.dataset.scrollY=scrollY;document.body.classList.add('duelo-activo');
-  setTimeout(()=>{const i=document.getElementById('t-bot-resp');if(i){i.focus();i.select();}},130);
+  const scrollY=window.scrollY||0;document.body.style.top='-'+scrollY+'px';document.body.dataset.scrollY=scrollY;document.body.classList.add('duelo-activo');
+  reproducirSonidoDuelo();
+  setTimeout(function(){const i=document.getElementById('t-bot-resp');if(i){i.focus();i.select();}},130);
   BS.yo=MI;BS.dif=sala.dificultad||'medio';BS.tpq=parseInt(sala.tiempo)||30;
   BS.tema=sala.temaId||'sumas';BS.nPregs=sala.numPregs||3;
   const esJ1=partida.j1===MI;const rival=esJ1?partida.j2:partida.j1;
@@ -2159,9 +2285,9 @@ function iniciarDueloAlumno(sala,partida,idx,rk){
   document.getElementById('t-bot-score-j1').textContent='0';
   document.getElementById('t-bot-score-j2').textContent='0';
   let pregs;
-  if(sala.preguntasCustom?.length){
+  if(sala.preguntasCustom&&sala.preguntasCustom.length){
     const idxs=seededShuffle([...Array(sala.preguntasCustom.length).keys()],partida.seed||12345);
-    pregs=idxs.slice(0,BS.nPregs).map(i=>sala.preguntasCustom[i]);
+    pregs=idxs.slice(0,BS.nPregs).map(function(i){return sala.preguntasCustom[i];});
     while(pregs.length<BS.nPregs)pregs.push(sala.preguntasCustom[pregs.length%sala.preguntasCustom.length]);
   }else pregs=genPregs(BS.tema,BS.nPregs,BS.dif,partida.seed||12345);
   BS.pregHum=pregs;BS.pregBot=pregs;
@@ -2170,39 +2296,43 @@ function iniciarDueloAlumno(sala,partida,idx,rk){
   BS.duelo.botLog=[];BS.duelo.humLog=[];BS.duelo.esp=false;BS.duelo.botTimers=BS.duelo.botTimers||[];
   if(isBot(rival)){
     const bo=getBot(rival);const dif=BS.dif;
-    pregs.forEach((_,qi)=>{const t=setTimeout(()=>{const ok=Math.random()<(bo?.a[dif]||.65);if(ok)BS.duelo.botScore+=3;BS.duelo.botLog.push({qi,ok,ans:pregs[qi].ans});},500+(qi*600)+Math.random()*400);BS.duelo.botTimers.push(t);});
+    pregs.forEach(function(_,qi){
+      const t=setTimeout(function(){const ok=Math.random()<(bo&&bo.a[dif]||.65);if(ok)BS.duelo.botScore+=3;BS.duelo.botLog.push({qi:qi,ok:ok,ans:pregs[qi].ans});},500+(qi*600)+Math.random()*400);
+      BS.duelo.botTimers.push(t);
+    });
   }
-  BS.duelo.onDone=()=>guardarResultadoFB(idx,rk,esJ1);BS.duelo.partidaRef=partida;
+  BS.duelo.onDone=function(){guardarResultadoFB(idx,rk,esJ1);};BS.duelo.partidaRef=partida;
   cargarPregHum();
 }
 
 function guardarResultadoFB(idx,rk,esJ1){
   const d=BS.duelo;const humScore=d.humScore;
-  const path=`salas/${SALA}/bracket/${rk}/${idx}`;
+  const path='salas/'+SALA+'/bracket/'+rk+'/'+idx;
   document.body.classList.remove('duelo-activo');document.body.style.top='';window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
   document.getElementById('t-fase-bot-duelo').style.display='none';
   document.getElementById('alumno-espera').style.display='block';
-  document.getElementById('alumno-espera-nombre').textContent='⏳ Guardando resultado…';
+  const icon=document.getElementById('alumno-espera-icon');if(icon)icon.textContent='⏳';
+  const en=document.getElementById('alumno-espera-nombre');if(en)en.textContent='Guardando resultado...';
   const upd={};
   if(esJ1){upd['scores/0']=humScore;upd['j1_listo']=true;}
   else{upd['scores/1']=humScore;upd['j2_listo']=true;}
-  db.ref(path).update(upd).then(()=>{
-    document.getElementById('alumno-espera-nombre').textContent='⏳ Esperando rival…';
-    db.ref(path).once('value').then(snap=>{
+  db.ref(path).update(upd).then(function(){
+    if(en)en.textContent='Esperando rival...';
+    db.ref(path).once('value').then(function(snap){
       const p=snap.val();if(!p)return;
       if(p.j1_listo&&p.j2_listo)resolverGanadorOnline(p,path,rk);
       else escucharPartida(path,rk);
     });
-  }).catch(()=>document.getElementById('alumno-espera-nombre').textContent='❌ Error al guardar.');
+  }).catch(function(){if(en)en.textContent='Error al guardar - recarga la pagina';});
 }
 
 let _partListener=null;
 function escucharPartida(path,rk){
   if(_partListener){_partListener.off();_partListener=null;}
   _partListener=db.ref(path);
-  _partListener.on('value',snap=>{
+  _partListener.on('value',function(snap){
     const p=snap.val();if(!p)return;
-    if(p.terminada){_partListener.off();_partListener=null;MI_DUELO=false;actUIPostDuelo(p.ganador||'');return;}
+    if(p.terminada){_partListener.off();_partListener=null;MI_DUELO=false;actualizarUIPostDuelo(p.ganador||'');return;}
     if(p.j1_listo&&p.j2_listo){_partListener.off();_partListener=null;resolverGanadorOnline(p,path,rk);}
   });
 }
@@ -2210,30 +2340,105 @@ function escucharPartida(path,rk){
 function resolverGanadorOnline(p,path,rk){
   const s0=Array.isArray(p.scores)?p.scores[0]:0;const s1=Array.isArray(p.scores)?p.scores[1]:0;
   let gan=s0>s1?p.j1:s1>s0?p.j2:Math.random()<.5?p.j1:p.j2;
-  db.ref(path+'/ganador').transaction(v=>{if(v===null)return gan;return;}).then(res=>{
-    const ganReal=res.snapshot?.val()||gan;
-    if(res.committed){db.ref(path+'/terminada').set(true);if(!sigRonda(rk)){guardarHistorial(ganReal);db.ref('salas/'+SALA+'/estado').set('terminado');}}
-    MI_DUELO=false;actUIPostDuelo(ganReal);
+  db.ref(path+'/ganador').transaction(function(v){if(v===null)return gan;return;}).then(function(res){
+    const ganReal=(res.snapshot&&res.snapshot.val())||gan;
+    if(res.committed){
+      db.ref(path+'/terminada').set(true);
+      if(!sigRonda(rk)){guardarHistorial(ganReal);db.ref('salas/'+SALA+'/estado').set('terminado');}
+    }
+    MI_DUELO=false;actualizarUIPostDuelo((res.snapshot&&res.snapshot.val())||gan);
   });
 }
 
-function actUIPostDuelo(gan){
-  const yoGane=gan===MI;MI_DUELO=false;
-  document.getElementById('alumno-espera').style.display='block';
-  document.getElementById('alumno-espera-nombre').textContent=yoGane?'🏆 ¡Ganaste! Esperando siguiente ronda…':'😔 Eliminado.';
-  if(!yoGane)setTimeout(()=>{document.getElementById('alumno-espera').style.display='none';document.getElementById('alumno-eliminado').style.display='block';cargarRankingAlumno();},2000);
+function actualizarUIPostDuelo(ganReal){
+  const yoGane=ganReal===MI;MI_DUELO=false;
+  const icon=document.getElementById('alumno-espera-icon');
+  const en=document.getElementById('alumno-espera-nombre');
+  const ec=document.getElementById('alumno-espera-count');
+  if(yoGane){
+    document.getElementById('alumno-espera').style.display='block';
+    if(icon)icon.textContent='🏆';
+    if(en)en.textContent='Ganaste tu duelo!';
+    if(ec)ec.textContent='Esperando que el maestro inicie la siguiente ronda...';
+  } else {
+    setTimeout(function(){
+      document.getElementById('alumno-espera').style.display='none';
+      document.getElementById('alumno-eliminado').style.display='block';
+      cargarRankingAlumno();
+    },1500);
+  }
 }
 
+// Ceremonia alumno con cronica completa del torneo
 function mostrarCeremoniaAlumno(sala){
-  document.body.classList.remove('duelo-activo');document.body.style.top='';window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
-  const ords=['gran','semi','cuar','oct8','oct16'];let fp=null;
-  for(const k of ords){const pts=sala.bracket?.[k];if(!pts?.length)continue;const p=pts.find(x=>x?.ganador);if(p){fp=p;break;}}
-  if(!fp?.ganador){document.getElementById('alumno-espera').style.display='none';document.getElementById('alumno-fin').style.display='block';cargarRankingAlumno();return;}
+  document.body.classList.remove('duelo-activo');document.body.style.top='';
+  window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
+  const ords=['gran','semi','cuar','oct8','oct16'];
+  let fp=null;
+  for(const k of ords){const pts=sala.bracket?.[k];if(!pts||!pts.length)continue;const p=pts.find(function(x){return x&&x.ganador;});if(p){fp=p;break;}}
+  if(!fp||!fp.ganador){
+    document.getElementById('alumno-espera').style.display='none';
+    document.getElementById('alumno-fin').style.display='block';
+    cargarRankingAlumno();return;
+  }
   const camp=fp.ganador;const sub2=camp===fp.j1?fp.j2:fp.j1;
-  ['alumno-espera','alumno-eliminado','alumno-fin','t-fase-bot-duelo'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  const campSoyYo=camp===MI;
+  ['alumno-espera','alumno-eliminado','alumno-fin','t-fase-bot-duelo'].forEach(function(id){const e=document.getElementById(id);if(e)e.style.display='none';});
   document.getElementById('alumno-ceremonia').style.display='block';
-  if(camp===MI)addScore(20);
-  renderCeremonia('podio-ceremonia-online','confetti-canvas-online',camp,camp===MI,sub2,sub2,()=>{if(_salaRef)_salaRef.off();volverModoSelector();});
+  // Cronica completa desde Firebase
+  const cronicaCompleta=construirCronicaOnline(sala,MI);
+  renderCeremoniaFull('podio-ceremonia-online','confetti-canvas-online',camp,campSoyYo,sub2,sala,cronicaCompleta,function(){if(_salaRef)_salaRef.off();volverModoSelector();});
+}
+
+function construirCronicaOnline(sala,miNombre){
+  const ords=['oct16','oct8','cuar','semi','gran'];
+  const cronica=[];
+  ords.forEach(function(k){
+    const pts=sala.bracket?.[k]||[];
+    const p=pts.find(function(x){return x&&(x.j1===miNombre||x.j2===miNombre);});
+    if(!p||!p.terminada)return;
+    const esJ1=p.j1===miNombre;
+    const rival=esJ1?p.j2:p.j1;
+    const miScore=esJ1?(p.scores&&p.scores[0]||0):(p.scores&&p.scores[1]||0);
+    const rivalScore=esJ1?(p.scores&&p.scores[1]||0):(p.scores&&p.scores[0]||0);
+    cronica.push({ronda:lblRonda(k),rival:rival,miScore:miScore,rivalScore:rivalScore,gane:p.ganador===miNombre});
+  });
+  return cronica;
+}
+
+// Ceremonia con cronica detallada
+function renderCeremoniaFull(podioId,canvasId,camp,campH,sub2,sala,cronica,onReinicio){
+  const div=document.getElementById(podioId);if(!div)return;
+  // Construir HTML de cronica personal
+  let croHtml='';
+  if(cronica&&cronica.length){
+    croHtml='<div style="max-width:480px;margin:0 auto 1.2rem;text-align:left;">';
+    croHtml+='<div style="font-family:Space Mono,monospace;font-size:.6rem;color:#a78bfa;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.5rem;text-align:center;">Tu recorrido en el torneo</div>';
+    cronica.forEach(function(c){
+      const color=c.gane?'#34d399':'#f87171';
+      const icon=c.gane?'✓':'✗';
+      croHtml+='<div style="background:'+(c.gane?'rgba(52,211,153,.07)':'rgba(248,113,113,.07)')+';border:1px solid '+(c.gane?'rgba(52,211,153,.25)':'rgba(248,113,113,.2)')+';border-radius:9px;padding:.55rem .85rem;margin-bottom:.35rem;display:flex;align-items:center;gap:.6rem;">';
+      croHtml+='<span style="color:'+color+';font-size:1rem;flex-shrink:0;">'+icon+'</span>';
+      croHtml+='<div style="flex:1;min-width:0;"><div style="font-family:Space Mono,monospace;font-size:.55rem;color:'+color+';text-transform:uppercase;letter-spacing:.08em;">'+c.ronda+'</div>';
+      croHtml+='<div style="font-size:.8rem;color:#e9d5ff;">vs <strong>'+c.rival+'</strong></div></div>';
+      croHtml+='<div style="font-family:Space Mono,monospace;font-size:.8rem;font-weight:700;color:'+color+';">'+c.miScore+' - '+c.rivalScore+'</div>';
+      croHtml+='</div>';
+    });
+    croHtml+='</div>';
+  }
+
+  div.innerHTML=croHtml+'<div class="podio-escenario"><div class="podio-lugares" id="pl-'+podioId+'"></div><div class="podio-mensajes" id="pm-'+podioId+'"></div></div>';
+
+  // Confetti y podio con top3 desde bracket
+  const oct=sala.bracket&&sala.bracket.oct8||[];
+  const cuar=sala.bracket&&sala.bracket.cuar||[];
+  const fuenteSub3=cuar.filter(Boolean).length?cuar:oct.filter(Boolean);
+  const perdFuente=fuenteSub3.map(function(p){return{n:p.ganador===p.j1?p.j2:p.j1,pts:Math.min(p.scores&&p.scores[0]||0,p.scores&&p.scores[1]||0)};});
+  perdFuente.sort(function(a,b){return b.pts-a.pts;});
+  const sub3=perdFuente[0]&&perdFuente[0].n||sub2;
+
+  buildPodio([{n:camp,esH:campH},{n:sub2,esH:!isBot(sub2)},{n:sub3,esH:!isBot(sub3)}],campH,'pl-'+podioId,'pm-'+podioId,canvasId,onReinicio);
+  lanzarConfetti(campH,canvasId);
 }
 
 function guardarHistorial(camp){
@@ -2277,10 +2482,105 @@ function cargarSalonFama(force){
 function toggleSalonFama(){_salonExp=!_salonExp;_salonCargado=false;cargarSalonFama(true);}
 
 // ═══════════════════════════════════════════════════════════════
+//  SONIDO AMBIENTE — Web Audio API (sin archivos externos)
+// ═══════════════════════════════════════════════════════════════
+let audioCtx=null,ambientNodes=[],sonidoActivo=false;
+
+function initAudio(){
+  if(audioCtx)return;
+  try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
+}
+
+// Música ambiente: drones + pulso rítmico generados por Web Audio
+function iniciarSonidoAmbiente(){
+  if(!audioCtx||sonidoActivo)return;
+  sonidoActivo=true;
+  const ctx=audioCtx;
+  // Masterbus con ganancia baja
+  const master=ctx.createGain();master.gain.setValueAtTime(0.06,ctx.currentTime);master.connect(ctx.destination);
+
+  // Drone base (nota grave)
+  function crearDrone(freq,gan){
+    const osc=ctx.createOscillator();const g=ctx.createGain();
+    osc.type='sine';osc.frequency.setValueAtTime(freq,ctx.currentTime);
+    g.gain.setValueAtTime(gan,ctx.currentTime);
+    osc.connect(g);g.connect(master);osc.start();
+    return{osc,g};
+  }
+  const d1=crearDrone(55,0.5);   // A1
+  const d2=crearDrone(82.5,0.3); // E2
+  const d3=crearDrone(110,0.2);  // A2
+
+  // Pulso rítmico (cada 2 segundos)
+  function pulso(){
+    if(!sonidoActivo)return;
+    const osc=ctx.createOscillator();const env=ctx.createGain();
+    osc.type='triangle';osc.frequency.setValueAtTime(220,ctx.currentTime);
+    env.gain.setValueAtTime(0,ctx.currentTime);
+    env.gain.linearRampToValueAtTime(0.15,ctx.currentTime+0.05);
+    env.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.4);
+    osc.connect(env);env.connect(master);
+    osc.start();osc.stop(ctx.currentTime+0.4);
+    ambientNodes.push(osc,env);
+    setTimeout(pulso,2000+Math.random()*1000);
+  }
+  pulso();
+  ambientNodes.push(d1.osc,d1.g,d2.osc,d2.g,d3.osc,d3.g,master);
+}
+
+function detenerSonidoAmbiente(){
+  sonidoActivo=false;
+  ambientNodes.forEach(function(n){try{n.disconnect();}catch(e){}try{if(n.stop)n.stop();}catch(e){}});
+  ambientNodes=[];
+}
+
+function toggleSonido(){
+  initAudio();
+  if(!audioCtx)return;
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  const btn=document.getElementById('btn-sonido');
+  const icon=document.getElementById('sonido-icon');
+  if(sonidoActivo){
+    detenerSonidoAmbiente();
+    if(icon)icon.textContent='🔇';
+    if(btn)btn.style.borderColor='rgba(255,255,255,.1)';
+    try{localStorage.setItem('sonido','off');}catch(e){}
+  } else {
+    iniciarSonidoAmbiente();
+    if(icon)icon.textContent='🔊';
+    if(btn)btn.style.borderColor='rgba(251,191,36,.4)';
+    try{localStorage.setItem('sonido','on');}catch(e){}
+  }
+}
+
+// Beep de inicio de duelo
+function reproducirSonidoDuelo(){
+  if(!sonidoActivo||!audioCtx)return;
+  const ctx=audioCtx;
+  [440,554,659].forEach(function(f,i){
+    const osc=ctx.createOscillator();const env=ctx.createGain();
+    osc.type='square';osc.frequency.setValueAtTime(f,ctx.currentTime+i*0.12);
+    env.gain.setValueAtTime(0,ctx.currentTime+i*0.12);
+    env.gain.linearRampToValueAtTime(0.08,ctx.currentTime+i*0.12+0.03);
+    env.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.12+0.25);
+    osc.connect(env);env.connect(ctx.destination);
+    osc.start(ctx.currentTime+i*0.12);osc.stop(ctx.currentTime+i*0.12+0.25);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  URL PARAMS + INIT
 // ═══════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{
   cargarPaleta();
+  // Cargar preferencia de sonido
+  try{
+    const sp=localStorage.getItem('sonido');
+    if(sp==='on'){
+      // No auto-iniciar sonido (requiere interacción del usuario)
+      document.getElementById('sonido-icon').textContent='🔇';
+    }
+  }catch(e){}
   const p=new URLSearchParams(window.location.search);
   const sp=p.get('sala');
   if(sp){
@@ -2294,7 +2594,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <!-- ═══ FOOTER ═══════════════════════════════════════════════ -->
 <footer class="site-footer">
-  <div style="font-size:.7rem;color:rgba(167,139,250,.35);margin-bottom:.5rem;">⚗ Torneo Interactivo de Química · v2.8</div>
+  <div style="font-size:.7rem;color:rgba(167,139,250,.35);margin-bottom:.5rem;">⚡ Torneo Interactivo · v2.9</div>
   <div style="font-size:.62rem;color:rgba(167,139,250,.5);margin-bottom:.3rem;font-style:italic;">
     Esta página fue elaborada por un estudiante del<br>
     <strong style="color:rgba(167,139,250,.65);">Tecnológico Nacional de México · Campus Tantoyuca</strong>
