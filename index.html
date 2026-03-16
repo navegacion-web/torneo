@@ -471,7 +471,33 @@ body.duelo-activo{overflow:hidden;position:fixed;width:100%;}
 .site-footer a:hover{color:var(--gold);}
 .footer-links{display:flex;justify-content:center;gap:1.5rem;margin-top:.5rem;flex-wrap:wrap;}
 
-/* ── MISC ────────────────────────────────────────────────────── */
+/* ── BRACKET ADMIN AMPLIO ──────────────────────────────────── */
+.adm-bk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem;margin-bottom:1rem;}
+.adm-slot{background:rgba(8,14,38,.95);border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden;transition:all .3s;}
+.adm-slot.done{border-color:rgba(52,211,153,.45);box-shadow:0 0 14px rgba(52,211,153,.12);}
+.adm-slot.live{border-color:rgba(251,191,36,.55);animation:admLive 1.6s ease-in-out infinite;}
+@keyframes admLive{0%,100%{box-shadow:0 0 0 rgba(251,191,36,0);}50%{box-shadow:0 0 18px rgba(251,191,36,.3);}}
+.adm-slot-header{padding:.45rem .75rem;background:rgba(255,255,255,.04);font-family:'Space Mono',monospace;font-size:.52rem;color:var(--dim);letter-spacing:.1em;display:flex;align-items:center;justify-content:space-between;}
+.adm-row{display:flex;align-items:center;padding:.55rem .75rem;gap:.5rem;transition:background .2s;}
+.adm-row.win{background:rgba(251,191,36,.1);}
+.adm-row.los{opacity:.45;}
+.adm-name{font-family:'Space Mono',monospace;font-size:.72rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.adm-row.win .adm-name{color:#fbbf24;font-weight:700;}
+.adm-score{font-family:'Space Mono',monospace;font-size:1.2rem;font-weight:700;min-width:28px;text-align:right;color:rgba(255,255,255,.3);}
+.adm-row.win .adm-score{color:#fbbf24;}
+.adm-check{font-size:.65rem;min-width:14px;text-align:center;}
+.adm-divider{height:1px;background:rgba(255,255,255,.06);}
+.adm-footer{padding:.35rem .75rem;font-family:'Space Mono',monospace;font-size:.55rem;text-align:center;}
+.adm-prog-bar{height:3px;background:rgba(255,255,255,.05);}
+.adm-prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .5s;}
+/* SIG button grande */
+.btn-sig{background:linear-gradient(135deg,#d97706,#f59e0b);color:#1e1b4b;border:none;
+  padding:.85rem 2.2rem;border-radius:12px;font-family:'Space Mono',monospace;
+  font-size:.9rem;font-weight:700;cursor:pointer;letter-spacing:.1em;
+  box-shadow:0 4px 24px rgba(251,191,36,.45);animation:sigPulse 1.8s ease-in-out infinite;
+  transition:transform .2s;}
+.btn-sig:hover{transform:scale(1.04) translateY(-2px);}
+@keyframes sigPulse{0%,100%{box-shadow:0 4px 24px rgba(251,191,36,.45);}50%{box-shadow:0 6px 36px rgba(251,191,36,.75);}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
 @keyframes auraFadeIn{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}
 @keyframes cargando{0%,100%{opacity:.3}50%{opacity:1}}
@@ -498,14 +524,6 @@ nav{overflow:hidden;}
   <div class="nav-logo">⚡ Torneo</div>
   <button class="nav-btn active" onclick="showSection('intro')">INICIO</button>
   <button class="nav-btn" onclick="showSection('torneo')">TORNEO</button>
-  <!-- Botón sonido -->
-  <button id="btn-sonido" onclick="toggleSonido()" title="Activar/desactivar música"
-    style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.1);border-radius:8px;
-    color:var(--dim);font-size:.8rem;padding:0 .7rem;height:32px;cursor:pointer;
-    display:flex;align-items:center;gap:.3rem;transition:all .2s;white-space:nowrap;">
-    <span id="sonido-icon">🔇</span>
-    <span style="font-family:'Space Mono',monospace;font-size:.55rem;">SONIDO</span>
-  </button>
 </nav>
 
 <!-- score bar removida -->
@@ -1766,36 +1784,103 @@ function iniciarCeremoniaBots(){
   perdCuar.sort((a,b)=>b.pts-a.pts);const sub3=perdCuar[0]?.n||sub2;
   const campH=!isBot(camp);if(campH)addScore(20);
   document.getElementById('t-fase-bot-resultado').style.display='block';
-  renderCeremonia('podio-ceremonia','confetti-canvas',camp,campH,sub2,sub3,()=>reiniciarTorneo());
+  // ★ Cambiar a modo épico
+  switchToEpic();
+  setTimeout(()=>reproducirFanfareVictoria(),1600);
+  renderCeremonia('podio-ceremonia','confetti-canvas',camp,campH,sub2,sub3,()=>{stopWOW();reiniciarTorneo();});
 }
 
 function renderCeremonia(podioId,canvasId,camp,campH,sub2,sub3,onReinicio){
   const div=document.getElementById(podioId);if(!div)return;
+  // Fondo épico con gradiente de aura
   div.innerHTML=`
-    <div style="position:relative;overflow:hidden;border-radius:14px;margin-bottom:1.4rem;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);border:2px solid rgba(251,191,36,.3);box-shadow:0 0 50px rgba(124,58,237,.4);">
+    <div style="position:relative;overflow:hidden;border-radius:16px;margin-bottom:1.4rem;
+      background:linear-gradient(135deg,#050210 0%,#1a0535 35%,#0a1a40 65%,#050210 100%);
+      border:2px solid rgba(251,191,36,.45);
+      box-shadow:0 0 60px rgba(124,58,237,.5),0 0 120px rgba(251,191,36,.15);">
       <canvas id="ic-${podioId}" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
-      <div id="ic-cnt-${podioId}" style="position:relative;z-index:2;padding:1.8rem 1.2rem;text-align:center;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;"></div>
+      <div id="ic-cnt-${podioId}" style="position:relative;z-index:2;padding:2rem 1.2rem;text-align:center;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;"></div>
     </div>
     <div class="podio-escenario"><div class="podio-lugares" id="pl-${podioId}"></div><div class="podio-mensajes" id="pm-${podioId}"></div></div>`;
-  animIntro(`ic-${podioId}`,`ic-cnt-${podioId}`,camp,campH);
-  setTimeout(()=>buildPodio([{n:camp,esH:campH},{n:sub2,esH:!isBot(sub2)},{n:sub3,esH:!isBot(sub3)}],campH,`pl-${podioId}`,`pm-${podioId}`,canvasId,onReinicio),4000);
+  animIntroEpic(`ic-${podioId}`,`ic-cnt-${podioId}`,camp,campH);
+  setTimeout(()=>buildPodio([{n:camp,esH:campH},{n:sub2,esH:!isBot(sub2)},{n:sub3,esH:!isBot(sub3)}],campH,`pl-${podioId}`,`pm-${podioId}`,canvasId,onReinicio),4500);
 }
 
-function animIntro(cid,cntId,camp,campH){
+function animIntroEpic(cid,cntId,camp,campH){
   const cv=document.getElementById(cid);if(!cv)return;
   const ctx=cv.getContext('2d');const cnt=document.getElementById(cntId);
-  cv.width=cv.parentElement.offsetWidth||540;cv.height=220;
-  const pts=Array.from({length:40},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.6,vy:(Math.random()-.5)*.6,r:1+Math.random()*2,a:Math.random(),c:['#7c3aed','#fbbf24','#34d399','#4f46e5'][ri(4)]}));
-  let run=true;
-  function draw(){if(!run)return;ctx.clearRect(0,0,cv.width,cv.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.globalAlpha=p.a*.5;ctx.fill();});ctx.globalAlpha=1;requestAnimationFrame(draw);}
+  cv.width=cv.parentElement.offsetWidth||560;cv.height=240;
+
+  // Partículas épicas: más cantidad, colores dorados/violetas, tamaños variados
+  const pts=Array.from({length:80},()=>({
+    x:Math.random()*cv.width,y:Math.random()*cv.height,
+    vx:(Math.random()-.5)*.9,vy:(Math.random()-.5)*.9,
+    r:.5+Math.random()*3,a:Math.random(),
+    pulse:Math.random()*Math.PI*2,
+    c:['#fbbf24','#f59e0b','#7c3aed','#a855f7','#34d399','#fff','#f97316'][Math.floor(Math.random()*7)]
+  }));
+  // Anillos de aura pulsantes
+  const rings=[{r:40,a:0},{r:80,a:Math.PI/3},{r:120,a:Math.PI}];
+  let run=true,frame=0;
+  const cx=cv.width/2,cy=cv.height/2;
+
+  function draw(){
+    if(!run)return;
+    ctx.clearRect(0,0,cv.width,cv.height);
+    frame++;
+    // Anillos de aura
+    rings.forEach(ring=>{
+      ring.a+=0.012;
+      const alpha=0.06+0.04*Math.sin(frame*.04+ring.r);
+      ctx.beginPath();ctx.arc(cx,cy,ring.r+10*Math.sin(frame*.03+ring.r*.1),0,Math.PI*2);
+      ctx.strokeStyle='rgba(251,191,36,'+alpha+')';ctx.lineWidth=1.5;ctx.stroke();
+    });
+    // Partículas
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.pulse+=0.05;
+      if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;
+      if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
+      const alpha=(p.a*.6+.1*Math.sin(p.pulse))*.7;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.c;ctx.globalAlpha=alpha;ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    requestAnimationFrame(draw);
+  }
   draw();
+
   const screens=[
-    {d:0,h:`<div style="font-family:'Space Mono',monospace;font-size:.58rem;color:#a78bfa;opacity:0;animation:auraFadeIn .5s ease .2s both;letter-spacing:.3em;">TORNEO COMPLETADO</div><div style="font-family:'Fraunces',serif;font-size:clamp(1.8rem,5vw,2.5rem);font-weight:700;color:#fff;text-shadow:0 0 28px rgba(251,191,36,.6);opacity:0;animation:auraFadeIn .5s ease .5s both;">${campH?'¡CAMPEÓN!':'Bien jugado'}</div><div style="font-size:2.6rem;opacity:0;animation:auraFadeIn .4s ease .9s both;">${campH?'👑':'🏆'}</div>`},
-    {d:1900,h:`<div style="font-family:'Space Mono',monospace;font-size:.58rem;color:#a78bfa;opacity:0;animation:auraFadeIn .4s ease .1s both;">CAMPEÓN</div><div style="font-family:'Fraunces',serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fbbf24;text-shadow:0 0 36px rgba(251,191,36,.8);opacity:0;animation:auraFadeIn .5s ease .3s both;">${camp}</div><div style="font-family:'Space Mono',monospace;font-size:.7rem;color:#c4b5fd;opacity:0;animation:auraFadeIn .4s ease .7s both;">${rnd(IE)}</div>`},
-    {d:3600,h:`<div style="font-family:'DM Sans',sans-serif;font-size:.82rem;color:#c4b5fd;line-height:1.7;margin-bottom:10px;font-style:italic;opacity:0;animation:auraFadeIn .6s ease .1s both;">${rnd(IE)}</div><div style="opacity:0;animation:auraFadeIn .5s ease .5s both;font-family:'Fraunces',serif;font-size:1rem;color:#fbbf24;text-align:center;font-weight:700;">${rnd(OC)}</div>`},
+    {d:0,h:`
+      <div style="font-family:'Space Mono',monospace;font-size:.55rem;color:#a78bfa;letter-spacing:.4em;opacity:0;animation:auraFadeIn .6s ease .1s both;text-shadow:0 0 20px rgba(167,139,250,.8);">TOP GLOBAL · TORNEO FINALIZADO</div>
+      <div style="font-family:'Fraunces',serif;font-size:clamp(2rem,6vw,3rem);font-weight:700;color:#fff;
+        text-shadow:0 0 30px rgba(251,191,36,.7),0 0 60px rgba(124,58,237,.5);
+        opacity:0;animation:auraFadeIn .6s ease .4s both;line-height:1.1;">${campH?'¡CAMPEÓN!':'Torneo épico'}</div>
+      <div style="font-size:3rem;opacity:0;animation:auraFadeIn .5s ease .9s both;filter:drop-shadow(0 0 16px #fbbf24);">${campH?'👑':'🏆'}</div>
+      <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:rgba(251,191,36,.6);letter-spacing:.2em;opacity:0;animation:auraFadeIn .4s ease 1.2s both;">◆ ◆ ◆</div>
+    `},
+    {d:2000,h:`
+      <div style="font-family:'Space Mono',monospace;font-size:.55rem;color:#a78bfa;letter-spacing:.25em;opacity:0;animation:auraFadeIn .4s ease .05s both;">EL CAMPEÓN ES</div>
+      <div style="font-family:'Fraunces',serif;font-size:clamp(2.2rem,6vw,3.2rem);font-weight:700;
+        color:#fbbf24;opacity:0;animation:auraFadeIn .5s ease .25s both;
+        text-shadow:0 0 40px rgba(251,191,36,.9),0 0 80px rgba(251,191,36,.4);
+        letter-spacing:.05em;">${camp}</div>
+      <div style="margin-top:.4rem;display:flex;gap:.5rem;justify-content:center;opacity:0;animation:auraFadeIn .4s ease .7s both;">
+        <span style="font-size:1.4rem;filter:drop-shadow(0 0 8px #fbbf24);">⚡</span>
+        <span style="font-family:'Space Mono',monospace;font-size:.65rem;color:rgba(251,191,36,.7);align-self:center;letter-spacing:.1em;">INVICTO · IMPARABLE</span>
+        <span style="font-size:1.4rem;filter:drop-shadow(0 0 8px #fbbf24);">⚡</span>
+      </div>
+    `},
+    {d:3800,h:`
+      <div style="font-family:'Fraunces',serif;font-size:1.3rem;color:#fbbf24;opacity:0;animation:auraFadeIn .5s ease .1s both;text-shadow:0 0 24px rgba(251,191,36,.6);">${rnd(OC)}</div>
+      <div style="font-family:'DM Sans',sans-serif;font-size:.88rem;color:#c4b5fd;line-height:1.75;
+        opacity:0;animation:auraFadeIn .6s ease .4s both;max-width:380px;font-style:italic;">${rnd(IE)}</div>
+      <div style="display:flex;gap:1.2rem;justify-content:center;margin-top:.5rem;opacity:0;animation:auraFadeIn .4s ease .9s both;">
+        ${['🥇','⚔️','🏆','👑','🌟'].map(e=>`<span style="font-size:1.4rem;filter:drop-shadow(0 0 6px rgba(251,191,36,.5));">${e}</span>`).join('')}
+      </div>
+    `},
   ];
   screens.forEach(s=>setTimeout(()=>cnt.innerHTML=s.h,s.d));
-  setTimeout(()=>run=false,5200);
+  setTimeout(()=>run=false,5800);
 }
 
 function buildPodio(top3,campH,lugsId,msgsId,canvasId,onReinicio){
@@ -1932,67 +2017,180 @@ function primeraRonda(formato){
   return{rondaKey:'semi',rondaNom:'Semifinal'};
 }
 
-// ★ FIX: auto-resolver partidas de bots en Firebase
+// ★ BRACKET ADMIN AMPLIO — puntos en tiempo real, ganadores, botón SIG
 function renderAdminBracket(sala){
   const div=document.getElementById('admin-bracket-live');if(!div)return;
-  const rAct=sala.rondaActiva||'oct8';const rondas=['oct16','oct8','cuar','semi','gran'];
-  let html=`<div style="font-family:'Space Mono',monospace;font-size:.6rem;color:#a78bfa;margin-bottom:9px;">SALA: ${sala.codigo} · ${lblRonda(rAct).toUpperCase()} · ${sala.estado}</div>`;
-  // ★ AUTO-RESOLVER bots
-  const partidas=sala.bracket?.[rAct]||[];
-  partidas.forEach((p,i)=>{
-    if(!p||p.terminada)return;
-    // ¿Ambos son bots? Si j1 no está en jugadores reales, es bot
-    const jugsReales=Object.values(sala.jugadores||{}).map(j=>j.nombre);
-    const j1esBot=!jugsReales.includes(p.j1);
-    const j2esBot=!jugsReales.includes(p.j2);
-    if(j1esBot&&j2esBot&&!p._simInicio){
-      // Simular con retardo
-      db.ref(`salas/${SALA}/bracket/${rAct}/${i}/_simInicio`).set(true);
-      setTimeout(()=>resolverPartidaBot(rAct,i,p),1000+i*800);
+  const rAct=sala.rondaActiva||'oct8';
+  const jugsReales=Object.values(sala.jugadores||{}).map(j=>j.nombre);
+  const tiempo=parseInt(sala.tiempo)||30;
+  const nPregs=parseInt(sala.numPregs)||3;
+
+  // Auto-resolver bots silenciosamente
+  const partAct=sala.bracket?.[rAct]||[];
+  partAct.forEach((p,i)=>{
+    if(!p||p.terminada||p._simInicio)return;
+    const j1bot=!jugsReales.includes(p.j1);
+    const j2bot=!jugsReales.includes(p.j2);
+    if(j1bot&&j2bot){
+      db.ref('salas/'+SALA+'/bracket/'+rAct+'/'+i+'/_simInicio').set(true);
+      setTimeout(()=>resolverPartidaBot(rAct,i,p),800+i*600);
     }
   });
-  rondas.forEach(r=>{const pts=sala.bracket?.[r];if(!pts?.length)return;const act=r===rAct;
-    html+=`<div style="margin-bottom:11px;"><div style="font-family:'Space Mono',monospace;font-size:.58rem;color:${act?'#fbbf24':'rgba(255,255,255,.34)'};letter-spacing:.13em;margin-bottom:4px;text-transform:uppercase;">${act?'▶ ':''} ${lblRonda(r)}</div><div style="display:flex;flex-wrap:wrap;gap:5px;">${pts.map((p,i)=>slotAdmin(p,i,act)).join('')}</div></div>`;
+
+  // ── Cabecera ──
+  const pendientes=partAct.filter(p=>p&&!p.terminada).length;
+  const terminadas=partAct.filter(p=>p&&p.terminada).length;
+  const total=partAct.length;
+  const progPct=total>0?Math.round((terminadas/total)*100):0;
+  const todasDone=total>0&&terminadas===total;
+  const sigR=sigRonda(rAct);
+  const esFinal=!sigR||(total<=1);
+
+  let html='';
+  html+='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.8rem;">';
+  html+='<div>';
+  html+='<div style="font-family:Space Mono,monospace;font-size:.58rem;color:#a78bfa;letter-spacing:.12em;text-transform:uppercase;">'+sala.codigo+' · '+sala.estado+'</div>';
+  html+='<div style="font-family:Fraunces,serif;font-size:1.3rem;color:#fff;margin-top:1px;">'+lblRonda(rAct)+'</div>';
+  html+='</div>';
+  // Contador de duelos
+  html+='<div style="text-align:right;">';
+  html+='<div style="font-family:Space Mono,monospace;font-size:.6rem;color:var(--dim);">DUELOS</div>';
+  html+='<div style="font-family:Space Mono,monospace;font-size:1.1rem;font-weight:700;color:'+(todasDone?'#34d399':'#fbbf24')+';">'+terminadas+' / '+total+'</div>';
+  html+='</div>';
+  html+='</div>';
+
+  // Barra de progreso general
+  html+='<div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-bottom:1rem;">';
+  html+='<div style="height:100%;width:'+progPct+'%;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:2px;transition:width .5s;"></div>';
+  html+='</div>';
+
+  // ── Grid de rondas ──
+  const rondas=['oct16','oct8','cuar','semi','gran'];
+  rondas.forEach(r=>{
+    const pts=sala.bracket?.[r];if(!pts||!pts.length)return;
+    const esActiva=r===rAct;
+    html+='<div style="margin-bottom:1.2rem;">';
+    html+='<div style="font-family:Space Mono,monospace;font-size:.58rem;color:'+(esActiva?'#fbbf24':'rgba(255,255,255,.3)')+';letter-spacing:.15em;text-transform:uppercase;margin-bottom:.55rem;">'+(esActiva?'▶ ':'')+lblRonda(r)+'</div>';
+    html+='<div class="adm-bk-grid">';
+    pts.forEach((p,idx)=>{html+=slotAdmin(p,idx,esActiva,nPregs,jugsReales);});
+    html+='</div></div>';
   });
-  const rParts=sala.bracket?.[rAct]||[];
-  const todasDone=rParts.length>0&&rParts.every(p=>p?.terminada);
-  const sigR=sigRonda(rAct);const esFinal=!sigR||(rParts.length*2<=2);
-  html+=`<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem;">`;
-  if(todasDone&&!esFinal&&sala.estado==='jugando')html+=`<button class="t-btn t-btn-gold t-btn-sm" onclick="avanzarRondaAdmin('${sigR}')">Iniciar ${lblRonda(sigR)} →</button>`;
-  if(todasDone&&esFinal&&sala.estado==='jugando')html+=`<button class="t-btn t-btn-primary t-btn-sm" onclick="cerrarYCeremonia()">🏆 Ver Ceremonia</button>`;
-  html+=`<button class="t-btn t-btn-danger t-btn-sm" onclick="cerrarSalaAdmin()">Cerrar Sala</button></div>`;
+
+  // ── Panel de acción ──
+  html+='<div style="border-top:1px solid rgba(255,255,255,.06);padding-top:1rem;margin-top:.2rem;">';
+
+  if(todasDone&&!esFinal&&sala.estado==='jugando'){
+    // Mostrar ganadores de la ronda
+    const ganadores=partAct.map(p=>p&&p.ganador).filter(Boolean);
+    html+='<div style="margin-bottom:.8rem;">';
+    html+='<div style="font-family:Space Mono,monospace;font-size:.58rem;color:#34d399;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.4rem;">✓ Pasan a '+lblRonda(sigR)+'</div>';
+    html+='<div style="display:flex;flex-wrap:wrap;gap:.4rem;">';
+    ganadores.forEach(g=>{
+      html+='<div style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-radius:8px;padding:4px 12px;font-family:Space Mono,monospace;font-size:.68rem;color:#a7f3d0;">'+g+'</div>';
+    });
+    html+='</div></div>';
+    html+='<button class="btn-sig" onclick="avanzarRondaAdmin(\''+sigR+'\')">⚡ SIG: '+lblRonda(sigR)+' →</button>';
+  } else if(todasDone&&esFinal&&sala.estado==='jugando'){
+    html+='<button class="btn-sig" onclick="cerrarYCeremonia()">🏆 Ver Ceremonia Final</button>';
+  } else if(!todasDone&&sala.estado==='jugando'){
+    // Botón de forzar cierre de duelos si el tiempo ya pasó
+    html+='<button class="t-btn t-btn-outline t-btn-sm" onclick="forzarResolucionRonda()" title="Forzar resultado de duelos pendientes por tiempo agotado" style="opacity:.75;">⏱ Forzar cierre de ronda</button>';
+  }
+
+  html+='<button class="t-btn t-btn-danger t-btn-sm" onclick="cerrarSalaAdmin()" style="margin-left:.5rem;">✕ Cerrar Sala</button>';
+  html+='</div>';
+
   div.innerHTML=html;
 }
 
-function resolverPartidaBot(rondaKey,idx,p){
-  // Simular scores para 2 bots
-  let s0=0,s1=0;
-  for(let q=0;q<3;q++){const a0=Math.random()>.4,a1=Math.random()>.4;if(a0&&!a1)s0+=3;else if(a1&&!a0)s1+=3;else if(a0&&a1){s0+=1;s1+=1;}}
-  const gan=s0>s1?p.j1:s1>s0?p.j2:(Math.random()>.5?p.j1:p.j2);
-  db.ref(`salas/${SALA}/bracket/${rondaKey}/${idx}`).update({scores:[s0,s1],ganador:gan,terminada:true,j1_listo:true,j2_listo:true});
+// ★ Slot admin amplio — versión limpia
+function slotAdmin(p,idx,esActiva,nPregs,jugsReales){
+  if(!p){
+    return '<div class="adm-slot"><div class="adm-slot-header"><span>Duelo '+(idx+1)+'</span><span>—</span></div>'
+      +'<div class="adm-row"><span class="adm-name" style="color:rgba(255,255,255,.2);">Por definir</span></div>'
+      +'<div class="adm-divider"></div>'
+      +'<div class="adm-row"><span class="adm-name" style="color:rgba(255,255,255,.2);">Por definir</span></div>'
+      +'</div>';
+  }
+  const g1=p.terminada&&p.ganador===p.j1;
+  const g2=p.terminada&&p.ganador===p.j2;
+  const j1r=Array.isArray(jugsReales)&&jugsReales.includes(p.j1);
+  const j2r=Array.isArray(jugsReales)&&jugsReales.includes(p.j2);
+  const cls=p.terminada?'done':esActiva&&(p.j1_listo||p.j2_listo)?'live':'';
+  const s0=p.terminada?p.scores[0]:(p.j1_listo?p.scores[0]:'—');
+  const s1=p.terminada?p.scores[1]:(p.j2_listo?p.scores[1]:'—');
+  const maxPts=(nPregs||3)*3;
+  const prog0=p.terminada&&p.scores[0]?Math.min(100,Math.round(p.scores[0]/maxPts*100)):0;
+  const prog1=p.terminada&&p.scores[1]?Math.min(100,Math.round(p.scores[1]/maxPts*100)):0;
+  const bar0col=g1?'#fbbf24':'rgba(255,255,255,.15)';
+  const bar1col=g2?'#fbbf24':'rgba(255,255,255,.15)';
+
+  // Estado footer
+  let statusTxt='', statusCol='rgba(255,255,255,.25)';
+  if(p.terminada){statusTxt='✓ '+p.ganador;statusCol='#34d399';}
+  else if(p.j1_listo&&p.j2_listo){statusTxt='Calculando...';statusCol='#a78bfa';}
+  else if(p.j1_listo||p.j2_listo){statusTxt='⏳ Esperando rival';statusCol='#fbbf24';}
+  else if(esActiva){statusTxt='Jugando...';statusCol='rgba(167,139,250,.55)';}
+
+  // Estado header badge
+  let hBadge,hCol;
+  if(p.terminada){hBadge='TERMINADO';hCol='#34d399';}
+  else if(esActiva){hBadge='EN CURSO';hCol='#fbbf24';}
+  else{hBadge='Pendiente';hCol='rgba(255,255,255,.3)';}
+
+  // Check icons
+  const ch1=p.j1_listo?'✓':'…';const cc1=p.j1_listo?'#34d399':'rgba(255,255,255,.25)';
+  const ch2=p.j2_listo?'✓':'…';const cc2=p.j2_listo?'#34d399':'rgba(255,255,255,.25)';
+
+  // Row colors
+  const rc1=g1?' win':p.terminada?' los':'';
+  const rc2=g2?' win':p.terminada?' los':'';
+  const nc1=j1r?'color:#fbbf24;':'';
+  const nc2=j2r?'color:#fbbf24;':'';
+  const av1=j1r?'<span style="font-size:.72rem;">⭐</span>':mkAv(p.j1,false,18);
+  const av2=j2r?'<span style="font-size:.72rem;">⭐</span>':mkAv(p.j2,false,18);
+  const n1=j1r?('<strong>'+p.j1+'</strong>'):p.j1;
+  const n2=j2r?('<strong>'+p.j2+'</strong>'):p.j2;
+
+  const progBar0='<div style="height:2px;background:rgba(255,255,255,.05);margin:0 .75rem;"><div style="height:100%;width:'+prog0+'%;background:'+bar0col+';border-radius:2px;transition:width .8s;"></div></div>';
+  const progBar1='<div style="height:2px;background:rgba(255,255,255,.05);margin:0 .75rem;"><div style="height:100%;width:'+prog1+'%;background:'+bar1col+';border-radius:2px;transition:width .8s;"></div></div>';
+
+  return '<div class="adm-slot '+cls+'">'
+    +'<div class="adm-slot-header"><span>Duelo '+(idx+1)+'</span>'
+    +'<span style="color:'+hCol+';">'+(esActiva&&!p.terminada?'<span style="animation:cargando 1s infinite;">':'')
+    +hBadge+(esActiva&&!p.terminada?'</span>':'')+'</span></div>'
+    +'<div class="adm-prog-bar"><div class="adm-prog-fill" style="width:'
+    +(p.terminada?100:esActiva?(p.j1_listo||p.j2_listo?60:20):0)+'%;"></div></div>'
+    +'<div class="adm-row'+rc1+'">'+av1
+    +'<span class="adm-name" style="margin-left:3px;'+nc1+'">'+n1+'</span>'
+    +'<span class="adm-check" style="color:'+cc1+';">'+ch1+'</span>'
+    +'<span class="adm-score">'+s0+'</span></div>'
+    +(p.terminada?progBar0:'')
+    +'<div class="adm-divider"></div>'
+    +(p.terminada?progBar1:'')
+    +'<div class="adm-row'+rc2+'">'+av2
+    +'<span class="adm-name" style="margin-left:3px;'+nc2+'">'+n2+'</span>'
+    +'<span class="adm-check" style="color:'+cc2+';">'+ch2+'</span>'
+    +'<span class="adm-score">'+s1+'</span></div>'
+    +(statusTxt?'<div class="adm-footer" style="color:'+statusCol+';">'+statusTxt+'</div>':'')
+    +'</div>';
 }
 
-function slotAdmin(p,i,act){
-  if(!p)return`<div class="bk-slot bk-empty" style="margin:2px;min-width:165px;"><div class="bk-row"><span class="bk-name bk-tbd">Por definir</span></div></div>`;
-  const g1=p.terminada&&p.ganador===p.j1,g2=p.terminada&&p.ganador===p.j2;
-  const b=p.terminada?'rgba(52,211,153,.4)':'rgba(255,255,255,.1)';
-  return`<div class="bk-slot${p.terminada?' bk-done':''}" style="border-color:${b};margin:3px;min-width:165px;">
-    <div class="bk-row${g1?' bk-win':p.terminada?' bk-los':''}">${mkAv(p.j1,false,17)}<span class="bk-name" style="margin-left:3px;">${p.j1}</span><span style="font-size:.57rem;color:${p.j1_listo?'#34d399':'rgba(255,255,255,.3)'};margin-right:2px;">${p.j1_listo?'✓':'…'}</span><span class="bk-sc">${p.terminada?p.scores[0]:(p.j1_listo?p.scores[0]:'—')}</span></div>
-    <div class="bk-div"></div>
-    <div class="bk-row${g2?' bk-win':p.terminada?' bk-los':''}">${mkAv(p.j2,false,17)}<span class="bk-name" style="margin-left:3px;">${p.j2}</span><span style="font-size:.57rem;color:${p.j2_listo?'#34d399':'rgba(255,255,255,.3)'};margin-right:2px;">${p.j2_listo?'✓':'…'}</span><span class="bk-sc">${p.terminada?p.scores[1]:(p.j2_listo?p.scores[1]:'—')}</span></div>
-    ${p.terminada?`<div class="bk-status-badge" style="color:#34d399;padding:3px;">✓ ${p.ganador}</div>`:(p.j1_listo||p.j2_listo)?`<div style="font-family:'Space Mono',monospace;font-size:.53rem;text-align:center;color:#fbbf24;padding:2px;">⏳ Esperando rival...</div>`:''}
-  </div>`;
-}
-
-function avanzarRondaAdmin(sigR){
-  if(!SALA)return;
+// ★ Forzar cierre de ronda — resuelve duelos pendientes por tiempo agotado
+function forzarResolucionRonda(){
+  if(!SALA||!confirm('Forzar cierre: los jugadores sin responder quedan con sus puntos actuales. Continuar?'))return;
   db.ref('salas/'+SALA).once('value').then(snap=>{
-    const sala=snap.val();const rAct=sala.rondaActiva;
-    const pts=sala.bracket[rAct]||[];const gans=pts.map(p=>p.ganador).filter(Boolean);
-    if(!gans.length){alert('No hay ganadores');return;}
-    const nuevas=buildPartidas(gans,lblRonda(sigR));
-    const upd={rondaActiva:sigR};upd['bracket/'+sigR]=nuevas;
-    db.ref('salas/'+SALA).update(upd);
+    const sala=snap.val();if(!sala)return;
+    const rAct=sala.rondaActiva;
+    const parts=sala.bracket?.[rAct]||[];
+    parts.forEach((p,i)=>{
+      if(!p||p.terminada)return;
+      const s0=Array.isArray(p.scores)?p.scores[0]:0;
+      const s1=Array.isArray(p.scores)?p.scores[1]:0;
+      const gan=s0>s1?p.j1:s1>s0?p.j2:(Math.random()>.5?p.j1:p.j2);
+      db.ref('salas/'+SALA+'/bracket/'+rAct+'/'+i).update({ganador:gan,terminada:true,j1_listo:true,j2_listo:true});
+    });
+    mostrarNotif('Ronda cerrada — todos los duelos resueltos');
   });
 }
 
@@ -2385,9 +2583,11 @@ function mostrarCeremoniaAlumno(sala){
   const campSoyYo=camp===MI;
   ['alumno-espera','alumno-eliminado','alumno-fin','t-fase-bot-duelo'].forEach(function(id){const e=document.getElementById(id);if(e)e.style.display='none';});
   document.getElementById('alumno-ceremonia').style.display='block';
-  // Cronica completa desde Firebase
+  // ★ Modo épico en ceremonia online
+  switchToEpic();
+  setTimeout(()=>reproducirFanfareVictoria(),1600);
   const cronicaCompleta=construirCronicaOnline(sala,MI);
-  renderCeremoniaFull('podio-ceremonia-online','confetti-canvas-online',camp,campSoyYo,sub2,sala,cronicaCompleta,function(){if(_salaRef)_salaRef.off();volverModoSelector();});
+  renderCeremoniaFull('podio-ceremonia-online','confetti-canvas-online',camp,campSoyYo,sub2,sala,cronicaCompleta,function(){if(_salaRef)_salaRef.off();stopWOW();volverModoSelector();});
 }
 
 function construirCronicaOnline(sala,miNombre){
@@ -2406,39 +2606,69 @@ function construirCronicaOnline(sala,miNombre){
   return cronica;
 }
 
-// Ceremonia con cronica detallada
+// Ceremonia con cronica detallada — diseño épico
 function renderCeremoniaFull(podioId,canvasId,camp,campH,sub2,sala,cronica,onReinicio){
   const div=document.getElementById(podioId);if(!div)return;
-  // Construir HTML de cronica personal
+
+  // Crónica personal con diseño épico
   let croHtml='';
   if(cronica&&cronica.length){
-    croHtml='<div style="max-width:480px;margin:0 auto 1.2rem;text-align:left;">';
-    croHtml+='<div style="font-family:Space Mono,monospace;font-size:.6rem;color:#a78bfa;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.5rem;text-align:center;">Tu recorrido en el torneo</div>';
-    cronica.forEach(function(c){
+    croHtml='<div style="max-width:500px;margin:0 auto 1.4rem;text-align:left;">';
+    croHtml+='<div style="font-family:Space Mono,monospace;font-size:.55rem;color:rgba(251,191,36,.7);'
+      +'letter-spacing:.22em;text-transform:uppercase;margin-bottom:.6rem;text-align:center;'
+      +'text-shadow:0 0 12px rgba(251,191,36,.4);">⚡ Crónica del Torneo ⚡</div>';
+    cronica.forEach(function(c,i){
       const color=c.gane?'#34d399':'#f87171';
+      const bg=c.gane?'rgba(52,211,153,.07)':'rgba(248,113,113,.06)';
+      const border=c.gane?'rgba(52,211,153,.28)':'rgba(248,113,113,.18)';
       const icon=c.gane?'✓':'✗';
-      croHtml+='<div style="background:'+(c.gane?'rgba(52,211,153,.07)':'rgba(248,113,113,.07)')+';border:1px solid '+(c.gane?'rgba(52,211,153,.25)':'rgba(248,113,113,.2)')+';border-radius:9px;padding:.55rem .85rem;margin-bottom:.35rem;display:flex;align-items:center;gap:.6rem;">';
-      croHtml+='<span style="color:'+color+';font-size:1rem;flex-shrink:0;">'+icon+'</span>';
-      croHtml+='<div style="flex:1;min-width:0;"><div style="font-family:Space Mono,monospace;font-size:.55rem;color:'+color+';text-transform:uppercase;letter-spacing:.08em;">'+c.ronda+'</div>';
-      croHtml+='<div style="font-size:.8rem;color:#e9d5ff;">vs <strong>'+c.rival+'</strong></div></div>';
-      croHtml+='<div style="font-family:Space Mono,monospace;font-size:.8rem;font-weight:700;color:'+color+';">'+c.miScore+' - '+c.rivalScore+'</div>';
+      const verbo=c.gane?(c.miScore-c.rivalScore>=6?'Aplastó a':'Venció a'):'Cayó ante';
+      croHtml+='<div style="background:'+bg+';border:1px solid '+border+';border-radius:10px;'
+        +'padding:.6rem .9rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.7rem;'
+        +'opacity:0;animation:auraFadeIn .5s ease '+(i*.12+.1)+'s both;">';
+      croHtml+='<span style="color:'+color+';font-size:1.1rem;flex-shrink:0;">'+icon+'</span>';
+      croHtml+='<div style="flex:1;min-width:0;">';
+      croHtml+='<div style="font-family:Space Mono,monospace;font-size:.52rem;color:'+color
+        +';text-transform:uppercase;letter-spacing:.1em;margin-bottom:1px;">'+c.ronda+'</div>';
+      croHtml+='<div style="font-size:.82rem;color:#e9d5ff;"><strong>'+verbo+'</strong> '+c.rival+'</div>';
+      croHtml+='</div>';
+      croHtml+='<div style="font-family:Space Mono,monospace;font-size:.9rem;font-weight:700;color:'
+        +color+';flex-shrink:0;">'+c.miScore+' — '+c.rivalScore+'</div>';
       croHtml+='</div>';
     });
     croHtml+='</div>';
   }
 
-  div.innerHTML=croHtml+'<div class="podio-escenario"><div class="podio-lugares" id="pl-'+podioId+'"></div><div class="podio-mensajes" id="pm-'+podioId+'"></div></div>';
+  // Contenedor principal con fondo épico
+  div.innerHTML='<div style="position:relative;overflow:hidden;border-radius:16px;margin-bottom:1.4rem;'
+    +'background:linear-gradient(135deg,#050210 0%,#1a0535 35%,#0a1a40 65%,#050210 100%);'
+    +'border:2px solid rgba(251,191,36,.45);'
+    +'box-shadow:0 0 60px rgba(124,58,237,.5),0 0 120px rgba(251,191,36,.15);">'
+    +'<canvas id="ic-'+podioId+'" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>'
+    +'<div id="ic-cnt-'+podioId+'" style="position:relative;z-index:2;padding:2rem 1.2rem;text-align:center;'
+    +'min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;">'
+    +'</div></div>'
+    +croHtml
+    +'<div class="podio-escenario"><div class="podio-lugares" id="pl-'+podioId+'"></div>'
+    +'<div class="podio-mensajes" id="pm-'+podioId+'"></div></div>';
 
-  // Confetti y podio con top3 desde bracket
+  animIntroEpic('ic-'+podioId,'ic-cnt-'+podioId,camp,campH);
+
+  // Top3 desde bracket
   const oct=sala.bracket&&sala.bracket.oct8||[];
   const cuar=sala.bracket&&sala.bracket.cuar||[];
   const fuenteSub3=cuar.filter(Boolean).length?cuar:oct.filter(Boolean);
-  const perdFuente=fuenteSub3.map(function(p){return{n:p.ganador===p.j1?p.j2:p.j1,pts:Math.min(p.scores&&p.scores[0]||0,p.scores&&p.scores[1]||0)};});
+  const perdFuente=fuenteSub3.map(function(p){
+    return{n:p.ganador===p.j1?p.j2:p.j1,pts:Math.min(p.scores&&p.scores[0]||0,p.scores&&p.scores[1]||0)};
+  });
   perdFuente.sort(function(a,b){return b.pts-a.pts;});
   const sub3=perdFuente[0]&&perdFuente[0].n||sub2;
 
-  buildPodio([{n:camp,esH:campH},{n:sub2,esH:!isBot(sub2)},{n:sub3,esH:!isBot(sub3)}],campH,'pl-'+podioId,'pm-'+podioId,canvasId,onReinicio);
-  lanzarConfetti(campH,canvasId);
+  setTimeout(function(){
+    buildPodio([{n:camp,esH:campH},{n:sub2,esH:!isBot(sub2)},{n:sub3,esH:!isBot(sub3)}],
+      campH,'pl-'+podioId,'pm-'+podioId,canvasId,onReinicio);
+  },4500);
+  lanzarConfetti(true,canvasId);// siempre épico en final
 }
 
 function guardarHistorial(camp){
@@ -2482,105 +2712,280 @@ function cargarSalonFama(force){
 function toggleSalonFama(){_salonExp=!_salonExp;_salonCargado=false;cargarSalonFama(true);}
 
 // ═══════════════════════════════════════════════════════════════
-//  SONIDO AMBIENTE — Web Audio API (sin archivos externos)
+//  SISTEMA DE AUDIO — Way of the Warrior (Web Audio API)
+//  Auto-inicia en primer clic del usuario
 // ═══════════════════════════════════════════════════════════════
-let audioCtx=null,ambientNodes=[],sonidoActivo=false;
+let AC=null,MASTER=null,BGM_NODES=[],BGM_ON=false,BGM_MODE='normal';
+let _audioUnlocked=false;
 
-function initAudio(){
-  if(audioCtx)return;
-  try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
+function initAC(){
+  if(AC)return true;
+  try{AC=new(window.AudioContext||window.webkitAudioContext)();return true;}catch(e){return false;}
+}
+function unlockAudio(){
+  if(_audioUnlocked)return;
+  _audioUnlocked=true;
+  if(!initAC())return;
+  if(AC.state==='suspended')AC.resume();
+  startWOW('normal');
+}
+// Primer clic desbloquea audio
+document.addEventListener('click',unlockAudio,{once:true});
+document.addEventListener('touchstart',unlockAudio,{once:true});
+
+// ─── Utilidades ────────────────────────────────────────────────
+function note(semi){return 55*Math.pow(2,semi/12);}// A1 base
+function mkOsc(type,freq,when,dur,vol,dest){
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.setValueAtTime(freq,when);
+  g.gain.setValueAtTime(0,when);
+  g.gain.linearRampToValueAtTime(vol,when+0.01);
+  g.gain.exponentialRampToValueAtTime(0.001,when+dur-0.01);
+  o.connect(g);g.connect(dest);
+  o.start(when);o.stop(when+dur);
+  return{o,g};
+}
+function addReverb(dest){
+  try{
+    const conv=AC.createConvolver();
+    const len=AC.sampleRate*1.5;const buf=AC.createBuffer(2,len,AC.sampleRate);
+    for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);}
+    conv.buffer=buf;
+    const wet=AC.createGain();wet.gain.value=0.25;
+    conv.connect(wet);wet.connect(dest);
+    return conv;
+  }catch(e){return dest;}
 }
 
-// Música ambiente: drones + pulso rítmico generados por Web Audio
-function iniciarSonidoAmbiente(){
-  if(!audioCtx||sonidoActivo)return;
-  sonidoActivo=true;
-  const ctx=audioCtx;
-  // Masterbus con ganancia baja
-  const master=ctx.createGain();master.gain.setValueAtTime(0.06,ctx.currentTime);master.connect(ctx.destination);
+// ─── WAY OF THE WARRIOR — melodía épica generada ───────────────
+//  Escala: E menor pentatónica (E F# G B C#)
+//  Semitonos desde A1=55Hz: E1=4, F#1=6, G1=7, B1=11, C#2=13
+//  + octavas superiores
+const WOW_MELODY_NORMAL=[
+  // [semitono_desde_A1, duracion_beat, volumen_relativo]
+  [16,1,.8],[18,1,.7],[19,1,.9],[23,.5,1],[21,.5,.8],
+  [16,1,.7],[14,1,.6],[16,2,.9],[null,.5,0],
+  [23,1,.9],[21,1,.8],[19,1,1],[18,.5,.7],[16,.5,.8],
+  [14,1,.6],[11,1,.7],[14,2,.8],[null,.5,0],
+  [28,1,1],[26,1,.9],[28,.5,.8],[26,.5,.7],[23,1,.9],
+  [21,.5,.8],[23,.5,.7],[21,2,1],[null,.5,0],
+];
+const WOW_MELODY_EPIC=[
+  // Versión épica — más rápida, más alta, más intensa
+  [28,1,1],[30,.5,.9],[28,.5,1],[26,1,.9],[23,1,1],
+  [24,1,.8],[26,1,.9],[28,2,1],[null,.3,0],
+  [35,1,1],[33,.5,.9],[31,.5,.8],[30,1,1],[28,.5,.9],[26,.5,.8],
+  [24,1,.7],[21,1,.8],[24,2,1],[null,.3,0],
+  [30,1,1],[33,.5,.9],[35,.5,1],[33,1,.9],[30,1,1],
+  [28,.5,1],[26,.5,.9],[28,.5,.8],[26,.5,.7],[23,2,1],[null,.3,0],
+  [35,.5,1],[38,.5,.9],[35,.5,1],[33,1,.9],[31,.5,.8],[30,.5,.9],
+  [28,1,1],[26,1,.9],[24,1,.8],[23,2,1],
+];
+const WOW_BASS_NORMAL=[
+  [4,2,.6],[6,2,.5],[7,2,.6],[4,2,.5],
+  [4,2,.6],[2,2,.5],[4,4,.6],
+];
+const WOW_BASS_EPIC=[
+  [4,1,.8],[4,1,.8],[6,1,.7],[7,1,.9],
+  [4,1,.8],[4,1,.7],[2,1,.6],[4,1,.8],
+  [9,1,.9],[9,1,.8],[7,1,.8],[6,1,.9],
+  [4,1,.8],[2,1,.7],[0,2,.8],
+];
+const WOW_DRUMS_NORMAL=[
+  // [tipo, beat] tipo: 'kick','snare','hihat'
+  {t:'kick',b:0},{t:'hihat',b:0.5},{t:'snare',b:1},{t:'hihat',b:1.5},
+  {t:'kick',b:2},{t:'hihat',b:2.5},{t:'snare',b:3},{t:'hihat',b:3.5},
+  {t:'kick',b:4},{t:'hihat',b:4.5},{t:'snare',b:5},{t:'kick',b:5.5},{t:'hihat',b:5.5},
+  {t:'kick',b:6},{t:'hihat',b:6.5},{t:'snare',b:7},{t:'hihat',b:7.5},
+];
+const WOW_DRUMS_EPIC=[
+  {t:'kick',b:0},{t:'hihat',b:0.25},{t:'kick',b:0.5},{t:'hihat',b:0.75},
+  {t:'snare',b:1},{t:'hihat',b:1.25},{t:'kick',b:1.5},{t:'hihat',b:1.75},
+  {t:'kick',b:2},{t:'kick',b:2.25},{t:'hihat',b:2.5},{t:'snare',b:3},
+  {t:'kick',b:3.5},{t:'hihat',b:3.75},
+  {t:'kick',b:4},{t:'snare',b:4.5},{t:'kick',b:5},{t:'snare',b:5.5},
+  {t:'hihat',b:6},{t:'kick',b:6},{t:'kick',b:6.5},{t:'snare',b:7},
+  {t:'crash',b:7.5},
+];
 
-  // Drone base (nota grave)
-  function crearDrone(freq,gan){
-    const osc=ctx.createOscillator();const g=ctx.createGain();
-    osc.type='sine';osc.frequency.setValueAtTime(freq,ctx.currentTime);
-    g.gain.setValueAtTime(gan,ctx.currentTime);
-    osc.connect(g);g.connect(master);osc.start();
-    return{osc,g};
+function playDrum(type,when,vol,dest){
+  if(!AC)return;
+  if(type==='kick'){
+    const o=AC.createOscillator();const g=AC.createGain();
+    o.frequency.setValueAtTime(150,when);o.frequency.exponentialRampToValueAtTime(0.001,when+0.35);
+    g.gain.setValueAtTime(vol*1.2,when);g.gain.exponentialRampToValueAtTime(0.001,when+0.35);
+    o.connect(g);g.connect(dest);o.start(when);o.stop(when+0.36);
+  } else if(type==='snare'){
+    const buf=AC.createBuffer(1,AC.sampleRate*.18,AC.sampleRate);
+    const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1);
+    const src=AC.createBufferSource();src.buffer=buf;
+    const filt=AC.createBiquadFilter();filt.type='highpass';filt.frequency.value=1800;
+    const g=AC.createGain();g.gain.setValueAtTime(vol*.7,when);g.gain.exponentialRampToValueAtTime(0.001,when+0.18);
+    src.connect(filt);filt.connect(g);g.connect(dest);src.start(when);
+  } else if(type==='hihat'){
+    const buf=AC.createBuffer(1,AC.sampleRate*.05,AC.sampleRate);
+    const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1);
+    const src=AC.createBufferSource();src.buffer=buf;
+    const filt=AC.createBiquadFilter();filt.type='highpass';filt.frequency.value=8000;
+    const g=AC.createGain();g.gain.setValueAtTime(vol*.35,when);g.gain.exponentialRampToValueAtTime(0.001,when+0.05);
+    src.connect(filt);filt.connect(g);g.connect(dest);src.start(when);
+  } else if(type==='crash'){
+    const buf=AC.createBuffer(1,AC.sampleRate*.6,AC.sampleRate);
+    const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.5);
+    const src=AC.createBufferSource();src.buffer=buf;
+    const filt=AC.createBiquadFilter();filt.type='highpass';filt.frequency.value=4000;
+    const g=AC.createGain();g.gain.setValueAtTime(vol*.8,when);g.gain.exponentialRampToValueAtTime(0.001,when+0.6);
+    src.connect(filt);filt.connect(g);g.connect(dest);src.start(when);
   }
-  const d1=crearDrone(55,0.5);   // A1
-  const d2=crearDrone(82.5,0.3); // E2
-  const d3=crearDrone(110,0.2);  // A2
+}
 
-  // Pulso rítmico (cada 2 segundos)
-  function pulso(){
-    if(!sonidoActivo)return;
-    const osc=ctx.createOscillator();const env=ctx.createGain();
-    osc.type='triangle';osc.frequency.setValueAtTime(220,ctx.currentTime);
-    env.gain.setValueAtTime(0,ctx.currentTime);
-    env.gain.linearRampToValueAtTime(0.15,ctx.currentTime+0.05);
-    env.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.4);
-    osc.connect(env);env.connect(master);
-    osc.start();osc.stop(ctx.currentTime+0.4);
-    ambientNodes.push(osc,env);
-    setTimeout(pulso,2000+Math.random()*1000);
+function scheduleLoop(melody,bass,drums,bpm,masterVol,epic){
+  if(!AC)return;
+  const beatSec=60/bpm;
+  const now=AC.currentTime+0.08;
+  const dest=MASTER||(()=>{MASTER=AC.createGain();MASTER.gain.value=masterVol;MASTER.connect(AC.destination);return MASTER;})();
+  const rev=addReverb(dest);
+
+  // Melodía — lead synth
+  const leadType=epic?'sawtooth':'square';
+  let t=now;
+  melody.forEach(([semi,beats,vol])=>{
+    if(semi===null){t+=beats*beatSec;return;}
+    const freq=note(semi);const dur=beats*beatSec*0.85;
+    const {o,g}=mkOsc(leadType,freq,t,dur,vol*(epic?.18:.12),dest);
+    // Vibrato suave
+    const lfo=AC.createOscillator();const lfog=AC.createGain();
+    lfo.frequency.value=5.5;lfog.gain.value=freq*.01;
+    lfo.connect(lfog);lfog.connect(o.frequency);lfo.start(t);lfo.stop(t+dur);
+    BGM_NODES.push(o,g,lfo,lfog);
+    t+=beats*beatSec;
+  });
+  const melodyDur=t-now;
+
+  // Bajo — sub bass
+  t=now;
+  bass.forEach(([semi,beats,vol])=>{
+    const freq=note(semi-12);// una octava abajo
+    const dur=beats*beatSec*0.7;
+    const {o,g}=mkOsc('sawtooth',freq,t,dur,vol*(epic?.22:.14),dest);
+    // Sub extra
+    const {o:o2,g:g2}=mkOsc('sine',freq*.5,t,dur,vol*(epic?.15:.1),dest);
+    BGM_NODES.push(o,g,o2,g2);
+    t+=beats*beatSec;
+  });
+
+  // Batería
+  const drumVol=epic?1:.75;
+  const totalBeats=epic?8:8;
+  drums.forEach(({t:type,b})=>{
+    if(b<totalBeats)playDrum(type,now+b*beatSec,drumVol,dest);
+  });
+
+  // Si épico: agregar pad de acordes
+  if(epic){
+    [[16,19,23],[14,18,21],[13,16,19]].forEach(([s1,s2,s3],ci)=>{
+      const wh=now+ci*beatSec*2.5;const dur=beatSec*2.3;
+      [s1,s2,s3].forEach(s=>{
+        const {o,g}=mkOsc('sine',note(s),wh,dur,.06,dest);
+        BGM_NODES.push(o,g);
+      });
+    });
   }
-  pulso();
-  ambientNodes.push(d1.osc,d1.g,d2.osc,d2.g,d3.osc,d3.g,master);
+
+  return melodyDur;
 }
 
-function detenerSonidoAmbiente(){
-  sonidoActivo=false;
-  ambientNodes.forEach(function(n){try{n.disconnect();}catch(e){}try{if(n.stop)n.stop();}catch(e){}});
-  ambientNodes=[];
-}
+function startWOW(mode){
+  stopWOW();
+  if(!AC)return;
+  BGM_MODE=mode;BGM_ON=true;
+  MASTER=AC.createGain();
+  MASTER.gain.value=mode==='epic'?.55:.32;
+  MASTER.connect(AC.destination);
 
-function toggleSonido(){
-  initAudio();
-  if(!audioCtx)return;
-  if(audioCtx.state==='suspended')audioCtx.resume();
-  const btn=document.getElementById('btn-sonido');
-  const icon=document.getElementById('sonido-icon');
-  if(sonidoActivo){
-    detenerSonidoAmbiente();
-    if(icon)icon.textContent='🔇';
-    if(btn)btn.style.borderColor='rgba(255,255,255,.1)';
-    try{localStorage.setItem('sonido','off');}catch(e){}
-  } else {
-    iniciarSonidoAmbiente();
-    if(icon)icon.textContent='🔊';
-    if(btn)btn.style.borderColor='rgba(251,191,36,.4)';
-    try{localStorage.setItem('sonido','on');}catch(e){}
+  const epic=mode==='epic';
+  const bpm=epic?148:118;
+  const melody=epic?WOW_MELODY_EPIC:WOW_MELODY_NORMAL;
+  const bass=epic?WOW_BASS_EPIC:WOW_BASS_NORMAL;
+  const drums=epic?WOW_DRUMS_EPIC:WOW_DRUMS_NORMAL;
+
+  function loop(){
+    if(!BGM_ON)return;
+    const dur=scheduleLoop(melody,bass,drums,bpm,1,epic);
+    // Programar siguiente loop
+    const msLeft=(dur||4)*1000-80;
+    const tid=setTimeout(loop,Math.max(200,msLeft));
+    BGM_NODES.push({stop:()=>clearTimeout(tid)});
   }
+  loop();
 }
 
-// Beep de inicio de duelo
+function stopWOW(){
+  BGM_ON=false;
+  BGM_NODES.forEach(function(n){
+    try{if(n.stop)n.stop(AC?AC.currentTime+0.05:0);}catch(e){}
+    try{if(n.disconnect)n.disconnect();}catch(e){}
+  });
+  BGM_NODES=[];
+  if(MASTER){try{MASTER.disconnect();}catch(e){}MASTER=null;}
+}
+
+function switchToEpic(){
+  // Fade out normal, fade in epic
+  if(MASTER){
+    const now=AC.currentTime;
+    MASTER.gain.setValueAtTime(MASTER.gain.value,now);
+    MASTER.gain.linearRampToValueAtTime(0,now+1.5);
+  }
+  setTimeout(()=>startWOW('epic'),1400);
+}
+
+// Fanfare de duelo: 3 notas ascendentes en E mayor
 function reproducirSonidoDuelo(){
-  if(!sonidoActivo||!audioCtx)return;
-  const ctx=audioCtx;
-  [440,554,659].forEach(function(f,i){
-    const osc=ctx.createOscillator();const env=ctx.createGain();
-    osc.type='square';osc.frequency.setValueAtTime(f,ctx.currentTime+i*0.12);
-    env.gain.setValueAtTime(0,ctx.currentTime+i*0.12);
-    env.gain.linearRampToValueAtTime(0.08,ctx.currentTime+i*0.12+0.03);
-    env.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.12+0.25);
-    osc.connect(env);env.connect(ctx.destination);
-    osc.start(ctx.currentTime+i*0.12);osc.stop(ctx.currentTime+i*0.12+0.25);
+  if(!AC)return;
+  if(AC.state==='suspended')AC.resume();
+  const now=AC.currentTime+0.05;
+  [[16,.12,.15],[21,.12,.14],[24,.12,.16],[28,.5,.18]].forEach(([s,when,vol])=>{
+    const f=note(s);
+    const o=AC.createOscillator();const g=AC.createGain();
+    o.type='square';o.frequency.value=f;
+    g.gain.setValueAtTime(0,now+when);
+    g.gain.linearRampToValueAtTime(vol,now+when+0.02);
+    g.gain.exponentialRampToValueAtTime(0.001,now+when+0.25);
+    o.connect(g);g.connect(AC.destination);
+    o.start(now+when);o.stop(now+when+0.26);
   });
 }
+
+// Fanfare de victoria: escala épica ascendente
+function reproducirFanfareVictoria(){
+  if(!AC)return;
+  if(AC.state==='suspended')AC.resume();
+  const now=AC.currentTime+0.05;
+  [[16,.0,.18],[19,.12,.16],[23,.24,.2],[28,.36,.22],[35,.52,.25],[38,.7,.22]].forEach(([s,when,vol])=>{
+    const f=note(s);
+    ['sawtooth','square'].forEach((type,ti)=>{
+      const o=AC.createOscillator();const g=AC.createGain();
+      o.type=type;o.frequency.value=f*(ti===1?1.005:1);
+      g.gain.setValueAtTime(0,now+when);
+      g.gain.linearRampToValueAtTime(vol*.5,now+when+0.03);
+      g.gain.exponentialRampToValueAtTime(0.001,now+when+0.6);
+      o.connect(g);g.connect(AC.destination);
+      o.start(now+when);o.stop(now+when+0.65);
+    });
+  });
+}
+
+// ─── Parche: funciones que ya no usan toggleSonido ──────────────
+function initAudio(){return initAC();}
+function iniciarSonidoAmbiente(){if(AC&&!BGM_ON)startWOW('normal');}
+function detenerSonidoAmbiente(){stopWOW();}
 
 // ═══════════════════════════════════════════════════════════════
 //  URL PARAMS + INIT
 // ═══════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{
   cargarPaleta();
-  // Cargar preferencia de sonido
-  try{
-    const sp=localStorage.getItem('sonido');
-    if(sp==='on'){
-      // No auto-iniciar sonido (requiere interacción del usuario)
-      document.getElementById('sonido-icon').textContent='🔇';
-    }
-  }catch(e){}
   const p=new URLSearchParams(window.location.search);
   const sp=p.get('sala');
   if(sp){
