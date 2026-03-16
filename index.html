@@ -835,7 +835,8 @@ nav{overflow:hidden;}
             </select></div>
           <div><div style="font-family:'Space Mono',monospace;font-size:.66rem;color:var(--dim);margin-bottom:.4rem;">TIEMPO/PREGUNTA</div>
             <select id="admin-tiempo" class="select-estilo">
-              <option value="30">30 s</option><option value="60">1 min</option>
+              <option value="20">20 s</option>
+              <option value="30" selected>30 s</option><option value="60">1 min</option>
               <option value="120">2 min</option><option value="0">Sin límite</option>
             </select></div>
           <div><div style="font-family:'Space Mono',monospace;font-size:.66rem;color:var(--dim);margin-bottom:.4rem;">TEMA</div>
@@ -847,7 +848,13 @@ nav{overflow:hidden;}
               <option value="7">7 preguntas</option>
             </select></div>
         </div>
-        <button class="t-btn t-btn-gold" onclick="crearSala()">CREAR SALA</button>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;">
+          <button class="t-btn t-btn-gold" onclick="crearSala()">CREAR SALA</button>
+          <button class="t-btn t-btn-outline t-btn-sm" onclick="casoPrueba()" title="Crea sala: 2 jugadores · 3 preguntas · 20 s · Sumas" style="font-size:.6rem;">
+            🧪 Caso de prueba
+          </button>
+          <span style="font-family:'Space Mono',monospace;font-size:.54rem;color:rgba(167,139,250,.4);">3 preg × 20 s = 60 s</span>
+        </div>
       </div>
 
       <div id="admin-sala-info" style="display:none;" class="t-setup" style="margin-bottom:1rem;">
@@ -1657,16 +1664,17 @@ function ocultarInputTabla(ultimaPreg){
 function agotarTiempo(){
   const d=BS.duelo;if(d.esp)return;
   d.esp=true;clearInterval(d.timer);bloquear(true);
-  const preg=BS.pregHum[d.humIdx]||{ans:'?'};
-  d.humLog[d.humIdx]={ok:false,val:'⏱'};
+  const preg=BS.pregHum[d.humIdx]||{ans:'?',txt:''};
+  // Pregunta no respondida = 0 puntos (no se suma nada)
+  d.humLog[d.humIdx]={ok:false,val:'⏱',timeout:true};
   const w=document.getElementById('t-input-wrap');if(w)w.className='t-num-input-wrap estado-mal';
   const rb=document.getElementById('t-bot-resultado');
-  rb.className='t-resultado-box show mal';
-  rb.innerHTML=`⏱ <strong>Tiempo agotado</strong> — era: <strong>${preg.ans}</strong>`;
+  if(rb){rb.className='t-resultado-box show mal';
+    rb.innerHTML='⏱ <strong>Tiempo agotado</strong> — era: <strong>'+preg.ans+'</strong> · +0 pts';}
   d.humIdx++;updProgress();
   const esUlt=d.humIdx>=BS.pregHum.length;
   if(esUlt){ocultarInputTabla(preg);setTimeout(()=>esperarBotRevelar(),1400);}
-  else setTimeout(()=>cargarPregHum(),1400);
+  else setTimeout(()=>cargarPregHum(),1600);
 }
 
 function iniciarTimer(){
@@ -2002,6 +2010,32 @@ function iniciarSala(){
   });
 }
 
+// Caso de prueba: Final directa (2 jug) · 3 preguntas · 20 s · Sumas
+// Tiempo total = 3 × 20 = 60 segundos. No respondida = 0 pts.
+function casoPrueba(){
+  mostrarNotif('🧪 Creando sala de prueba...');
+  initFB();
+  const codigo=genCodigo();SALA=codigo;
+  db.ref('salas/'+codigo).set({
+    codigo,formato:2,tiempo:20,temaId:'sumas',numPregs:3,
+    dificultad:'medio',estado:'esperando',rondaActiva:'espera',
+    creada:Date.now(),jugadores:{},
+    bracket:{oct16:[],oct8:[],cuar:[],semi:[],gran:[]},
+    preguntasCustom:null,_casoTest:true
+  }).then(()=>{
+    document.getElementById('admin-sala-codigo').textContent=codigo;
+    document.getElementById('admin-sala-info').style.display='block';
+    document.getElementById('admin-crear-sala').style.display='none';
+    // Forzar formato=2 en el select para que escucharJugs lea bien el total
+    const fmtSel=document.getElementById('admin-formato');if(fmtSel)fmtSel.value='2';
+    actLimitador(2);escucharJugs(codigo);mostrarQR(codigo);
+    const hint=document.getElementById('admin-bots-hint');
+    if(hint)hint.textContent='Prueba: 3 preg × 20 s = 60 s · No respondida = 0 pts';
+    mostrarNotif('✓ Sala prueba '+codigo+' — 3 preg × 20 s');
+  });
+}
+
+
 function buildPartidas(nombres,rondaNom){
   const out=[];
   for(let i=0;i<nombres.length;i+=2)
@@ -2193,6 +2227,24 @@ function forzarResolucionRonda(){
     mostrarNotif('Ronda cerrada — todos los duelos resueltos');
   });
 }
+
+function avanzarRondaAdmin(sigR){
+  if(!SALA)return;
+  db.ref('salas/'+SALA).once('value').then(snap=>{
+    const sala=snap.val();if(!sala)return;
+    const rAct=sala.rondaActiva;
+    const pts=sala.bracket[rAct]||[];
+    const gans=pts.map(p=>p&&p.ganador).filter(Boolean);
+    if(!gans.length){mostrarNotif('No hay ganadores aún');return;}
+    const nuevas=buildPartidas(gans,lblRonda(sigR));
+    const upd={rondaActiva:sigR};
+    upd['bracket/'+sigR]=nuevas;
+    db.ref('salas/'+SALA).update(upd).then(()=>{
+      mostrarNotif('✓ '+lblRonda(sigR)+' iniciada — jugadores notificados');
+    });
+  });
+}
+
 
 function cerrarYCeremonia(){
   if(!SALA)return;
@@ -2712,274 +2764,99 @@ function cargarSalonFama(force){
 function toggleSalonFama(){_salonExp=!_salonExp;_salonCargado=false;cargarSalonFama(true);}
 
 // ═══════════════════════════════════════════════════════════════
-//  SISTEMA DE AUDIO — Way of the Warrior (Web Audio API)
-//  Auto-inicia en primer clic del usuario
+//  SISTEMA DE AUDIO — Way of the Warrior (warrior.mp3)
+//  Solo se reproduce en la ceremonia final
 // ═══════════════════════════════════════════════════════════════
-let AC=null,MASTER=null,BGM_NODES=[],BGM_ON=false,BGM_MODE='normal';
-let _audioUnlocked=false;
+let _warrior=null;   // instancia del Audio
+let _warriorListo=false;
 
-function initAC(){
-  if(AC)return true;
-  try{AC=new(window.AudioContext||window.webkitAudioContext)();return true;}catch(e){return false;}
-}
-function unlockAudio(){
-  if(_audioUnlocked)return;
-  _audioUnlocked=true;
-  if(!initAC())return;
-  if(AC.state==='suspended')AC.resume();
-  startWOW('normal');
-}
-// Primer clic desbloquea audio
-document.addEventListener('click',unlockAudio,{once:true});
-document.addEventListener('touchstart',unlockAudio,{once:true});
-
-// ─── Utilidades ────────────────────────────────────────────────
-function note(semi){return 55*Math.pow(2,semi/12);}// A1 base
-function mkOsc(type,freq,when,dur,vol,dest){
-  const o=AC.createOscillator(),g=AC.createGain();
-  o.type=type;o.frequency.setValueAtTime(freq,when);
-  g.gain.setValueAtTime(0,when);
-  g.gain.linearRampToValueAtTime(vol,when+0.01);
-  g.gain.exponentialRampToValueAtTime(0.001,when+dur-0.01);
-  o.connect(g);g.connect(dest);
-  o.start(when);o.stop(when+dur);
-  return{o,g};
-}
-function addReverb(dest){
+// Precargar el audio en cuanto el usuario interactúa por primera vez
+function _precargarWarrior(){
+  if(_warrior)return;
   try{
-    const conv=AC.createConvolver();
-    const len=AC.sampleRate*1.5;const buf=AC.createBuffer(2,len,AC.sampleRate);
-    for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);}
-    conv.buffer=buf;
-    const wet=AC.createGain();wet.gain.value=0.25;
-    conv.connect(wet);wet.connect(dest);
-    return conv;
-  }catch(e){return dest;}
+    _warrior=new Audio('warrior.mp3');
+    _warrior.loop=true;
+    _warrior.volume=0;
+    _warrior.preload='auto';
+    // load() silencioso para que el buffer esté listo cuando llegue la ceremonia
+    _warrior.load();
+    _warriorListo=true;
+  }catch(e){_warrior=null;}
 }
+document.addEventListener('click',_precargarWarrior,{once:true});
+document.addEventListener('touchstart',_precargarWarrior,{once:true});
 
-// ─── WAY OF THE WARRIOR — melodía épica generada ───────────────
-//  Escala: E menor pentatónica (E F# G B C#)
-//  Semitonos desde A1=55Hz: E1=4, F#1=6, G1=7, B1=11, C#2=13
-//  + octavas superiores
-const WOW_MELODY_NORMAL=[
-  // [semitono_desde_A1, duracion_beat, volumen_relativo]
-  [16,1,.8],[18,1,.7],[19,1,.9],[23,.5,1],[21,.5,.8],
-  [16,1,.7],[14,1,.6],[16,2,.9],[null,.5,0],
-  [23,1,.9],[21,1,.8],[19,1,1],[18,.5,.7],[16,.5,.8],
-  [14,1,.6],[11,1,.7],[14,2,.8],[null,.5,0],
-  [28,1,1],[26,1,.9],[28,.5,.8],[26,.5,.7],[23,1,.9],
-  [21,.5,.8],[23,.5,.7],[21,2,1],[null,.5,0],
-];
-const WOW_MELODY_EPIC=[
-  // Versión épica — más rápida, más alta, más intensa
-  [28,1,1],[30,.5,.9],[28,.5,1],[26,1,.9],[23,1,1],
-  [24,1,.8],[26,1,.9],[28,2,1],[null,.3,0],
-  [35,1,1],[33,.5,.9],[31,.5,.8],[30,1,1],[28,.5,.9],[26,.5,.8],
-  [24,1,.7],[21,1,.8],[24,2,1],[null,.3,0],
-  [30,1,1],[33,.5,.9],[35,.5,1],[33,1,.9],[30,1,1],
-  [28,.5,1],[26,.5,.9],[28,.5,.8],[26,.5,.7],[23,2,1],[null,.3,0],
-  [35,.5,1],[38,.5,.9],[35,.5,1],[33,1,.9],[31,.5,.8],[30,.5,.9],
-  [28,1,1],[26,1,.9],[24,1,.8],[23,2,1],
-];
-const WOW_BASS_NORMAL=[
-  [4,2,.6],[6,2,.5],[7,2,.6],[4,2,.5],
-  [4,2,.6],[2,2,.5],[4,4,.6],
-];
-const WOW_BASS_EPIC=[
-  [4,1,.8],[4,1,.8],[6,1,.7],[7,1,.9],
-  [4,1,.8],[4,1,.7],[2,1,.6],[4,1,.8],
-  [9,1,.9],[9,1,.8],[7,1,.8],[6,1,.9],
-  [4,1,.8],[2,1,.7],[0,2,.8],
-];
-const WOW_DRUMS_NORMAL=[
-  // [tipo, beat] tipo: 'kick','snare','hihat'
-  {t:'kick',b:0},{t:'hihat',b:0.5},{t:'snare',b:1},{t:'hihat',b:1.5},
-  {t:'kick',b:2},{t:'hihat',b:2.5},{t:'snare',b:3},{t:'hihat',b:3.5},
-  {t:'kick',b:4},{t:'hihat',b:4.5},{t:'snare',b:5},{t:'kick',b:5.5},{t:'hihat',b:5.5},
-  {t:'kick',b:6},{t:'hihat',b:6.5},{t:'snare',b:7},{t:'hihat',b:7.5},
-];
-const WOW_DRUMS_EPIC=[
-  {t:'kick',b:0},{t:'hihat',b:0.25},{t:'kick',b:0.5},{t:'hihat',b:0.75},
-  {t:'snare',b:1},{t:'hihat',b:1.25},{t:'kick',b:1.5},{t:'hihat',b:1.75},
-  {t:'kick',b:2},{t:'kick',b:2.25},{t:'hihat',b:2.5},{t:'snare',b:3},
-  {t:'kick',b:3.5},{t:'hihat',b:3.75},
-  {t:'kick',b:4},{t:'snare',b:4.5},{t:'kick',b:5},{t:'snare',b:5.5},
-  {t:'hihat',b:6},{t:'kick',b:6},{t:'kick',b:6.5},{t:'snare',b:7},
-  {t:'crash',b:7.5},
-];
-
-function playDrum(type,when,vol,dest){
-  if(!AC)return;
-  if(type==='kick'){
-    const o=AC.createOscillator();const g=AC.createGain();
-    o.frequency.setValueAtTime(150,when);o.frequency.exponentialRampToValueAtTime(0.001,when+0.35);
-    g.gain.setValueAtTime(vol*1.2,when);g.gain.exponentialRampToValueAtTime(0.001,when+0.35);
-    o.connect(g);g.connect(dest);o.start(when);o.stop(when+0.36);
-  } else if(type==='snare'){
-    const buf=AC.createBuffer(1,AC.sampleRate*.18,AC.sampleRate);
-    const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1);
-    const src=AC.createBufferSource();src.buffer=buf;
-    const filt=AC.createBiquadFilter();filt.type='highpass';filt.frequency.value=1800;
-    const g=AC.createGain();g.gain.setValueAtTime(vol*.7,when);g.gain.exponentialRampToValueAtTime(0.001,when+0.18);
-    src.connect(filt);filt.connect(g);g.connect(dest);src.start(when);
-  } else if(type==='hihat'){
-    const buf=AC.createBuffer(1,AC.sampleRate*.05,AC.sampleRate);
-    const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1);
-    const src=AC.createBufferSource();src.buffer=buf;
-    const filt=AC.createBiquadFilter();filt.type='highpass';filt.frequency.value=8000;
-    const g=AC.createGain();g.gain.setValueAtTime(vol*.35,when);g.gain.exponentialRampToValueAtTime(0.001,when+0.05);
-    src.connect(filt);filt.connect(g);g.connect(dest);src.start(when);
-  } else if(type==='crash'){
-    const buf=AC.createBuffer(1,AC.sampleRate*.6,AC.sampleRate);
-    const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.5);
-    const src=AC.createBufferSource();src.buffer=buf;
-    const filt=AC.createBiquadFilter();filt.type='highpass';filt.frequency.value=4000;
-    const g=AC.createGain();g.gain.setValueAtTime(vol*.8,when);g.gain.exponentialRampToValueAtTime(0.001,when+0.6);
-    src.connect(filt);filt.connect(g);g.connect(dest);src.start(when);
+// Arrancar música épica — fade in suave desde 0 hasta volumen objetivo
+function switchToEpic(){
+  if(!_warrior){
+    // Si el usuario no hizo clic aún, intentar crear aquí
+    try{_warrior=new Audio('warrior.mp3');_warrior.loop=true;_warrior.volume=0;}catch(e){return;}
   }
+  _warrior.currentTime=0;
+  _warrior.volume=0;
+  _warrior.play().catch(()=>{});
+  // Fade in: sube el volumen de 0 a 0.75 en 2 segundos
+  let vol=0;
+  const step=0.75/40; // 40 pasos × 50ms = 2s
+  const fi=setInterval(()=>{
+    vol=Math.min(0.75,vol+step);
+    if(_warrior)_warrior.volume=vol;
+    if(vol>=0.75)clearInterval(fi);
+  },50);
 }
 
-function scheduleLoop(melody,bass,drums,bpm,masterVol,epic){
-  if(!AC)return;
-  const beatSec=60/bpm;
-  const now=AC.currentTime+0.08;
-  const dest=MASTER||(()=>{MASTER=AC.createGain();MASTER.gain.value=masterVol;MASTER.connect(AC.destination);return MASTER;})();
-  const rev=addReverb(dest);
+// Detener música — fade out suave
+function stopWOW(){
+  if(!_warrior||_warrior.paused)return;
+  const fo=setInterval(()=>{
+    if(!_warrior){clearInterval(fo);return;}
+    _warrior.volume=Math.max(0,_warrior.volume-0.05);
+    if(_warrior.volume<=0){_warrior.pause();_warrior.currentTime=0;clearInterval(fo);}
+  },50);
+}
 
-  // Melodía — lead synth
-  const leadType=epic?'sawtooth':'square';
-  let t=now;
-  melody.forEach(([semi,beats,vol])=>{
-    if(semi===null){t+=beats*beatSec;return;}
-    const freq=note(semi);const dur=beats*beatSec*0.85;
-    const {o,g}=mkOsc(leadType,freq,t,dur,vol*(epic?.18:.12),dest);
-    // Vibrato suave
-    const lfo=AC.createOscillator();const lfog=AC.createGain();
-    lfo.frequency.value=5.5;lfog.gain.value=freq*.01;
-    lfo.connect(lfog);lfog.connect(o.frequency);lfo.start(t);lfo.stop(t+dur);
-    BGM_NODES.push(o,g,lfo,lfog);
-    t+=beats*beatSec;
-  });
-  const melodyDur=t-now;
-
-  // Bajo — sub bass
-  t=now;
-  bass.forEach(([semi,beats,vol])=>{
-    const freq=note(semi-12);// una octava abajo
-    const dur=beats*beatSec*0.7;
-    const {o,g}=mkOsc('sawtooth',freq,t,dur,vol*(epic?.22:.14),dest);
-    // Sub extra
-    const {o:o2,g:g2}=mkOsc('sine',freq*.5,t,dur,vol*(epic?.15:.1),dest);
-    BGM_NODES.push(o,g,o2,g2);
-    t+=beats*beatSec;
-  });
-
-  // Batería
-  const drumVol=epic?1:.75;
-  const totalBeats=epic?8:8;
-  drums.forEach(({t:type,b})=>{
-    if(b<totalBeats)playDrum(type,now+b*beatSec,drumVol,dest);
-  });
-
-  // Si épico: agregar pad de acordes
-  if(epic){
-    [[16,19,23],[14,18,21],[13,16,19]].forEach(([s1,s2,s3],ci)=>{
-      const wh=now+ci*beatSec*2.5;const dur=beatSec*2.3;
-      [s1,s2,s3].forEach(s=>{
-        const {o,g}=mkOsc('sine',note(s),wh,dur,.06,dest);
-        BGM_NODES.push(o,g);
+// Fanfare de victoria con Web Audio API (3 notas épicas)
+function reproducirFanfareVictoria(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const notas=[[659,0,.18],[784,.18,.16],[987,.36,.22],[1174,.58,.28],[1318,.84,.22]];
+    notas.forEach(([freq,when,vol])=>{
+      ['sawtooth','square'].forEach((type,ti)=>{
+        const o=ctx.createOscillator(),g=ctx.createGain();
+        o.type=type;o.frequency.value=freq*(ti===1?1.006:1);
+        g.gain.setValueAtTime(0,ctx.currentTime+when);
+        g.gain.linearRampToValueAtTime(vol*.55,ctx.currentTime+when+0.03);
+        g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+when+0.7);
+        o.connect(g);g.connect(ctx.destination);
+        o.start(ctx.currentTime+when);o.stop(ctx.currentTime+when+0.75);
       });
     });
-  }
-
-  return melodyDur;
+  }catch(e){}
 }
 
-function startWOW(mode){
-  stopWOW();
-  if(!AC)return;
-  BGM_MODE=mode;BGM_ON=true;
-  MASTER=AC.createGain();
-  MASTER.gain.value=mode==='epic'?.55:.32;
-  MASTER.connect(AC.destination);
-
-  const epic=mode==='epic';
-  const bpm=epic?148:118;
-  const melody=epic?WOW_MELODY_EPIC:WOW_MELODY_NORMAL;
-  const bass=epic?WOW_BASS_EPIC:WOW_BASS_NORMAL;
-  const drums=epic?WOW_DRUMS_EPIC:WOW_DRUMS_NORMAL;
-
-  function loop(){
-    if(!BGM_ON)return;
-    const dur=scheduleLoop(melody,bass,drums,bpm,1,epic);
-    // Programar siguiente loop
-    const msLeft=(dur||4)*1000-80;
-    const tid=setTimeout(loop,Math.max(200,msLeft));
-    BGM_NODES.push({stop:()=>clearTimeout(tid)});
-  }
-  loop();
-}
-
-function stopWOW(){
-  BGM_ON=false;
-  BGM_NODES.forEach(function(n){
-    try{if(n.stop)n.stop(AC?AC.currentTime+0.05:0);}catch(e){}
-    try{if(n.disconnect)n.disconnect();}catch(e){}
-  });
-  BGM_NODES=[];
-  if(MASTER){try{MASTER.disconnect();}catch(e){}MASTER=null;}
-}
-
-function switchToEpic(){
-  // Fade out normal, fade in epic
-  if(MASTER){
-    const now=AC.currentTime;
-    MASTER.gain.setValueAtTime(MASTER.gain.value,now);
-    MASTER.gain.linearRampToValueAtTime(0,now+1.5);
-  }
-  setTimeout(()=>startWOW('epic'),1400);
-}
-
-// Fanfare de duelo: 3 notas ascendentes en E mayor
+// Beep de inicio de duelo
 function reproducirSonidoDuelo(){
-  if(!AC)return;
-  if(AC.state==='suspended')AC.resume();
-  const now=AC.currentTime+0.05;
-  [[16,.12,.15],[21,.12,.14],[24,.12,.16],[28,.5,.18]].forEach(([s,when,vol])=>{
-    const f=note(s);
-    const o=AC.createOscillator();const g=AC.createGain();
-    o.type='square';o.frequency.value=f;
-    g.gain.setValueAtTime(0,now+when);
-    g.gain.linearRampToValueAtTime(vol,now+when+0.02);
-    g.gain.exponentialRampToValueAtTime(0.001,now+when+0.25);
-    o.connect(g);g.connect(AC.destination);
-    o.start(now+when);o.stop(now+when+0.26);
-  });
-}
-
-// Fanfare de victoria: escala épica ascendente
-function reproducirFanfareVictoria(){
-  if(!AC)return;
-  if(AC.state==='suspended')AC.resume();
-  const now=AC.currentTime+0.05;
-  [[16,.0,.18],[19,.12,.16],[23,.24,.2],[28,.36,.22],[35,.52,.25],[38,.7,.22]].forEach(([s,when,vol])=>{
-    const f=note(s);
-    ['sawtooth','square'].forEach((type,ti)=>{
-      const o=AC.createOscillator();const g=AC.createGain();
-      o.type=type;o.frequency.value=f*(ti===1?1.005:1);
-      g.gain.setValueAtTime(0,now+when);
-      g.gain.linearRampToValueAtTime(vol*.5,now+when+0.03);
-      g.gain.exponentialRampToValueAtTime(0.001,now+when+0.6);
-      o.connect(g);g.connect(AC.destination);
-      o.start(now+when);o.stop(now+when+0.65);
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [[440,.0,.1],[554,.12,.09],[659,.24,.12]].forEach(([f,when,vol])=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type='square';o.frequency.value=f;
+      g.gain.setValueAtTime(0,ctx.currentTime+when);
+      g.gain.linearRampToValueAtTime(vol,ctx.currentTime+when+0.02);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+when+0.22);
+      o.connect(g);g.connect(ctx.destination);
+      o.start(ctx.currentTime+when);o.stop(ctx.currentTime+when+0.24);
     });
-  });
+  }catch(e){}
 }
 
-// ─── Parche: funciones que ya no usan toggleSonido ──────────────
-function initAudio(){return initAC();}
-function iniciarSonidoAmbiente(){if(AC&&!BGM_ON)startWOW('normal');}
+// Aliases de compatibilidad con el resto del código
+function initAudio(){}
+function iniciarSonidoAmbiente(){}
 function detenerSonidoAmbiente(){stopWOW();}
+function startWOW(){}
+let BGM_ON=false;
+
 
 // ═══════════════════════════════════════════════════════════════
 //  URL PARAMS + INIT
