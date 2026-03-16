@@ -498,31 +498,62 @@ nav{overflow:hidden;}
   <div class="nav-logo">⚗ QuímicaTorneo</div>
   <button class="nav-btn active" onclick="showSection('intro')">INICIO</button>
   <button class="nav-btn" onclick="showSection('torneo')">TORNEO</button>
-  <button class="nav-btn" onclick="showSection('admin')">👑 ADMIN</button>
 </nav>
 
-<div class="score-bar">
-  <span style="font-size:1.2rem;">⭐</span>
-  <div>
-    <div class="score-bar-label">Puntos acumulados</div>
-    <div class="score-bar-num" id="globalScore">0</div>
-  </div>
-</div>
+<!-- score bar removida -->
+<span id="globalScore" style="display:none;">0</span>
 
 <!-- ═══ INTRO ═══════════════════════════════════════════════════ -->
 <section id="intro" class="section active">
   <div class="intro-hero">
-    <div class="intro-badge">⚗️ Torneo Interactivo — Química &amp; Ciencias</div>
-    <div class="intro-title">Domina la <span>Química</span><br>en tiempo real</div>
-    <p class="intro-sub">Torneo eliminatorio con bracket en vivo. Mismas preguntas para ambos rivales de cada duelo — completamente justo y transparente.</p>
-    <div class="intro-cards">
-      <div class="intro-card"><div class="intro-card-icon">🎯</div><div class="intro-card-title">Duelos justos</div><div class="intro-card-desc">Mismas preguntas para ambos rivales — diferentes a los demás duelos simultáneos.</div></div>
-      <div class="intro-card"><div class="intro-card-icon">⚔️</div><div class="intro-card-title">Bracket eliminatorio</div><div class="intro-card-desc">Octavos → Cuartos → Final. Solo el mejor avanza en cada ronda.</div></div>
-      <div class="intro-card"><div class="intro-card-icon">🤖</div><div class="intro-card-title">Preguntas con IA</div><div class="intro-card-desc">El maestro genera bancos de preguntas con IA para cualquier subtema de química.</div></div>
-      <div class="intro-card"><div class="intro-card-icon">🏆</div><div class="intro-card-title">Ceremonia épica</div><div class="intro-card-desc">Podio, confetti y narración dramática con la crónica de todo el torneo.</div></div>
+    <div class="intro-badge">⚗️ Tecnológico Nacional de México · Campus Tantoyuca</div>
+    <div class="intro-title">Vence tus <span>fortalezas</span><br>y debilidades</div>
+    <p class="intro-sub">Torneo interactivo de Química en tiempo real. Compite contra tus compañeros, demuestra lo que sabes y descubre qué temas necesitas reforzar.</p>
+
+    <!-- Estadísticas / highlights -->
+    <div style="display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin-top:-.4rem;animation:fadeUp .7s ease .28s both;">
+      <div style="text-align:center;">
+        <div style="font-family:'Fraunces',serif;font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;">⚔️</div>
+        <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--dim);margin-top:2px;">BRACKET ELIMINATORIO</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-family:'Fraunces',serif;font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;">🎯</div>
+        <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--dim);margin-top:2px;">PREGUNTAS JUSTAS</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-family:'Fraunces',serif;font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;">🏆</div>
+        <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--dim);margin-top:2px;">CEREMONIA ÉPICA</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-family:'Fraunces',serif;font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;">👥</div>
+        <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--dim);margin-top:2px;">EN TIEMPO REAL</div>
+      </div>
     </div>
-    <button class="intro-btn" onclick="showSection('torneo')">⚔️ ENTRAR AL TORNEO →</button>
-    <div class="intro-disclaimer">v2.8 · Educativo · Firebase RT · IA generativa · Multi-tema</div>
+
+    <div class="intro-cards" style="animation:fadeUp .7s ease .4s both;">
+      <div class="intro-card">
+        <div class="intro-card-icon">⚔️</div>
+        <div class="intro-card-title">Duelos cara a cara</div>
+        <div class="intro-card-desc">Cada par de rivales recibe exactamente las mismas preguntas — completamente justo para todos.</div>
+      </div>
+      <div class="intro-card">
+        <div class="intro-card-icon">📊</div>
+        <div class="intro-card-title">Conoce tus áreas débiles</div>
+        <div class="intro-card-desc">Después de cada duelo ves qué preguntas acertaste y cuáles fallaste para mejorar.</div>
+      </div>
+      <div class="intro-card">
+        <div class="intro-card-icon">🤝</div>
+        <div class="intro-card-title">vs Compañeros en vivo</div>
+        <div class="intro-card-desc">Bracket online con tus compañeros de clase. El maestro crea la sala y tú entras con el código del pizarrón.</div>
+      </div>
+    </div>
+
+    <!-- CTA principal -->
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;animation:fadeUp .7s ease .55s both;">
+      <button class="intro-btn" onclick="showSection('torneo')">⚔️ ENTRAR AL TORNEO →</button>
+    </div>
+
+    <div class="intro-disclaimer">v2.8 · Firebase RT · Multi-tema · TecNM Campus Tantoyuca</div>
   </div>
 </section>
 
@@ -1047,20 +1078,16 @@ async function generarConIA(){
   loadEl.style.display='flex';btnEl.disabled=true;
   document.getElementById('ia-loading-msg').textContent=`Generando ${n} preguntas sobre "${tema}"…`;
   const difLabel={facil:'fácil — solo requiere conocimiento básico',medio:'media — requiere comprensión del concepto',dificil:'difícil — requiere aplicación y análisis'}[dif];
-  const prompt=`Eres un profesor de química experto en evaluaciones. Genera exactamente ${n} preguntas de respuesta numérica sobre el siguiente tema para estudiantes de bachillerato/preparatoria.
-
-TEMA: ${tema}
-DIFICULTAD: ${difLabel}
-
-REGLAS ESTRICTAS:
-1. Cada pregunta DEBE tener una respuesta numérica exacta (entero o decimal con .5)
-2. Preguntas variadas — no repetir el mismo tipo
-3. La respuesta debe ser verificable y objetiva
-4. Sin preguntas ambiguas ni de respuesta múltiple
-5. Responde ÚNICAMENTE con JSON válido, sin texto adicional ni markdown
-
-FORMATO (solo JSON, sin nada más):
-{"preguntas":[{"txt":"¿Cuál es el número cuántico n del electrón diferenciador del Na?","ans":3},{"txt":"Otra pregunta?","ans":-1}]}`;
+  const fmt='{"preguntas":[{"txt":"Enunciado de la pregunta?","ans":42}]}';
+  const prompt='Eres un profesor de quimica experto en evaluaciones de bachillerato.\n'
+    +'Genera exactamente '+n+' preguntas de respuesta NUMERICA sobre: '+tema+'\n'
+    +'Dificultad: '+difLabel+'\n\n'
+    +'REGLAS:\n'
+    +'1. Cada pregunta tiene UNA respuesta numerica exacta (entero o decimal con .5)\n'
+    +'2. Preguntas variadas, no repetir el mismo tipo\n'
+    +'3. Sin ambiguedad, respuesta verificable y objetiva\n'
+    +'4. Responde SOLO con JSON valido, sin texto adicional ni markdown\n\n'
+    +'FORMATO EXACTO (solo JSON):\n'+fmt;
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -1939,7 +1966,8 @@ function avanzarRondaAdmin(sigR){
     const pts=sala.bracket[rAct]||[];const gans=pts.map(p=>p.ganador).filter(Boolean);
     if(!gans.length){alert('No hay ganadores');return;}
     const nuevas=buildPartidas(gans,lblRonda(sigR));
-    db.ref('salas/'+SALA).update({'bracket/'+sigR:nuevas,rondaActiva:sigR});
+    const upd={rondaActiva:sigR};upd['bracket/'+sigR]=nuevas;
+    db.ref('salas/'+SALA).update(upd);
   });
 }
 
@@ -2266,12 +2294,16 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <!-- ═══ FOOTER ═══════════════════════════════════════════════ -->
 <footer class="site-footer">
-  <div>⚗ Torneo Interactivo de Química · v2.8 · Educativo · Preguntas con IA · Firebase RT</div>
+  <div style="font-size:.7rem;color:rgba(167,139,250,.35);margin-bottom:.5rem;">⚗ Torneo Interactivo de Química · v2.8</div>
+  <div style="font-size:.62rem;color:rgba(167,139,250,.5);margin-bottom:.3rem;font-style:italic;">
+    Esta página fue elaborada por un estudiante del<br>
+    <strong style="color:rgba(167,139,250,.65);">Tecnológico Nacional de México · Campus Tantoyuca</strong>
+  </div>
+  <div style="font-size:.55rem;color:rgba(167,139,250,.25);margin-bottom:.6rem;">
+    Todos los derechos reservados · Para fines educativos
+  </div>
   <div class="footer-links">
-    <a href="#" onclick="showSection('intro');return false;">Inicio</a>
-    <a href="#" onclick="showSection('torneo');return false;">Torneo</a>
-    <span>Hecho con 💜 para estudiantes</span>
-    <span>© 2025 — Solo uso educativo</span>
+    <a href="#" onclick="showSection('admin');return false;">👑 Admin</a>
   </div>
 </footer>
 </body>
