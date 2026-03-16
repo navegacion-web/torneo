@@ -711,13 +711,24 @@ nav{overflow:hidden;}
   <!-- ESPERA: conectado, esperando maestro / siguiente ronda -->
   <div id="alumno-espera" style="display:none;padding:1.5rem 1rem;">
     <div style="text-align:center;margin-bottom:1.2rem;">
-      <div style="font-size:2.2rem;margin-bottom:.5rem;" id="alumno-espera-icon">⏳</div>
-      <div style="font-family:'Fraunces',serif;font-size:1.3rem;color:#fff;margin-bottom:.3rem;" id="alumno-espera-nombre">Conectado</div>
-      <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:var(--dim);" id="alumno-espera-count">Esperando al maestro...</div>
+      <div style="font-size:2.4rem;margin-bottom:.5rem;transition:all .4s;" id="alumno-espera-icon">⏳</div>
+      <div style="font-family:'Fraunces',serif;font-size:1.35rem;color:#fff;margin-bottom:.3rem;transition:all .3s;" id="alumno-espera-nombre">Conectado</div>
+      <div style="font-family:'Space Mono',monospace;font-size:.64rem;color:var(--dim);margin-bottom:.9rem;" id="alumno-espera-count">Esperando al maestro...</div>
+      <!-- Frase motivacional — solo visible cuando ganó y espera siguiente ronda -->
+      <div id="alumno-frase-wrap" style="display:none;max-width:340px;margin:0 auto 1rem;">
+        <div style="background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(251,191,36,.08));
+          border:1px solid rgba(251,191,36,.28);border-radius:12px;padding:.75rem 1.1rem;
+          animation:auraFadeIn .5s ease both;">
+          <div style="font-size:.75rem;color:rgba(167,139,250,.5);margin-bottom:3px;font-family:'Space Mono',monospace;letter-spacing:.1em;">💬</div>
+          <div id="alumno-frase-txt" style="font-family:'Fraunces',serif;font-size:1rem;color:#e9d5ff;
+            font-style:italic;line-height:1.5;"></div>
+        </div>
+      </div>
     </div>
     <!-- Bracket en vivo — siempre visible, igual que en bots -->
     <div id="alumno-espera-bracket" style="display:none;">
-      <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.5rem;">📊 Bracket del torneo</div>
+      <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--dim);
+        letter-spacing:.14em;text-transform:uppercase;margin-bottom:.5rem;">📊 Bracket del torneo</div>
       <div id="alumno-espera-bracket-content"></div>
     </div>
   </div>
@@ -751,7 +762,10 @@ nav{overflow:hidden;}
   <!-- BRACKET bots (Octavos → Cuartos → Final) -->
   <div id="t-fase-bot-bracket" style="display:none;margin-top:1.2rem;">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;margin-bottom:.8rem;">
-      <div style="font-family:'Fraunces',serif;font-size:1.2rem;color:#fff;" id="t-bot-ronda-titulo">Octavos de Final</div>
+      <div>
+        <div class="ronda-titulo-label">RONDA ACTUAL</div>
+        <div style="font-family:'Fraunces',serif;font-size:1.2rem;color:#fff;" id="t-bot-ronda-titulo">Octavos de Final</div>
+      </div>
       <button class="t-btn t-btn-danger t-btn-sm" onclick="reiniciarTorneo()">✕ SALIR</button>
     </div>
     <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:.5rem;">
@@ -911,6 +925,12 @@ nav{overflow:hidden;}
 
       <div id="admin-bracket-view" style="display:none;">
         <div id="admin-bracket-live"></div>
+      </div>
+
+      <!-- Ceremonia admin — div dedicado, no se inyecta dinámicamente -->
+      <div id="admin-cer-wrap" style="display:none;position:relative;">
+        <canvas id="cc-admin" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;"></canvas>
+        <div id="podio-admin"></div>
       </div>
 
       <div class="t-setup" style="margin-top:1rem;">
@@ -1558,8 +1578,7 @@ function renderBotBracket(){
 function abrirDuelo(j1,j2,rondaLabel,seed,onDone){
   const d=BS.duelo;
   d.j1=j1;d.j2=j2;d.humIdx=0;d.humScore=0;d.botScore=0;
-  d.botLog=[];d.humLog=[];d.esp=false;d.desemp=false;
-  d._esJ1Online=undefined; // limpiar flag online en modo botsd.onDone=onDone;
+  d.botLog=[];d.humLog=[];d.esp=false;d.desemp=false;d.onDone=onDone;
   clearInterval(d.timer);(d.botTimers||[]).forEach(t=>clearTimeout(t));d.botTimers=[];
   const pregs=genPregs(BS.tema,BS.nPregs,BS.dif,seed);
   BS.pregHum=pregs;BS.pregBot=pregs;
@@ -1610,9 +1629,7 @@ function cargarPregHum(){
   const tfi=document.getElementById('t-tabla-final-inline');if(tfi)tfi.remove();
   bloquear(false);
   setTimeout(()=>{const i=document.getElementById('t-bot-resp');if(i&&!i.disabled){i.focus();}},70);
-  // ★ hi = índice del humano en el scoreboard (0=J1, 1=J2)
-  // En modo online se usa _esJ1Online; en modo bots se infiere por isBot
-  const hi=(d._esJ1Online!==undefined)?( d._esJ1Online?0:1 ):(isBot(d.j1)?1:0);
+  const hi=isBot(d.j1)?1:0;
   document.getElementById(hi===0?'t-bot-score-j1':'t-bot-score-j2').textContent=d.humScore;
   updProgress();iniciarTimer();
 }
@@ -1640,8 +1657,7 @@ function responderBot(){
   rb.innerHTML=ok?`✓ <strong>+3 pts</strong> — ¡Correcto!`:`✗ Incorrecto — era <strong>${preg.ans}</strong>`;
   if(ok)BS.hl.push({tipo:'acierto',txt:preg.txt});
   d.humIdx++;
-  // ★ hi correcto para modo online y modo bots
-  const hi=(d._esJ1Online!==undefined)?(d._esJ1Online?0:1):(isBot(d.j1)?1:0);
+  const hi=isBot(d.j1)?1:0;
   const se=document.getElementById(hi===0?'t-bot-score-j1':'t-bot-score-j2');
   if(se){se.textContent=d.humScore;se.classList.add('bump');setTimeout(()=>se.classList.remove('bump'),300);}
   updProgress();
@@ -2023,7 +2039,7 @@ function iniciarSala(){
     const{rondaKey,rondaNom}=primeraRonda(formato);
     const partidas=buildPartidas(nombres,rondaNom);
     const bracket={oct16:[],oct8:[],cuar:[],semi:[],gran:[]};bracket[rondaKey]=partidas;
-    db.ref('salas/'+SALA).update({estado:'jugando',bracket,rondaActiva:rondaKey,nombresOrden:nombres}).then(()=>{
+    db.ref('salas/'+SALA).update({estado:'jugando',bracket,rondaActiva:rondaKey,nombresOrden:nombres,rondaInicioTs:Date.now()}).then(()=>{
       document.getElementById('admin-sala-info').style.display='none';
       document.getElementById('admin-bracket-view').style.display='block';
       escucharBracketAdmin();
@@ -2107,10 +2123,19 @@ function renderAdminBracket(sala){
   html+='<div style="font-family:Space Mono,monospace;font-size:.58rem;color:#a78bfa;letter-spacing:.12em;text-transform:uppercase;">'+sala.codigo+' · '+sala.estado+'</div>';
   html+='<div style="font-family:Fraunces,serif;font-size:1.3rem;color:#fff;margin-top:1px;">'+lblRonda(rAct)+'</div>';
   html+='</div>';
-  // Contador de duelos
-  html+='<div style="text-align:right;">';
-  html+='<div style="font-family:Space Mono,monospace;font-size:.6rem;color:var(--dim);">DUELOS</div>';
-  html+='<div style="font-family:Space Mono,monospace;font-size:1.1rem;font-weight:700;color:'+(todasDone?'#34d399':'#fbbf24')+';">'+terminadas+' / '+total+'</div>';
+  // Cronómetro + contador de duelos
+  html+='<div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px;">';
+  // Cronómetro de ronda
+  const tiempoTotal=(parseInt(sala.numPregs)||3)*(parseInt(sala.tiempo)||30);
+  const tsInicio=sala.rondaInicioTs||0;
+  const elapsed=tsInicio?Math.floor((Date.now()-tsInicio)/1000):0;
+  const restante=Math.max(0,tiempoTotal-elapsed);
+  const mm=Math.floor(restante/60);const ss=restante%60;
+  const timerColor=restante<30?'#f87171':restante<60?'#fbbf24':'#34d399';
+  html+='<div id="adm-timer-display" style="font-family:Space Mono,monospace;font-size:1.4rem;font-weight:700;color:'+timerColor+';'
+    +(restante<30&&!todasDone?'animation:timerUrgente .6s ease-in-out infinite;':'')+'">'
+    +mm+':'+(ss<10?'0':'')+ss+'</div>';
+  html+='<div style="font-family:Space Mono,monospace;font-size:.52rem;color:var(--dim);">DUELOS '+terminadas+'/'+total+'</div>';
   html+='</div>';
   html+='</div>';
 
@@ -2159,6 +2184,16 @@ function renderAdminBracket(sala){
 }
 
 // ★ Slot admin amplio — versión limpia
+function resolverPartidaBot(rondaKey,idx,p){
+  let s0=0,s1=0;
+  for(let q=0;q<3;q++){const a0=Math.random()>.4,a1=Math.random()>.4;if(a0&&!a1)s0+=3;else if(a1&&!a0)s1+=3;else if(a0&&a1){s0+=1;s1+=1;}}
+  const gan=s0>s1?p.j1:s1>s0?p.j2:(Math.random()>.5?p.j1:p.j2);
+  db.ref('salas/'+SALA+'/bracket/'+rondaKey+'/'+idx).update({
+    scores:[s0,s1],score0:s0,score1:s1,
+    ganador:gan,terminada:true,j1_listo:true,j2_listo:true
+  });
+}
+
 function slotAdmin(p,idx,esActiva,nPregs,jugsReales){
   if(!p){
     return '<div class="adm-slot"><div class="adm-slot-header"><span>Duelo '+(idx+1)+'</span><span>—</span></div>'
@@ -2171,15 +2206,14 @@ function slotAdmin(p,idx,esActiva,nPregs,jugsReales){
   const g2=p.terminada&&p.ganador===p.j2;
   const j1r=Array.isArray(jugsReales)&&jugsReales.includes(p.j1);
   const j2r=Array.isArray(jugsReales)&&jugsReales.includes(p.j2);
-  const cls=p.terminada?'done':esActiva&&(p.j1_listo||p.j2_listo)?'live':'';
-  const sc=p.scores||{};
-  const s0v=parseFloat(sc[0]||sc['0']||0);
-  const s1v=parseFloat(sc[1]||sc['1']||0);
-  const s0=p.terminada?s0v:(p.j1_listo?s0v:'—');
-  const s1=p.terminada?s1v:(p.j2_listo?s1v:'—');
+  // Leer scores de forma robusta (campo individual O array)
+  const sc0=typeof p.score0==='number'?p.score0:(Array.isArray(p.scores)?p.scores[0]:(p.scores&&p.scores['0'])||0);
+  const sc1=typeof p.score1==='number'?p.score1:(Array.isArray(p.scores)?p.scores[1]:(p.scores&&p.scores['1'])||0);
+  const s0=p.terminada?sc0:(p.j1_listo?sc0:'—');
+  const s1=p.terminada?sc1:(p.j2_listo?sc1:'—');
   const maxPts=(nPregs||3)*3;
-  const prog0=p.terminada?Math.min(100,Math.round(s0v/maxPts*100)):0;
-  const prog1=p.terminada?Math.min(100,Math.round(s1v/maxPts*100)):0;
+  const prog0=p.terminada&&sc0?Math.min(100,Math.round(sc0/maxPts*100)):0;
+  const prog1=p.terminada&&sc1?Math.min(100,Math.round(sc1/maxPts*100)):0;
   const bar0col=g1?'#fbbf24':'rgba(255,255,255,.15)';
   const bar1col=g2?'#fbbf24':'rgba(255,255,255,.15)';
 
@@ -2243,9 +2277,8 @@ function forzarResolucionRonda(){
     const parts=sala.bracket?.[rAct]||[];
     parts.forEach((p,i)=>{
       if(!p||p.terminada)return;
-      const sc=p.scores||{};
-      const s0=parseFloat(sc[0]||sc['0']||0);
-      const s1=parseFloat(sc[1]||sc['1']||0);
+      const s0=typeof p.score0==='number'?p.score0:(Array.isArray(p.scores)?p.scores[0]:0);
+      const s1=typeof p.score1==='number'?p.score1:(Array.isArray(p.scores)?p.scores[1]:0);
       const gan=s0>s1?p.j1:s1>s0?p.j2:(Math.random()>.5?p.j1:p.j2);
       db.ref('salas/'+SALA+'/bracket/'+rAct+'/'+i).update({ganador:gan,terminada:true,j1_listo:true,j2_listo:true});
     });
@@ -2259,13 +2292,14 @@ function avanzarRondaAdmin(sigR){
     const sala=snap.val();if(!sala)return;
     const rAct=sala.rondaActiva;
     const pts=sala.bracket[rAct]||[];
-    const gans=pts.map(p=>p&&p.ganador).filter(Boolean);
-    if(!gans.length){mostrarNotif('No hay ganadores aún');return;}
+    // Solo ganadores de partidas TERMINADAS (evitar ganadores null de partidas en curso)
+    const gans=pts.filter(p=>p&&p.terminada&&p.ganador).map(p=>p.ganador);
+    if(!gans.length){mostrarNotif('No hay ganadores confirmados aún');return;}
     const nuevas=buildPartidas(gans,lblRonda(sigR));
-    const upd={rondaActiva:sigR};
+    const upd={rondaActiva:sigR,rondaInicioTs:Date.now()};
     upd['bracket/'+sigR]=nuevas;
     db.ref('salas/'+SALA).update(upd).then(()=>{
-      mostrarNotif('✓ '+lblRonda(sigR)+' iniciada — jugadores notificados');
+      mostrarNotif('✓ '+lblRonda(sigR)+' iniciada');
     });
   });
 }
@@ -2280,9 +2314,22 @@ function cerrarYCeremonia(){
     for(const k of ords){const pts=sala.bracket?.[k]||[];const p=pts.find(x=>x?.ganador);if(p){fp=p;break;}}
     if(!fp?.ganador){alert('Sin ganador');return;}
     const camp=fp.ganador;const sub2=camp===fp.j1?fp.j2:fp.j1;
+    // Ocultar bracket, mostrar sólo la ceremonia en el div dedicado
     document.getElementById('admin-bracket-view').style.display='none';
-    document.getElementById('admin-panel').innerHTML+=`<div id="admin-cer"><canvas id="cc-admin" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;"></canvas><div id="podio-admin"></div></div>`;
-    renderCeremonia('podio-admin','cc-admin',camp,true,sub2,sub2,()=>location.reload());
+    const cerDiv=document.getElementById('admin-cer-wrap');
+    if(cerDiv){cerDiv.style.display='block';}
+    switchToEpic();
+    setTimeout(()=>reproducirFanfareVictoria(),1600);
+    renderCeremonia('podio-admin','cc-admin',camp,true,sub2,sub2,()=>{
+      // NUEVO TORNEO: volver al panel sin recargar la página
+      stopWOW();
+      const cerW=document.getElementById('admin-cer-wrap');if(cerW)cerW.style.display='none';
+      document.getElementById('admin-bracket-view').style.display='none';
+      document.getElementById('admin-crear-sala').style.display='block';
+      SALA=null;
+      mostrarNotif('✓ Listo para crear nuevo torneo');
+      cargarHistAdmin();
+    });
   });
 }
 
@@ -2388,8 +2435,6 @@ function unirseASala(nombre,codigo){
   if(msgEl)msgEl.textContent='Conectando...';
   if(subEl)subEl.textContent='Sala: '+codigo;
   initFB();MI=nombre;SALA=codigo;MI_JUGADOS=new Set();MI_CRONICA=[];
-  // Ocultar salón de la fama durante el torneo
-  const sf=document.getElementById('salon-fama');if(sf)sf.style.display='none';
   db.ref('salas/'+codigo).once('value').then(snap=>{
     const sala=snap.val();
     if(!sala){setErr('Sala no encontrada - verifica el codigo');return;}
@@ -2461,9 +2506,6 @@ function actualizarBracketEnVivo(sala){
         const g1=p.terminada&&p.ganador===p.j1;
         const g2=p.terminada&&p.ganador===p.j2;
         const esMio=(p.j1===MI||p.j2===MI);
-        const sc=p.scores||{};
-        const sc0=parseFloat(sc[0]||sc['0']||0);
-        const sc1=parseFloat(sc[1]||sc['1']||0);
         const border=p.terminada?'rgba(52,211,153,.4)':esMio?'rgba(251,191,36,.6)':'rgba(255,255,255,.08)';
         const bg=p.terminada?'rgba(52,211,153,.04)':esMio?'rgba(251,191,36,.04)':'rgba(8,14,38,.9)';
         html+='<div style="min-width:145px;background:'+bg+';border:1.5px solid '+border
@@ -2480,7 +2522,7 @@ function actualizarBracketEnVivo(sala){
           +(p.j1===MI?'⭐ ':'')+p.j1+'</span>';
         html+='<span style="font-family:Space Mono,monospace;font-size:.65rem;font-weight:700;'
           +'color:'+(g1?'#fbbf24':p.terminada?'rgba(255,255,255,.25)':'rgba(255,255,255,.4)')+';">'
-          +((p.terminada||p.j1_listo)?sc0:'—')+'</span>';
+          +((p.terminada||p.j1_listo)?p.scores[0]:'—')+'</span>';
         html+='</div>';
         html+='<div style="height:1px;background:rgba(255,255,255,.06);"></div>';
         // Fila J2
@@ -2493,7 +2535,7 @@ function actualizarBracketEnVivo(sala){
           +(p.j2===MI?'⭐ ':'')+p.j2+'</span>';
         html+='<span style="font-family:Space Mono,monospace;font-size:.65rem;font-weight:700;'
           +'color:'+(g2?'#fbbf24':p.terminada?'rgba(255,255,255,.25)':'rgba(255,255,255,.4)')+';">'
-          +((p.terminada||p.j2_listo)?sc1:'—')+'</span>';
+          +((p.terminada||p.j2_listo)?p.scores[1]:'—')+'</span>';
         html+='</div>';
         // Footer ganador
         if(p.terminada){
@@ -2563,7 +2605,8 @@ function buscarMiPartida(sala){
 
     if(partida.ganador===MI){
       // Gané → mostrar bracket de esta ronda y esperar que admin inicie siguiente
-      mostrarEsperaConBracket(sala,'🏆 ¡Ganaste tu duelo!','El maestro iniciará la siguiente ronda...');
+      // Gané → bracket visible + frases motivacionales rotativas
+      mostrarEsperaConBracket(sala,'🏆 ¡Ganaste tu duelo!','El maestro iniciará la siguiente ronda...',true);
     } else {
       // Perdí → pantalla de eliminado con bracket en vivo
       document.getElementById('alumno-espera').style.display='none';
@@ -2577,7 +2620,7 @@ function buscarMiPartida(sala){
   const esJ1p=partida.j1===MI;
   const yoListo=esJ1p?partida.j1_listo:partida.j2_listo;
   if(yoListo&&!partida.terminada){
-    mostrarEsperaConBracket(sala,'Respuestas enviadas ✓','Esperando que tu rival termine...');
+    mostrarEsperaConBracket(sala,'Respuestas enviadas ✓','Esperando que tu rival termine...',false);
     return;
   }
 
@@ -2585,16 +2628,37 @@ function buscarMiPartida(sala){
   if(rk===rAct&&!MI_DUELO&&!MI_JUGADOS.has(clave)){
     MI_DUELO=true;
     // Mostrar brevemente el bracket con "¡Es tu turno!" antes de abrir el duelo
-    mostrarEsperaConBracket(sala,'⚡ ¡Tu duelo comienza!','Preparándote...');
+    mostrarEsperaConBracket(sala,'⚡ ¡Tu duelo comienza!','Preparándote...',false);
     setTimeout(function(){iniciarDueloAlumno(sala,partida,idx,rk);},900);
   } else if(rk!==rAct&&!MI_DUELO){
     // Mi partida es de ronda anterior — esperar que el admin avance
-    mostrarEsperaConBracket(sala,'Hola, '+MI+'! 👋','El maestro iniciará tu ronda...');
+    mostrarEsperaConBracket(sala,'Hola, '+MI+'! 👋','El maestro iniciará tu ronda...',false);
   }
 }
 
 // Mostrar pantalla de espera con bracket visible debajo (igual que bots muestra el bracket antes de COMENZAR)
-function mostrarEsperaConBracket(sala,titulo,subtitulo){
+// Frases motivacionales para mientras espera siguiente ronda
+const FRASES_GANADOR=[
+  '¡Tú puedes! La siguiente ronda es tuya.',
+  'Ese duelo fue tuyo. La mente más rápida avanza.',
+  '¡Imparable! Prepárate para el siguiente.',
+  'Victoria merecida. Ahora ve por más.',
+  'La concentración te trajo hasta aquí. No pares.',
+  '¡Bien hecho! El torneo todavía no termina.',
+  'Un paso más cerca del campeonato. ¡Ánimo!',
+  'Esa respuesta fue exacta. Sigue así.',
+  'El conocimiento venció hoy. ¡Sigue fuerte!',
+  '¡Lo lograste! Respira y prepárate para la siguiente batalla.',
+];
+const FRASES_ESPERA=[
+  'El maestro iniciará la siguiente ronda pronto...',
+  'Descansa un momento — la batalla continúa.',
+  'Revisa el bracket mientras esperas tu próximo rival.',
+  'Pronto sabrás quién viene. ¡Mantén la concentración!',
+];
+let _fraseTimer=null;
+
+function mostrarEsperaConBracket(sala,titulo,subtitulo,mostrarFrase){
   document.getElementById('alumno-eliminado').style.display='none';
   document.getElementById('t-fase-bot-duelo').style.display='none';
   const esp=document.getElementById('alumno-espera');
@@ -2602,9 +2666,33 @@ function mostrarEsperaConBracket(sala,titulo,subtitulo){
   const icon=document.getElementById('alumno-espera-icon');
   const en=document.getElementById('alumno-espera-nombre');
   const ec=document.getElementById('alumno-espera-count');
+  const fraseWrap=document.getElementById('alumno-frase-wrap');
+  const fraseTxt=document.getElementById('alumno-frase-txt');
+
   if(icon)icon.textContent=titulo.startsWith('🏆')?'🏆':titulo.startsWith('⚡')?'⚡':'⏳';
-  if(en)en.textContent=titulo.replace(/^[🏆⚡⏳]\s*/,'');
+  if(en)en.textContent=titulo.replace(/^[🏆⚡⏳💬]\s*/,'');
   if(ec)ec.textContent=subtitulo;
+
+  // Frases motivacionales — solo cuando ganó y espera siguiente ronda
+  if(_fraseTimer){clearInterval(_fraseTimer);_fraseTimer=null;}
+  if(mostrarFrase&&fraseWrap&&fraseTxt){
+    fraseWrap.style.display='block';
+    const pool=[...FRASES_GANADOR];
+    let fi=Math.floor(Math.random()*pool.length);
+    fraseTxt.textContent=pool[fi];
+    _fraseTimer=setInterval(()=>{
+      // Fade out → cambiar texto → fade in
+      fraseWrap.style.opacity='0';fraseWrap.style.transition='opacity .4s';
+      setTimeout(()=>{
+        fi=(fi+1)%pool.length;
+        if(fraseTxt)fraseTxt.textContent=pool[fi];
+        fraseWrap.style.opacity='1';
+      },420);
+    },4000);
+  } else {
+    if(fraseWrap)fraseWrap.style.display='none';
+  }
+
   // Bracket siempre visible debajo
   actualizarBracketEnVivo(sala);
   const bw=document.getElementById('alumno-espera-bracket');
@@ -2612,6 +2700,9 @@ function mostrarEsperaConBracket(sala,titulo,subtitulo){
 }
 
 function iniciarDueloAlumno(sala,partida,idx,rk){
+  // Detener frases motivacionales si estaban activas
+  if(_fraseTimer){clearInterval(_fraseTimer);_fraseTimer=null;}
+  const fw=document.getElementById('alumno-frase-wrap');if(fw)fw.style.display='none';
   document.getElementById('alumno-espera').style.display='none';
   document.getElementById('t-fase-bot-duelo').style.display='block';
   const rz=document.getElementById('t-respuesta-zone');if(rz)rz.style.display='flex';
@@ -2623,18 +2714,10 @@ function iniciarDueloAlumno(sala,partida,idx,rk){
   const esJ1=partida.j1===MI;const rival=esJ1?partida.j2:partida.j1;
   document.getElementById('t-bot-titulo').textContent='vs '+rival;
   document.getElementById('t-bot-ronda-label').textContent=lblRonda(rk);
-  // ★ Mostrar alumno en su posición correcta (J1 o J2 según Firebase)
-  if(esJ1){
-    document.getElementById('t-bot-j1').textContent=MI+' ⭐';
-    document.getElementById('t-bot-j2').textContent=rival+(isBot(rival)?'':' ⭐');
-  } else {
-    document.getElementById('t-bot-j1').textContent=rival+(isBot(rival)?'':' ⭐');
-    document.getElementById('t-bot-j2').textContent=MI+' ⭐';
-  }
+  document.getElementById('t-bot-j1').textContent=MI+' ⭐';
+  document.getElementById('t-bot-j2').textContent=rival+(isBot(rival)?'':' ⭐');
   document.getElementById('t-bot-score-j1').textContent='0';
   document.getElementById('t-bot-score-j2').textContent='0';
-  // ★ Marcar posición del humano en BS para que cargarPregHum y responderBot actualicen el score correcto
-  BS.duelo._esJ1Online=esJ1;
   let pregs;
   if(sala.preguntasCustom&&sala.preguntasCustom.length){
     const idxs=seededShuffle([...Array(sala.preguntasCustom.length).keys()],partida.seed||12345);
@@ -2659,14 +2742,16 @@ function iniciarDueloAlumno(sala,partida,idx,rk){
 function guardarResultadoFB(idx,rk,esJ1){
   const d=BS.duelo;const humScore=d.humScore;
   const path='salas/'+SALA+'/bracket/'+rk+'/'+idx;
-  document.body.classList.remove('duelo-activo');document.body.style.top='';window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
+  document.body.classList.remove('duelo-activo');document.body.style.top='';
+  window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
   document.getElementById('t-fase-bot-duelo').style.display='none';
   document.getElementById('alumno-espera').style.display='block';
   const icon=document.getElementById('alumno-espera-icon');if(icon)icon.textContent='⏳';
   const en=document.getElementById('alumno-espera-nombre');if(en)en.textContent='Guardando resultado...';
+  // Guardar score como campo individual (Firebase no garantiza orden de arrays)
   const upd={};
-  if(esJ1){upd['scores/0']=humScore;upd['j1_listo']=true;}
-  else{upd['scores/1']=humScore;upd['j2_listo']=true;}
+  if(esJ1){upd['score0']=humScore;upd['j1_listo']=true;}
+  else{upd['score1']=humScore;upd['j2_listo']=true;}
   db.ref(path).update(upd).then(function(){
     if(en)en.textContent='Esperando rival...';
     db.ref(path).once('value').then(function(snap){
@@ -2689,11 +2774,12 @@ function escucharPartida(path,rk){
 }
 
 function resolverGanadorOnline(p,path,rk){
-  // Firebase guarda arrays como objetos {0: val, 1: val}
-  const sc=p.scores||{};
-  const s0=parseFloat(sc[0]||sc['0']||0);
-  const s1=parseFloat(sc[1]||sc['1']||0);
-  const gan=s0>s1?p.j1:s1>s0?p.j2:Math.random()<.5?p.j1:p.j2;
+  // Leer scores por campo individual (robustez con Firebase)
+  const s0=typeof p.score0==='number'?p.score0:(Array.isArray(p.scores)?p.scores[0]:(p.scores&&p.scores[0])||0);
+  const s1=typeof p.score1==='number'?p.score1:(Array.isArray(p.scores)?p.scores[1]:(p.scores&&p.scores[1])||0);
+  // Actualizar scores array para visualización
+  db.ref(path).update({scores:[s0,s1]});
+  let gan=s0>s1?p.j1:s1>s0?p.j2:Math.random()<.5?p.j1:p.j2;
   db.ref(path+'/ganador').transaction(function(v){if(v===null)return gan;return;}).then(function(res){
     const ganReal=(res.snapshot&&res.snapshot.val())||gan;
     if(res.committed){
@@ -2709,12 +2795,28 @@ function actualizarUIPostDuelo(ganReal){
   const icon=document.getElementById('alumno-espera-icon');
   const en=document.getElementById('alumno-espera-nombre');
   const ec=document.getElementById('alumno-espera-count');
+  const fraseWrap=document.getElementById('alumno-frase-wrap');
+  const fraseTxt=document.getElementById('alumno-frase-txt');
+  document.getElementById('alumno-espera').style.display='block';
   if(yoGane){
-    document.getElementById('alumno-espera').style.display='block';
     if(icon)icon.textContent='🏆';
-    if(en)en.textContent='Ganaste tu duelo!';
+    if(en)en.textContent='¡Ganaste tu duelo!';
     if(ec)ec.textContent='Esperando que el maestro inicie la siguiente ronda...';
+    // Activar frases motivacionales
+    if(_fraseTimer){clearInterval(_fraseTimer);_fraseTimer=null;}
+    if(fraseWrap&&fraseTxt){
+      fraseWrap.style.display='block';fraseWrap.style.opacity='1';
+      const pool=[...FRASES_GANADOR];
+      let fi=Math.floor(Math.random()*pool.length);
+      fraseTxt.textContent=pool[fi];
+      _fraseTimer=setInterval(()=>{
+        fraseWrap.style.opacity='0';fraseWrap.style.transition='opacity .4s';
+        setTimeout(()=>{fi=(fi+1)%pool.length;if(fraseTxt)fraseTxt.textContent=pool[fi];fraseWrap.style.opacity='1';},420);
+      },4000);
+    }
   } else {
+    if(_fraseTimer){clearInterval(_fraseTimer);_fraseTimer=null;}
+    if(fraseWrap)fraseWrap.style.display='none';
     setTimeout(function(){
       document.getElementById('alumno-espera').style.display='none';
       document.getElementById('alumno-eliminado').style.display='block';
@@ -2755,9 +2857,8 @@ function construirCronicaOnline(sala,miNombre){
     if(!p||!p.terminada)return;
     const esJ1=p.j1===miNombre;
     const rival=esJ1?p.j2:p.j1;
-    const sc=p.scores||{};
-    const miScore=esJ1?(parseFloat(sc[0]||sc['0']||0)):(parseFloat(sc[1]||sc['1']||0));
-    const rivalScore=esJ1?(parseFloat(sc[1]||sc['1']||0)):(parseFloat(sc[0]||sc['0']||0));
+    const miScore=esJ1?(p.scores&&p.scores[0]||0):(p.scores&&p.scores[1]||0);
+    const rivalScore=esJ1?(p.scores&&p.scores[1]||0):(p.scores&&p.scores[0]||0);
     cronica.push({ronda:lblRonda(k),rival:rival,miScore:miScore,rivalScore:rivalScore,gane:p.ganador===miNombre});
   });
   return cronica;
@@ -2981,7 +3082,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <!-- ═══ FOOTER ═══════════════════════════════════════════════ -->
 <footer class="site-footer">
-  <div style="font-size:.7rem;color:rgba(167,139,250,.35);margin-bottom:.5rem;">⚡ Torneo Interactivo · <strong style="color:rgba(167,139,250,.55);">v3.1</strong></div>
+  <div style="font-size:.7rem;color:rgba(167,139,250,.35);margin-bottom:.5rem;">⚡ Torneo Interactivo · v2.9</div>
   <div style="font-size:.62rem;color:rgba(167,139,250,.5);margin-bottom:.3rem;font-style:italic;">
     Esta página fue elaborada por un estudiante del<br>
     <strong style="color:rgba(167,139,250,.65);">Tecnológico Nacional de México · Campus Tantoyuca</strong>
