@@ -533,7 +533,17 @@ nav{overflow:hidden;}
   .t-titulo{font-size:1.35rem;}
   .bk-fifa{display:flex;flex-direction:column;min-width:unset;width:100%;gap:8px;}
   .bk-col-oct,.bk-col-cuar,.bk-col-final{flex-direction:row;flex-wrap:wrap;gap:6px;justify-content:center;align-self:unset;padding:0;}
-  .bk-conn-v,.bk-conn-h{display:none;}.bk-gap{display:none;}}
+  .bk-conn-v,.bk-conn-h{display:none;}.bk-gap{display:none;}
+  /* ── Admin responsive móvil ── */
+  .adm-bk-grid{grid-template-columns:1fr!important;}
+  .btn-sig{width:100%;padding:.75rem 1rem;font-size:.8rem;}
+  #admin-panel .t-setup{padding:.85rem;}
+  #admin-sala-info>div:first-child{flex-direction:column;}
+  #admin-qr{margin-top:.5rem;}
+  .adm-slot-header{font-size:.48rem;}
+  .adm-name{font-size:.66rem;}
+  .adm-score{font-size:1rem;}
+}
 </style>
 </head>
 <body>
@@ -726,25 +736,6 @@ nav{overflow:hidden;}
       </div>
     </div>
     <!-- Bracket en vivo — siempre visible, igual que en bots -->
-    <!-- ★ Banner pre-ronda — idéntico a pausaPreRonda() en bots -->
-    <div id="alumno-preronda-banner" style="display:none;
-      background:linear-gradient(135deg,rgba(15,12,40,.97),rgba(25,18,60,.97));
-      border:2px solid rgba(251,191,36,.5);border-radius:14px;padding:1rem 1.4rem;
-      margin-bottom:1rem;align-items:center;justify-content:space-between;
-      flex-wrap:wrap;gap:.8rem;box-shadow:0 0 32px rgba(251,191,36,.15);
-      animation:auraFadeIn .4s ease both;">
-      <div>
-        <div id="alumno-preronda-titulo" style="font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;color:#fbbf24;margin-bottom:2px;">⚔️ Tu duelo</div>
-        <div id="alumno-preronda-sub" style="font-family:'Space Mono',monospace;font-size:.63rem;color:rgba(255,255,255,.44);">Prepárate para comenzar</div>
-      </div>
-      <button onclick="alumnoComenzarDuelo()"
-        style="background:linear-gradient(90deg,#d97706,#f59e0b);color:#1e1b4b;border:none;
-          padding:.7rem 1.8rem;border-radius:8px;font-family:'Space Mono',monospace;
-          font-size:.82rem;font-weight:700;cursor:pointer;letter-spacing:.06em;
-          box-shadow:0 4px 18px rgba(251,191,36,.45);animation:sigPulse 1.8s ease-in-out infinite;">
-        ▶ ¡COMENZAR DUELO!
-      </button>
-    </div>
     <div id="alumno-espera-bracket" style="display:none;">
       <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--dim);
         letter-spacing:.14em;text-transform:uppercase;margin-bottom:.5rem;">📊 Bracket del torneo</div>
@@ -946,13 +937,40 @@ nav{overflow:hidden;}
         <div id="admin-bracket-live"></div>
       </div>
 
-      <!-- Ceremonia admin — div dedicado, no se inyecta dinámicamente -->
+      <!-- Ceremonia admin -->
       <div id="admin-cer-wrap" style="display:none;position:relative;">
         <canvas id="cc-admin" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;"></canvas>
         <div id="podio-admin"></div>
       </div>
 
-      <div class="t-setup" style="margin-top:1rem;">
+      <!-- Historial — solo visible cuando NO hay sala activa -->
+      <!-- ── CONTROL DEL SERVIDOR ─────────────────────────────── -->
+      <div class="t-setup" style="margin-top:1rem;border-color:rgba(248,113,113,.2);">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem;">
+          <div>
+            <h3 style="margin-bottom:2px;display:flex;align-items:center;gap:.4rem;">
+              ⚡ Servidor
+              <span id="srv-estado-badge" style="font-family:'Space Mono',monospace;font-size:.55rem;
+                padding:2px 8px;border-radius:20px;font-weight:700;
+                background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.3);">
+                ACTIVO
+              </span>
+            </h3>
+            <div id="srv-desc" style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--dim);line-height:1.5;">
+              El servidor está activo y escuchando conexiones.<br>Apágalo cuando no haya clases para ahorrar recursos.
+            </div>
+          </div>
+          <button id="srv-btn" onclick="toggleServidor()"
+            style="background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;
+              padding:.6rem 1.3rem;border-radius:9px;font-family:'Space Mono',monospace;
+              font-size:.72rem;font-weight:700;cursor:pointer;letter-spacing:.06em;
+              box-shadow:0 4px 14px rgba(220,38,38,.36);transition:all .25s;white-space:nowrap;">
+            🔴 Apagar servidor
+          </button>
+        </div>
+      </div>
+
+      <div id="admin-historial-wrap" class="t-setup" style="margin-top:1rem;">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.8rem;">
           <h3 style="margin-bottom:0;">📋 Historial</h3>
           <button class="t-btn t-btn-danger t-btn-sm" onclick="borrarHistorial()">🗑️ Borrar historial</button>
@@ -1404,12 +1422,7 @@ const BOTS=[
 ];
 function shuffle(a){return[...a].sort(()=>Math.random()-.5);}
 function getBot(n){return BOTS.find(b=>b.n===n)||BOTS[0];}
-// Lista global de jugadores reales en sala online
-let _jugadoresOnline=[];
-// Duelo online pendiente — se activa cuando el alumno ve el banner COMENZAR
-let _pendingDuelo=null;
-// isBot reconoce tanto bots de sala offline como jugadores reales online
-function isBot(n){if(!n)return true;if(n===BS.yo)return false;if(_jugadoresOnline.includes(n))return false;if(typeof MI!=='undefined'&&MI&&n===MI)return false;return true;}
+function isBot(n){return n!==BS.yo;}
 function botTag(n){return getBot(n)?.t||'🤖';}
 function lbl(n){return(isBot(n)?botTag(n)+' ':'')+n;}
 function mkAv(n,isH,s=28){
@@ -1553,121 +1566,47 @@ function abrirDueloBracket(arr,idx,onDone){
 }
 
 // ── RENDER BRACKET FIFA ──────────────────────────────────────
-// ── slotFifa(): slot visual FIFA reutilizable para bots Y online ─
-// modoOnline=false → lee p.done/p.s/p.anim (bots)
-// modoOnline=true  → lee p.terminada/p.scores/p.j1_listo (Firebase)
-function slotFifa(p,activa,nPregs,modoOnline){
-  if(!p)return`<div class="bk-slot bk-empty"><div class="bk-row"><span class="bk-name bk-tbd">Por definir</span></div><div class="bk-div"></div><div class="bk-row"><span class="bk-name bk-tbd">Por definir</span></div></div>`;
-  let done,s0,s1,anim,prog,ganador;
-  if(modoOnline){
-    done=p.terminada||false;
-    s0=(typeof p.score0==='number'?p.score0:(Array.isArray(p.scores)?p.scores[0]:0))||0;
-    s1=(typeof p.score1==='number'?p.score1:(Array.isArray(p.scores)?p.scores[1]:0))||0;
-    anim=!done&&(p.j1_listo||p.j2_listo);
-    prog=anim?Math.ceil(nPregs/2):0;
-    ganador=p.ganador||null;
-  }else{
-    done=p.done;s0=p.s[0];s1=p.s[1];anim=p.anim;prog=p.prog;ganador=p.ganador;
-  }
-  const g1=done&&ganador===p.j1,g2=done&&ganador===p.j2;
-  const h1=modoOnline?(_jugadoresOnline.includes(p.j1)||(typeof MI!=='undefined'&&MI&&p.j1===MI)):!isBot(p.j1);
-  const h2=modoOnline?(_jugadoresOnline.includes(p.j2)||(typeof MI!=='undefined'&&MI&&p.j2===MI)):!isBot(p.j2);
-  const esMia=modoOnline&&typeof MI!=='undefined'&&MI&&(p.j1===MI||p.j2===MI);
-  const mine=activa&&!done&&(modoOnline?esMia:(h1||h2));
-  const live=activa&&!done&&anim;
-  const bw=Math.round((prog/nPregs)*100);
-  const mp=nPregs*3;
-  const pw1=done?Math.round((s0/mp)*100):0;
-  const pw2=done?Math.round((s1/mp)*100):0;
-  const b1=getBot(p.j1);const b2=getBot(p.j2);
-  const c1=h1?'#fbbf24':(b1?.c||'#7c3aed');const c2=h2?'#fbbf24':(b2?.c||'#7c3aed');
-  const border=done?'rgba(52,211,153,.4)':mine?'#fbbf24':live?'rgba(124,58,237,.8)':'rgba(255,255,255,.1)';
-  const glow=done?'box-shadow:0 0 14px rgba(52,211,153,.2);':mine?'box-shadow:0 0 16px rgba(251,191,36,.3);':live?'box-shadow:0 0 14px rgba(124,58,237,.25);':'';
-  const mid=live?`<div class="bk-prog"><div class="bk-prog-fill" style="width:${bw}%"></div></div>`:`<div class="bk-div"></div>`;
-  const pw1h=done?`<div style="height:3px;background:rgba(255,255,255,.04);margin:0 7px;"><div style="height:100%;width:${pw1}%;background:${g1?c1:'rgba(255,255,255,.15)'};border-radius:2px;transition:width .8s;"></div></div>`:'';
-  const pw2h=done?`<div style="height:3px;background:rgba(255,255,255,.04);margin:0 7px;"><div style="height:100%;width:${pw2}%;background:${g2?c2:'rgba(255,255,255,.15)'};border-radius:2px;transition:width .8s;"></div></div>`:'';
-  const show0=modoOnline?(done?s0:(p.j1_listo?s0:'—')):(done||anim?s0:'—');
-  const show1=modoOnline?(done?s1:(p.j2_listo?s1:'—')):(done||anim?s1:'—');
-  let st='';
-  if(done)st=`<div class="bk-status-badge" style="color:#34d399;">${mkAv(ganador,!isBot(ganador),14)}<span style="margin-left:3px;">✓ ${ganador}</span></div>`;
-  else if(mine)st=`<div class="bk-status-badge bk-badge-pulse" style="color:#fbbf24;">▶ TU DUELO</div>`;
-  else if(live)st=`<div class="bk-status-badge" style="color:#a78bfa;">⚙ ${prog}/${nPregs}</div>`;
-  return`<div class="bk-slot${done?' bk-done':mine?' bk-human':live?' bk-live':''}" style="border-color:${border};${glow}">
-    <div class="bk-row${g1?' bk-win':done?' bk-los':''}">${mkAv(p.j1,h1,24)}<span class="bk-name" style="${g1?'color:'+c1+';font-weight:700;':''}">${p.j1}</span><span class="bk-sc" style="${g1?'color:'+c1+';font-weight:700;':''}">${show0}</span></div>
-    ${pw1h}${mid}${pw2h}
-    <div class="bk-row${g2?' bk-win':done?' bk-los':''}">${mkAv(p.j2,h2,24)}<span class="bk-name" style="${g2?'color:'+c2+';font-weight:700;':''}">${p.j2}</span><span class="bk-sc" style="${g2?'color:'+c2+';font-weight:700;':''}">${show1}</span></div>
-    ${st}
-  </div>`;
-}
-
-// ── svgConn(): conectores SVG del bracket FIFA ───────────────────
-function svgLeft(){return`<svg width="100%" height="100%" viewBox="0 0 30 160" preserveAspectRatio="none"><path d="M0,40 H15 V80 H30" fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/><path d="M0,120 H15 V80" fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/></svg>`;}
-function svgRight(){return`<svg width="100%" height="100%" viewBox="0 0 30 160" preserveAspectRatio="none"><path d="M30,40 H15 V80 H0" fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/><path d="M30,120 H15 V80" fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/></svg>`;}
-function svgH(){return`<svg width="100%" height="100%" viewBox="0 0 30 60" preserveAspectRatio="none"><path d="M0,30 H30" fill="none" stroke="rgba(251,191,36,.6)" stroke-width="2" stroke-linecap="round"/></svg>`;}
-function svgHR(){return`<svg width="100%" height="100%" viewBox="0 0 30 60" preserveAspectRatio="none"><path d="M30,30 H0" fill="none" stroke="rgba(251,191,36,.6)" stroke-width="2" stroke-linecap="round"/></svg>`;}
-
 function renderBotBracket(){
   const wrap=document.getElementById('t-bot-bracket');if(!wrap)return;
-  const n=BS.nPregs||3;
+  function slot(p,activa){
+    if(!p)return`<div class="bk-slot bk-empty"><div class="bk-row"><div class="bk-avatar-empty"></div><span class="bk-name bk-tbd">Por definir</span></div><div class="bk-div"></div><div class="bk-row"><div class="bk-avatar-empty"></div><span class="bk-name bk-tbd">Por definir</span></div></div>`;
+    const g1=p.done&&p.ganador===p.j1,g2=p.done&&p.ganador===p.j2;
+    const h1=!isBot(p.j1),h2=!isBot(p.j2);
+    const mine=activa&&!p.done&&(h1||h2);const live=activa&&!p.done&&p.anim;
+    const bw=Math.round((p.prog/BS.nPregs)*100);
+    const mp=BS.nPregs*3;
+    const pw1=p.done?Math.round((p.s[0]/mp)*100):0;
+    const pw2=p.done?Math.round((p.s[1]/mp)*100):0;
+    const b1=getBot(p.j1);const b2=getBot(p.j2);
+    const c1=h1?'#fbbf24':(b1?.c||'#7c3aed');const c2=h2?'#fbbf24':(b2?.c||'#7c3aed');
+    const border=p.done?'rgba(52,211,153,.4)':mine?'#fbbf24':live?'rgba(124,58,237,.8)':'rgba(255,255,255,.1)';
+    const glow=p.done?'box-shadow:0 0 14px rgba(52,211,153,.2);':mine?'box-shadow:0 0 16px rgba(251,191,36,.3);':live?'box-shadow:0 0 14px rgba(124,58,237,.25);':'';
+    const mid=live?`<div class="bk-prog"><div class="bk-prog-fill" style="width:${bw}%"></div></div>`:`<div class="bk-div"></div>`;
+    const pw1h=p.done?`<div style="height:3px;background:rgba(255,255,255,.04);margin:0 7px;"><div style="height:100%;width:${pw1}%;background:${g1?c1:'rgba(255,255,255,.15)'};border-radius:2px;transition:width .8s;"></div></div>`:'';
+    const pw2h=p.done?`<div style="height:3px;background:rgba(255,255,255,.04);margin:0 7px;"><div style="height:100%;width:${pw2}%;background:${g2?c2:'rgba(255,255,255,.15)'};border-radius:2px;transition:width .8s;"></div></div>`:'';
+    const st=p.done?`<div class="bk-status-badge" style="color:#34d399;">${mkAv(p.ganador,!isBot(p.ganador),14)}<span style="margin-left:3px;">✓ ${p.ganador}</span></div>`:mine?`<div class="bk-status-badge bk-badge-pulse" style="color:#fbbf24;">▶ TU DUELO</div>`:live?`<div class="bk-status-badge" style="color:#a78bfa;">⚙ ${p.prog}/${BS.nPregs}</div>`:'';
+    return`<div class="bk-slot${p.done?' bk-done':mine?' bk-human':live?' bk-live':''}" style="border-color:${border};${glow}">
+      <div class="bk-row${g1?' bk-win':p.done?' bk-los':''}">${mkAv(p.j1,h1,24)}<span class="bk-name" style="${g1?'color:'+c1+';font-weight:700;':''}">${p.j1}</span><span class="bk-sc" style="${g1?'color:'+c1+';font-weight:700;':''}">${p.done||p.anim?p.s[0]:'—'}</span></div>
+      ${pw1h}${mid}${pw2h}
+      <div class="bk-row${g2?' bk-win':p.done?' bk-los':''}">${mkAv(p.j2,h2,24)}<span class="bk-name" style="${g2?'color:'+c2+';font-weight:700;':''}">${p.j2}</span><span class="bk-sc" style="${g2?'color:'+c2+';font-weight:700;':''}">${p.done||p.anim?p.s[1]:'—'}</span></div>
+      ${st}
+    </div>`;
+  }
   const aO=BS.ronda==='oct',aC=BS.ronda==='cuar',aG=BS.ronda==='gran';
   const o=BS.oct,c=BS.cuar,g=BS.gran;
   const cam=g[0]?.ganador||'';
   const camH=cam?`<div class="bk-camp-name">${isBot(cam)?botTag(cam)+' ':''} ${cam}</div>`:`<div class="bk-camp-tbd">?</div>`;
   wrap.innerHTML=`<div class="bk-fifa">
-    <div class="bk-col-oct">${slotFifa(o[0],aO,n,false)}<div class="bk-gap"></div>${slotFifa(o[1],aO,n,false)}</div>
-    <div class="bk-conn-v">${svgLeft()}</div>
-    <div class="bk-col-cuar">${slotFifa(c[0],aC,n,false)}</div>
-    <div class="bk-conn-h">${svgH()}</div>
-    <div class="bk-col-final"><div class="bk-final-header">⚡ GRAN FINAL</div><div class="bk-trophy">🏆</div>${camH}${slotFifa(g[0],aG,n,false)}</div>
-    <div class="bk-conn-h">${svgHR()}</div>
-    <div class="bk-col-cuar">${slotFifa(c[1],aC,n,false)}</div>
-    <div class="bk-conn-v">${svgRight()}</div>
-    <div class="bk-col-oct">${slotFifa(o[2],aO,n,false)}<div class="bk-gap"></div>${slotFifa(o[3],aO,n,false)}</div>
+    <div class="bk-col-oct">${slot(o[0],aO)}<div class="bk-gap"></div>${slot(o[1],aO)}</div>
+    <div class="bk-conn-v"><svg width="100%" height="100%" viewBox="0 0 30 160" preserveAspectRatio="none"><path d="M0,40 H15 V80 H30" fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/><path d="M0,120 H15 V80" fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="bk-col-cuar">${slot(c[0],aC)}</div>
+    <div class="bk-conn-h"><svg width="100%" height="100%" viewBox="0 0 30 60" preserveAspectRatio="none"><path d="M0,30 H30" fill="none" stroke="rgba(251,191,36,.6)" stroke-width="2" stroke-linecap="round"/></svg></div>
+    <div class="bk-col-final"><div class="bk-final-header">⚡ GRAN FINAL</div><div class="bk-trophy">🏆</div>${camH}${slot(g[0],aG)}</div>
+    <div class="bk-conn-h"><svg width="100%" height="100%" viewBox="0 0 30 60" preserveAspectRatio="none"><path d="M30,30 H0" fill="none" stroke="rgba(251,191,36,.6)" stroke-width="2" stroke-linecap="round"/></svg></div>
+    <div class="bk-col-cuar">${slot(c[1],aC)}</div>
+    <div class="bk-conn-v"><svg width="100%" height="100%" viewBox="0 0 30 160" preserveAspectRatio="none"><path d="M30,40 H15 V80 H0" fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/><path d="M30,120 H15 V80" fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="bk-col-oct">${slot(o[2],aO)}<div class="bk-gap"></div>${slot(o[3],aO)}</div>
   </div>`;
-}
-
-// ── renderBracketOnline(): bracket FIFA para el alumno (Firebase) ─
-function renderBracketOnline(sala,divId){
-  const wrap=document.getElementById(divId);if(!wrap)return;
-  const rAct=sala.rondaActiva||'oct8';
-  const nPregs=parseInt(sala.numPregs)||3;
-  _jugadoresOnline=Object.values(sala.jugadores||{}).map(j=>j.nombre);
-  const oct=sala.bracket?.oct8||sala.bracket?.oct16||[];
-  const cuar=sala.bracket?.cuar||[];
-  const semi=sala.bracket?.semi||[];
-  const gran=sala.bracket?.gran||[];
-  // Formato octavos completo → grid FIFA idéntico a bots
-  if(oct.length>=4){
-    const aO=rAct==='oct8'||rAct==='oct16';
-    const aC=rAct==='cuar';
-    const aGS=rAct==='gran'||rAct==='semi';
-    const c0=cuar[0]||null,c1=cuar[1]||null;
-    const gf=gran[0]||semi[0]||null;
-    const cam=gf?.ganador||'';
-    const camH=cam?`<div class="bk-camp-name">${cam}</div>`:`<div class="bk-camp-tbd">?</div>`;
-    wrap.innerHTML=`<div class="bk-fifa">
-      <div class="bk-col-oct">${slotFifa(oct[0]||null,aO,nPregs,true)}<div class="bk-gap"></div>${slotFifa(oct[1]||null,aO,nPregs,true)}</div>
-      <div class="bk-conn-v">${svgLeft()}</div>
-      <div class="bk-col-cuar">${slotFifa(c0,aC,nPregs,true)}</div>
-      <div class="bk-conn-h">${svgH()}</div>
-      <div class="bk-col-final"><div class="bk-final-header">⚡ GRAN FINAL</div><div class="bk-trophy">🏆</div>${camH}${slotFifa(gf,aGS,nPregs,true)}</div>
-      <div class="bk-conn-h">${svgHR()}</div>
-      <div class="bk-col-cuar">${slotFifa(c1,aC,nPregs,true)}</div>
-      <div class="bk-conn-v">${svgRight()}</div>
-      <div class="bk-col-oct">${slotFifa(oct[2]||null,aO,nPregs,true)}<div class="bk-gap"></div>${slotFifa(oct[3]||null,aO,nPregs,true)}</div>
-    </div>`;
-    return;
-  }
-  // Formato pequeño (cuartos/semifinal/final) — lista de slots
-  const rondas=['oct16','oct8','cuar','semi','gran'];
-  let html='';
-  rondas.forEach(r=>{
-    const pts=sala.bracket?.[r];if(!pts||!pts.length)return;
-    const activa=r===rAct;
-    const color=activa?'#fbbf24':'rgba(255,255,255,.28)';
-    html+=`<div style="margin-bottom:.9rem;"><div style="font-family:Space Mono,monospace;font-size:.58rem;color:${color};letter-spacing:.13em;text-transform:uppercase;margin-bottom:.45rem;display:flex;align-items:center;gap:.4rem;">${activa?'<span style="animation:cargando .8s infinite;">▶</span>':'<span>·</span>'} ${lblRonda(r)}</div><div style="display:flex;flex-wrap:wrap;gap:8px;">${pts.map(p=>slotFifa(p,activa,nPregs,true)).join('')}</div></div>`;
-  });
-  wrap.innerHTML=html||`<div style="font-family:Space Mono,monospace;font-size:.62rem;color:rgba(255,255,255,.2);padding:.5rem;">Esperando inicio del torneo...</div>`;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1682,7 +1621,18 @@ function abrirDuelo(j1,j2,rondaLabel,seed,onDone){
   BS.pregHum=pregs;BS.pregBot=pregs;
   const botNom=isBot(j1)?j1:j2;const botObj=getBot(botNom);const dif=BS.dif;
   pregs.forEach((_,qi)=>{
-    const t=setTimeout(()=>{const ok=Math.random()<(botObj?.a[dif]||.65);if(ok)d.botScore+=3;d.botLog.push({qi,ok,ans:pregs[qi].ans});},200+(qi*400)+Math.random()*300);
+    // Bot simula tiempo de respuesta aleatorio para calcular su bonus igual que el humano
+    const botDelay=200+(qi*400)+Math.random()*300;
+    const t=setTimeout(()=>{
+      const ok=Math.random()<(botObj?.a[dif]||.65);
+      if(ok){
+        // El bot responde en botDelay ms — calcular su bonus de velocidad
+        const tiempoUsado=Math.min(botDelay/1000,BS.tpq||30);
+        const pts=calcularPuntos(true,tiempoUsado,BS.tpq||30);
+        d.botScore=Math.round((d.botScore+pts)*10)/10;
+      }
+      d.botLog.push({qi,ok,ans:pregs[qi].ans});
+    },botDelay);
     d.botTimers.push(t);
   });
   document.getElementById('t-bot-j1').textContent=lbl(j1)+(!isBot(j1)?' ⭐':'');
@@ -1704,6 +1654,31 @@ function abrirDuelo(j1,j2,rondaLabel,seed,onDone){
 // ═══════════════════════════════════════════════════════════════
 //  DUELO — PREGUNTAS
 // ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+//  FÓRMULA DE PUNTUACIÓN POR VELOCIDAD
+//  correcto + rápido  → 3 + bonus (con 1 decimal)
+//  correcto + lento   → 3.0 pts mínimo garantizado
+//  incorrecto         → 0 siempre
+//  tiempo agotado     → 0 siempre
+//
+//  Bonus = 2 × (tiempo_restante / tiempo_total)
+//  Ej: 30s disponibles, responde en 6s (24s restantes):
+//    bonus = 2 × (24/30) = 1.6 → total = 3 + 1.6 = 4.6 pts
+//  Ej: responde en 29s (1s restante):
+//    bonus = 2 × (1/30) = 0.1 → total = 3 + 0.1 = 3.1 pts
+//  Sin tiempo (tpq=0):
+//    solo 3 pts, sin bonus
+// ═══════════════════════════════════════════════════════════════
+function calcularPuntos(correcto, tiempoUsado, tiempoMax){
+  if(!correcto) return 0;
+  if(!tiempoMax||tiempoMax<=0) return 3; // sin límite → 3 fijos
+  const restante=Math.max(0, tiempoMax - tiempoUsado);
+  const bonus=2*(restante/tiempoMax);
+  const total=3+bonus;
+  // Redondear a 1 decimal
+  return Math.round(total*10)/10;
+}
+
 function bloquear(b){const i=document.getElementById('t-bot-resp');if(i)i.disabled=b;const e=document.getElementById('t-btn-responder');if(e)e.disabled=b;}
 function updProgress(){const n=BS.pregHum.length,i=BS.duelo.humIdx;const b=document.getElementById('t-progress-fill');if(b)b.style.width=n>0?Math.round(i/n*100)+'%':'0%';}
 
@@ -1747,12 +1722,22 @@ function responderBot(){
   clearInterval(d.timer);d.esp=true;bloquear(true);
   const preg=BS.pregHum[d.humIdx];if(!preg){d.esp=false;return;}
   const ok=val===preg.ans;
-  d.humLog[d.humIdx]={ok,val};if(ok)d.humScore+=3;
+  // ★ Calcular puntos con fórmula de velocidad
+  const tiempoUsado=(BS.tpq>0)?(BS.tpq-d.trest):0;
+  const pts=calcularPuntos(ok,tiempoUsado,BS.tpq);
+  d.humLog[d.humIdx]={ok,val,pts,tiempoUsado};
+  if(ok) d.humScore=Math.round((d.humScore+pts)*10)/10;
   const wrap=document.getElementById('t-input-wrap');
   if(wrap)wrap.className='t-num-input-wrap '+(ok?'estado-ok':'estado-mal');
   const rb=document.getElementById('t-bot-resultado');
   rb.className='t-resultado-box show '+(ok?'ok':'mal');
-  rb.innerHTML=ok?`✓ <strong>+3 pts</strong> — ¡Correcto!`:`✗ Incorrecto — era <strong>${preg.ans}</strong>`;
+  // Mensaje con el desglose de puntos
+  if(ok){
+    const bonusStr=pts>3?` <span style="color:#fbbf24;font-size:.68rem;">(+${(pts-3).toFixed(1)} velocidad ⚡)</span>`:'';
+    rb.innerHTML=`✓ <strong>+${pts} pts</strong>${bonusStr}`;
+  }else{
+    rb.innerHTML=`✗ Incorrecto — era <strong>${preg.ans}</strong> · +0 pts`;
+  }
   if(ok)BS.hl.push({tipo:'acierto',txt:preg.txt});
   d.humIdx++;
   const hi=isBot(d.j1)?1:0;
@@ -1771,27 +1756,45 @@ function ocultarInputTabla(ultimaPreg){
   const d=BS.duelo;const humNom=isBot(d.j1)?d.j2:d.j1;
   let rows='';
   BS.pregHum.forEach((preg,qi)=>{
-    const log=d.humLog[qi];const ok=log?.ok||false;const v=log?.val??'—';
-    rows+=`<tr><td style="padding:4px 8px;font-size:.67rem;color:#93c5fd;">${preg.txt}</td>
-      <td style="text-align:center;padding:4px 6px;"><span style="color:${ok?'#34d399':'#f87171'};font-weight:700;">${ok?'✓':'✗'}</span> <span style="color:rgba(255,255,255,.3);font-size:.57rem;">${v}</span></td>
-      <td style="text-align:center;font-weight:700;color:#fbbf24;padding:4px 8px;font-family:'Space Mono',monospace;font-size:.68rem;">${preg.ans}</td></tr>`;
+    const log=d.humLog[qi];
+    const ok=log?.ok||false;
+    const v=log?.timeout?'⏱':(log?.val??'—');
+    const pts=log?.pts??0;
+    const seg=log?.tiempoUsado!=null?log.tiempoUsado.toFixed(0)+'s':'—';
+    const ptsColor=ok?'#fbbf24':'rgba(255,255,255,.2)';
+    const ptsStr=ok?'+'+pts:'0';
+    rows+=`<tr>
+      <td style="padding:4px 8px;font-size:.67rem;color:#93c5fd;">${preg.txt}</td>
+      <td style="text-align:center;padding:4px 6px;">
+        <span style="color:${ok?'#34d399':'#f87171'};font-weight:700;">${ok?'✓':'✗'}</span>
+        <span style="color:rgba(255,255,255,.3);font-size:.57rem;"> ${v}</span>
+      </td>
+      <td style="text-align:center;font-weight:700;color:#fbbf24;padding:4px 4px;font-family:'Space Mono',monospace;font-size:.68rem;">${preg.ans}</td>
+      <td style="text-align:center;font-family:'Space Mono',monospace;font-size:.62rem;color:${ptsColor};padding:4px 4px;font-weight:700;">${ptsStr}</td>
+      <td style="text-align:center;font-family:'Space Mono',monospace;font-size:.52rem;color:rgba(167,139,250,.4);padding:4px 4px;">${ok&&BS.tpq>0?seg:'—'}</td>
+    </tr>`;
   });
   const t=document.createElement('div');t.id='t-tabla-final-inline';t.className='t-tabla-final';
   t.innerHTML=`<div class="t-tabla-final-header">📊 TUS RESPUESTAS — ${humNom.toUpperCase()}</div>
     <div style="padding:.5rem .8rem;"><table style="width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;">
       <thead><tr style="border-bottom:1px solid rgba(255,255,255,.07);">
         <th style="font-size:.55rem;color:#6b7280;text-align:left;padding:2px 8px;">Pregunta</th>
-        <th style="font-size:.55rem;color:#a78bfa;text-align:center;padding:2px 6px;">Tu resp.</th>
-        <th style="font-size:.55rem;color:#34d399;text-align:center;padding:2px 8px;">Correcta</th>
+        <th style="font-size:.55rem;color:#a78bfa;text-align:center;padding:2px 4px;">Tu resp.</th>
+        <th style="font-size:.55rem;color:#34d399;text-align:center;padding:2px 4px;">Correcta</th>
+        <th style="font-size:.55rem;color:#fbbf24;text-align:center;padding:2px 4px;">Pts</th>
+        <th style="font-size:.55rem;color:rgba(167,139,250,.5);text-align:center;padding:2px 4px;">Tiempo</th>
       </tr></thead>
       <tbody>${rows}</tbody>
       <tfoot><tr style="border-top:1px solid rgba(255,255,255,.07);">
-        <td style="font-size:.67rem;color:#e9d5ff;font-weight:700;padding:4px 8px;">Total</td>
-        <td style="text-align:center;font-size:.73rem;font-weight:700;color:#fbbf24;padding:4px 6px;">${d.humScore} pts</td>
+        <td colspan="3" style="font-size:.67rem;color:#e9d5ff;font-weight:700;padding:4px 8px;">Total</td>
+        <td style="text-align:center;font-size:.78rem;font-weight:700;color:#fbbf24;padding:4px 4px;">${d.humScore}</td>
         <td></td>
       </tr></tfoot>
     </table>
-    <div style="text-align:center;padding:.5rem 0 .3rem;font-family:'Space Mono',monospace;font-size:.58rem;color:rgba(167,139,250,.55);">Calculando resultado del rival...</div>
+    <div style="text-align:center;padding:.4rem 0 .2rem;font-family:'Space Mono',monospace;font-size:.54rem;color:rgba(167,139,250,.4);">
+      ⚡ Respuesta rápida = más puntos · Máx. 5 pts por pregunta
+    </div>
+    <div style="text-align:center;padding:0 0 .3rem;font-family:'Space Mono',monospace;font-size:.58rem;color:rgba(167,139,250,.55);">Calculando resultado del rival...</div>
     </div>`;
   const rb=document.getElementById('t-bot-resultado');if(rb?.parentNode)rb.parentNode.insertBefore(t,rb.nextSibling);
 }
@@ -2074,7 +2077,8 @@ function mostrarAdmin(){
   if(pwd!=='quimica2025'){document.getElementById('admin-pwd-err').textContent='Contraseña incorrecta';return;}
   document.getElementById('admin-login').style.display='none';
   document.getElementById('admin-panel').style.display='block';
-  initFB();llenarSelectorTemas();cargarHistAdmin();
+  toggleHistorialAdmin(true);
+  initFB();llenarSelectorTemas();cargarHistAdmin();verificarEstadoServidor();
 }
 
 function crearSala(){
@@ -2140,6 +2144,7 @@ function iniciarSala(){
     db.ref('salas/'+SALA).update({estado:'jugando',bracket,rondaActiva:rondaKey,nombresOrden:nombres,rondaInicioTs:Date.now()}).then(()=>{
       document.getElementById('admin-sala-info').style.display='none';
       document.getElementById('admin-bracket-view').style.display='block';
+      toggleHistorialAdmin(false);
       escucharBracketAdmin();
     });
   });
@@ -2178,7 +2183,18 @@ function buildPartidas(nombres,rondaNom){
   return out;
 }
 
-function escucharBracketAdmin(){db.ref('salas/'+SALA).on('value',snap=>{const s=snap.val();if(!s)return;renderAdminBracket(s);});}
+function escucharBracketAdmin(){
+  db.ref('salas/'+SALA).on('value',snap=>{
+    const s=snap.val();if(!s)return;
+    renderAdminBracket(s);
+  });
+}
+
+// Ocultar/mostrar historial según si hay sala activa
+function toggleHistorialAdmin(mostrar){
+  const hw=document.getElementById('admin-historial-wrap');
+  if(hw)hw.style.display=mostrar?'block':'none';
+}
 
 function primeraRonda(formato){
   if(formato>=8)return{rondaKey:'oct8',rondaNom:'Octavos de Final'};
@@ -2189,9 +2205,21 @@ function primeraRonda(formato){
 // ★ BRACKET ADMIN AMPLIO — puntos en tiempo real, ganadores, botón SIG
 function renderAdminBracket(sala){
   const div=document.getElementById('admin-bracket-live');if(!div)return;
-  const rAct=sala.rondaActiva||'oct8';
+
+  // Si rondaActiva='espera' buscar la primera ronda con datos
+  let rAct=sala.rondaActiva||'oct8';
+  if(rAct==='espera'){
+    const orden=['oct8','oct16','cuar','semi','gran'];
+    for(const k of orden){
+      if(sala.bracket?.[k]?.length>0){rAct=k;break;}
+    }
+    if(rAct==='espera'){
+      div.innerHTML='<div style="text-align:center;padding:2rem;font-family:Space Mono,monospace;font-size:.72rem;color:rgba(255,255,255,.3);">Esperando jugadores...</div>';
+      return;
+    }
+  }
+
   const jugsReales=Object.values(sala.jugadores||{}).map(j=>j.nombre);
-  const tiempo=parseInt(sala.tiempo)||30;
   const nPregs=parseInt(sala.numPregs)||3;
 
   // Auto-resolver bots silenciosamente
@@ -2302,8 +2330,6 @@ function slotAdmin(p,idx,esActiva,nPregs,jugsReales){
   }
   const g1=p.terminada&&p.ganador===p.j1;
   const g2=p.terminada&&p.ganador===p.j2;
-  // ★ FIX: cls estaba sin definir → ReferenceError silencioso
-  const cls=p.terminada?'done':esActiva&&!p.terminada?'live':'';
   const j1r=Array.isArray(jugsReales)&&jugsReales.includes(p.j1);
   const j2r=Array.isArray(jugsReales)&&jugsReales.includes(p.j2);
   // Leer scores de forma robusta (campo individual O array)
@@ -2426,6 +2452,7 @@ function cerrarYCeremonia(){
       const cerW=document.getElementById('admin-cer-wrap');if(cerW)cerW.style.display='none';
       document.getElementById('admin-bracket-view').style.display='none';
       document.getElementById('admin-crear-sala').style.display='block';
+      toggleHistorialAdmin(true);
       SALA=null;
       mostrarNotif('✓ Listo para crear nuevo torneo');
       cargarHistAdmin();
@@ -2437,7 +2464,9 @@ function cerrarSalaAdmin(){
   if(!SALA||!confirm('¿Cerrar la sala?'))return;
   db.ref('salas/'+SALA+'/estado').set('terminado');db.ref('salas/'+SALA).off();
   document.getElementById('admin-bracket-view').style.display='none';
-  document.getElementById('admin-crear-sala').style.display='block';SALA=null;
+  document.getElementById('admin-crear-sala').style.display='block';
+  toggleHistorialAdmin(true);
+  SALA=null;
 }
 
 function mostrarQR(codigo){
@@ -2459,6 +2488,79 @@ function borrarHistorial(){
   if(!confirm('¿Borrar todo el historial y ranking?'))return;
   Promise.all([db.ref('historial').remove(),db.ref('ranking').remove()]).then(()=>{
     mostrarNotif('✓ Historial y ranking eliminados');_salonCargado=false;setTimeout(()=>cargarHistAdmin(),1200);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CONTROL DEL SERVIDOR
+// ═══════════════════════════════════════════════════════════════
+let _srvActivo=true;
+let _srvListener=null;
+
+// Verificar estado real del servidor al entrar al panel
+function verificarEstadoServidor(){
+  if(!db)return;
+  db.ref('servidor/estado').once('value').then(snap=>{
+    const val=snap.val();
+    // Si nunca se ha seteado o es 'activo', marcar activo
+    if(val===null||val==='activo'){
+      _srvActivo=true;
+      db.ref('servidor/estado').set('activo');
+    }else{
+      _srvActivo=false;
+    }
+    actualizarUIServidor();
+  });
+  // Escuchar cambios en tiempo real (útil si otro admin lo cambia)
+  if(_srvListener)db.ref('servidor/estado').off('value',_srvListener);
+  _srvListener=db.ref('servidor/estado').on('value',snap=>{
+    const val=snap.val();
+    _srvActivo=(val===null||val==='activo');
+    actualizarUIServidor();
+  });
+}
+
+function actualizarUIServidor(){
+  const badge=document.getElementById('srv-estado-badge');
+  const desc =document.getElementById('srv-desc');
+  const btn  =document.getElementById('srv-btn');
+  if(!badge||!desc||!btn)return;
+  if(_srvActivo){
+    badge.textContent='ACTIVO';
+    badge.style.background='rgba(52,211,153,.15)';
+    badge.style.color='#34d399';
+    badge.style.borderColor='rgba(52,211,153,.3)';
+    desc.innerHTML='El servidor está <strong style="color:#34d399;">activo</strong> y escuchando conexiones.<br>Apágalo cuando no haya clases para ahorrar recursos.';
+    btn.innerHTML='🔴 Apagar servidor';
+    btn.style.background='linear-gradient(135deg,#dc2626,#b91c1c)';
+    btn.style.boxShadow='0 4px 14px rgba(220,38,38,.36)';
+  }else{
+    badge.textContent='APAGADO';
+    badge.style.background='rgba(248,113,113,.1)';
+    badge.style.color='#f87171';
+    badge.style.borderColor='rgba(248,113,113,.3)';
+    desc.innerHTML='El servidor está <strong style="color:#f87171;">apagado</strong>. Los alumnos no podrán conectarse.<br>Enciéndelo antes de iniciar una clase.';
+    btn.innerHTML='🟢 Encender servidor';
+    btn.style.background='linear-gradient(135deg,#059669,#10b981)';
+    btn.style.boxShadow='0 4px 14px rgba(16,185,129,.36)';
+  }
+}
+
+function toggleServidor(){
+  if(!db){mostrarNotif('⚠️ Conéctate al panel primero');return;}
+  const nuevoEstado=_srvActivo?'apagado':'activo';
+  const msg=_srvActivo
+    ?'¿Apagar el servidor? Los alumnos no podrán conectarse.'
+    :'¿Encender el servidor?';
+  if(!confirm(msg))return;
+  db.ref('servidor').set({
+    estado:nuevoEstado,
+    ts:Date.now(),
+    actualizadoPor:'admin'
+  }).then(()=>{
+    _srvActivo=!_srvActivo;
+    actualizarUIServidor();
+    mostrarNotif(_srvActivo?'✅ Servidor encendido':'🔴 Servidor apagado');
   });
 }
 
@@ -2535,7 +2637,14 @@ function unirseASala(nombre,codigo){
   if(msgEl)msgEl.textContent='Conectando...';
   if(subEl)subEl.textContent='Sala: '+codigo;
   initFB();MI=nombre;SALA=codigo;MI_JUGADOS=new Set();MI_CRONICA=[];
-  db.ref('salas/'+codigo).once('value').then(snap=>{
+  // ★ Verificar primero si el servidor está activo
+  db.ref('servidor/estado').once('value').then(srvSnap=>{
+    const srvEstado=srvSnap.val();
+    if(srvEstado==='apagado'){
+      setErr('⚠️ El servidor está apagado — espera a que el maestro lo encienda');
+      return;
+    }
+    db.ref('salas/'+codigo).once('value').then(snap=>{
     const sala=snap.val();
     if(!sala){setErr('Sala no encontrada - verifica el codigo');return;}
     if(sala.estado==='terminado'){setErr('Este torneo ya termino');return;}
@@ -2577,24 +2686,91 @@ function escucharSalaAlumno(codigo){
 
 // Bracket en vivo — misma lógica del bracket FIFA de bots, adaptada a datos Firebase
 function actualizarBracketEnVivo(sala){
-  // Actualizar lista de jugadores reales
-  _jugadoresOnline=Object.values(sala.jugadores||{}).map(j=>j.nombre);
-  // Renderizar bracket FIFA idéntico al de bots en ambos divs
-  renderBracketOnline(sala,'alumno-espera-bracket-content');
-  renderBracketOnline(sala,'alumno-eliminado-bracket');
-  // Mostrar/ocultar wrapper
-  const hayBracket=Object.values(sala.bracket||{}).some(r=>Array.isArray(r)&&r.length>0);
+  const rAct=sala.rondaActiva||'oct8';
+  const rondas=['oct16','oct8','cuar','semi','gran'];
+
+  ['alumno-espera-bracket-content','alumno-eliminado-bracket'].forEach(function(divId){
+    const div=document.getElementById(divId);if(!div)return;
+    let html='';
+    rondas.forEach(function(r){
+      const pts=sala.bracket?.[r];if(!pts||!pts.length)return;
+      const activa=r===rAct;
+      const color=activa?'#fbbf24':'rgba(255,255,255,.28)';
+      html+='<div style="margin-bottom:.9rem;">';
+      html+='<div style="font-family:Space Mono,monospace;font-size:.58rem;color:'+color
+        +';letter-spacing:.13em;text-transform:uppercase;margin-bottom:.45rem;'
+        +'display:flex;align-items:center;gap:.4rem;">'
+        +(activa?'<span style="animation:cargando .8s infinite;">▶</span>':'<span>·</span>')
+        +' '+lblRonda(r)
+        +(activa?' <span style="font-size:.5rem;color:rgba(251,191,36,.5);">EN CURSO</span>':'')
+        +'</div>';
+      html+='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+      pts.forEach(function(p){
+        if(!p){
+          html+='<div style="min-width:140px;background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.07);'
+            +'border-radius:10px;padding:6px 9px;font-family:Space Mono,monospace;font-size:.52rem;'
+            +'color:rgba(255,255,255,.18);">Por definir</div>';
+          return;
+        }
+        const g1=p.terminada&&p.ganador===p.j1;
+        const g2=p.terminada&&p.ganador===p.j2;
+        const esMio=(p.j1===MI||p.j2===MI);
+        const border=p.terminada?'rgba(52,211,153,.4)':esMio?'rgba(251,191,36,.6)':'rgba(255,255,255,.08)';
+        const bg=p.terminada?'rgba(52,211,153,.04)':esMio?'rgba(251,191,36,.04)':'rgba(8,14,38,.9)';
+        html+='<div style="min-width:145px;background:'+bg+';border:1.5px solid '+border
+          +';border-radius:10px;overflow:hidden;'
+          +(esMio&&!p.terminada?'box-shadow:0 0 10px rgba(251,191,36,.2);':'')
+          +'">';
+        // Fila J1
+        html+='<div style="display:flex;justify-content:space-between;align-items:center;'
+          +'padding:5px 8px;background:'+(g1?'rgba(251,191,36,.1)':'')+';">';
+        html+='<span style="font-family:Space Mono,monospace;font-size:.6rem;max-width:95px;'
+          +'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'
+          +'color:'+(g1?'#fbbf24':p.j1===MI?'#38bdf8':'var(--text)')
+          +';font-weight:'+(g1||p.j1===MI?700:400)+';">'
+          +(p.j1===MI?'⭐ ':'')+p.j1+'</span>';
+        html+='<span style="font-family:Space Mono,monospace;font-size:.65rem;font-weight:700;'
+          +'color:'+(g1?'#fbbf24':p.terminada?'rgba(255,255,255,.25)':'rgba(255,255,255,.4)')+';">'
+          +((p.terminada||p.j1_listo)?p.scores[0]:'—')+'</span>';
+        html+='</div>';
+        html+='<div style="height:1px;background:rgba(255,255,255,.06);"></div>';
+        // Fila J2
+        html+='<div style="display:flex;justify-content:space-between;align-items:center;'
+          +'padding:5px 8px;background:'+(g2?'rgba(251,191,36,.1)':'')+';">';
+        html+='<span style="font-family:Space Mono,monospace;font-size:.6rem;max-width:95px;'
+          +'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'
+          +'color:'+(g2?'#fbbf24':p.j2===MI?'#38bdf8':'var(--text)')
+          +';font-weight:'+(g2||p.j2===MI?700:400)+';">'
+          +(p.j2===MI?'⭐ ':'')+p.j2+'</span>';
+        html+='<span style="font-family:Space Mono,monospace;font-size:.65rem;font-weight:700;'
+          +'color:'+(g2?'#fbbf24':p.terminada?'rgba(255,255,255,.25)':'rgba(255,255,255,.4)')+';">'
+          +((p.terminada||p.j2_listo)?p.scores[1]:'—')+'</span>';
+        html+='</div>';
+        // Footer ganador
+        if(p.terminada){
+          html+='<div style="padding:3px 8px;background:rgba(52,211,153,.08);font-family:Space Mono,monospace;'
+            +'font-size:.52rem;color:#34d399;text-align:center;">✓ '+p.ganador+'</div>';
+        }
+        html+='</div>';
+      });
+      html+='</div></div>';
+    });
+    if(!html)html='<div style="font-family:Space Mono,monospace;font-size:.62rem;color:rgba(255,255,255,.2);padding:.5rem;">Esperando inicio del torneo...</div>';
+    div.innerHTML=html;
+  });
+
+  // Mostrar bracket en pantalla de espera solo si hay datos
+  const hayBracket=Object.values(sala.bracket||{}).some(function(r){return Array.isArray(r)&&r.length>0;});
   const bw=document.getElementById('alumno-espera-bracket');
   if(bw)bw.style.display=hayBracket?'block':'none';
 }
 
 // Lógica central — espejo exacto del flujo bots:
 // bots: pausaPreRonda → bracket visible → COMENZAR → duelos simultáneos
-// online: rondaActiva cambia → bracket visible con banner COMENZAR → alumno decide cuando entra
+// online: rondaActiva cambia → bracket visible → admin presiona SIG → duelos simultáneos
 function buscarMiPartida(sala){
   const rAct=sala.rondaActiva||'oct8';
   const partsAct=sala.bracket?.[rAct]||[];
-  _jugadoresOnline=Object.values(sala.jugadores||{}).map(j=>j.nombre);
 
   // Buscar mi partida en la ronda activa
   let idx=partsAct.findIndex(function(p){return p&&(p.j1===MI||p.j2===MI);});
@@ -2614,7 +2790,6 @@ function buscarMiPartida(sala){
     if(!MI_DUELO){
       document.getElementById('alumno-espera').style.display='none';
       document.getElementById('alumno-eliminado').style.display='block';
-      actualizarBracketEnVivo(sala);
       cargarRankingAlumno();
     }
     return;
@@ -2632,20 +2807,19 @@ function buscarMiPartida(sala){
       const riS=esJ1b?(partida.scores?.[1]||0):(partida.scores?.[0]||0);
       MI_CRONICA.push({ronda:lblRonda(rk),rival:esJ1b?partida.j2:partida.j1,miScore:miS,rivalScore:riS,gane:partida.ganador===MI});
     }
-    MI_DUELO=false;_pendingDuelo=null;
+    MI_DUELO=false;
     document.body.classList.remove('duelo-activo');document.body.style.top='';
     window.scrollTo(0,parseInt(document.body.dataset.scrollY||'0'));
     document.getElementById('t-fase-bot-duelo').style.display='none';
-    // Ocultar banner COMENZAR si estaba visible
-    const bn=document.getElementById('alumno-preronda-banner');if(bn)bn.style.display='none';
 
     if(partida.ganador===MI){
-      // ★ Ganó → bracket visible + frases motivacionales
-      mostrarEsperaConBracket(sala,'🏆 ¡Ganaste tu duelo!','El maestro iniciará la siguiente ronda...',true,false);
+      // Gané → mostrar bracket de esta ronda y esperar que admin inicie siguiente
+      // Gané → bracket visible + frases motivacionales rotativas
+      mostrarEsperaConBracket(sala,'🏆 ¡Ganaste tu duelo!','El maestro iniciará la siguiente ronda...',true);
     } else {
+      // Perdí → pantalla de eliminado con bracket en vivo
       document.getElementById('alumno-espera').style.display='none';
       document.getElementById('alumno-eliminado').style.display='block';
-      actualizarBracketEnVivo(sala);
       cargarRankingAlumno();
     }
     return;
@@ -2655,19 +2829,19 @@ function buscarMiPartida(sala){
   const esJ1p=partida.j1===MI;
   const yoListo=esJ1p?partida.j1_listo:partida.j2_listo;
   if(yoListo&&!partida.terminada){
-    mostrarEsperaConBracket(sala,'Respuestas enviadas ✓','Esperando que tu rival termine...',false,false);
+    mostrarEsperaConBracket(sala,'Respuestas enviadas ✓','Esperando que tu rival termine...',false);
     return;
   }
 
-  // ── Mi duelo en la ronda activa → mostrar banner COMENZAR (igual que bots) ──
+  // ── Mi duelo es de la ronda activa → JUGAR ─────────────────────
   if(rk===rAct&&!MI_DUELO&&!MI_JUGADOS.has(clave)){
-    // ★ Guardar referencia para el botón COMENZAR
-    _pendingDuelo={sala,partida,idx,rk};
-    const rival=partida.j1===MI?partida.j2:partida.j1;
-    // ★ Mostrar banner igual que pausaPreRonda() en bots — el alumno controla cuándo entra
-    mostrarEsperaConBracket(sala,'⚔️ ¡Tu duelo!',`vs ${rival} · Mismas preguntas para ambos`,false,true);
+    MI_DUELO=true;
+    // Mostrar brevemente el bracket con "¡Es tu turno!" antes de abrir el duelo
+    mostrarEsperaConBracket(sala,'⚡ ¡Tu duelo comienza!','Preparándote...',false);
+    setTimeout(function(){iniciarDueloAlumno(sala,partida,idx,rk);},900);
   } else if(rk!==rAct&&!MI_DUELO){
-    mostrarEsperaConBracket(sala,'Hola, '+MI+'! 👋','El maestro iniciará tu ronda...',false,false);
+    // Mi partida es de ronda anterior — esperar que el admin avance
+    mostrarEsperaConBracket(sala,'Hola, '+MI+'! 👋','El maestro iniciará tu ronda...',false);
   }
 }
 
@@ -2693,7 +2867,7 @@ const FRASES_ESPERA=[
 ];
 let _fraseTimer=null;
 
-function mostrarEsperaConBracket(sala,titulo,subtitulo,mostrarFrase,esDuelo){
+function mostrarEsperaConBracket(sala,titulo,subtitulo,mostrarFrase){
   document.getElementById('alumno-eliminado').style.display='none';
   document.getElementById('t-fase-bot-duelo').style.display='none';
   const esp=document.getElementById('alumno-espera');
@@ -2704,23 +2878,9 @@ function mostrarEsperaConBracket(sala,titulo,subtitulo,mostrarFrase,esDuelo){
   const fraseWrap=document.getElementById('alumno-frase-wrap');
   const fraseTxt=document.getElementById('alumno-frase-txt');
 
-  if(icon)icon.textContent=esDuelo?'⚔️':titulo.startsWith('🏆')?'🏆':titulo.startsWith('⚡')?'⚡':'⏳';
-  if(en)en.textContent=titulo.replace(/^[🏆⚡⏳⚔️💬]\s*/,'');
-  if(ec)ec.textContent=esDuelo?'':subtitulo;
-
-  // ★ Banner COMENZAR DUELO — idéntico a pausaPreRonda() en bots
-  const bn=document.getElementById('alumno-preronda-banner');
-  const bTit=document.getElementById('alumno-preronda-titulo');
-  const bSub=document.getElementById('alumno-preronda-sub');
-  if(bn){
-    if(esDuelo){
-      if(bTit)bTit.textContent='⚔️ '+titulo.replace(/^[🏆⚡⏳⚔️💬]\s*/,'');
-      if(bSub)bSub.textContent=subtitulo||'Presiona COMENZAR cuando estés listo';
-      bn.style.display='flex';
-    }else{
-      bn.style.display='none';
-    }
-  }
+  if(icon)icon.textContent=titulo.startsWith('🏆')?'🏆':titulo.startsWith('⚡')?'⚡':'⏳';
+  if(en)en.textContent=titulo.replace(/^[🏆⚡⏳💬]\s*/,'');
+  if(ec)ec.textContent=subtitulo;
 
   // Frases motivacionales — solo cuando ganó y espera siguiente ronda
   if(_fraseTimer){clearInterval(_fraseTimer);_fraseTimer=null;}
@@ -2730,6 +2890,7 @@ function mostrarEsperaConBracket(sala,titulo,subtitulo,mostrarFrase,esDuelo){
     let fi=Math.floor(Math.random()*pool.length);
     fraseTxt.textContent=pool[fi];
     _fraseTimer=setInterval(()=>{
+      // Fade out → cambiar texto → fade in
       fraseWrap.style.opacity='0';fraseWrap.style.transition='opacity .4s';
       setTimeout(()=>{
         fi=(fi+1)%pool.length;
@@ -2741,20 +2902,10 @@ function mostrarEsperaConBracket(sala,titulo,subtitulo,mostrarFrase,esDuelo){
     if(fraseWrap)fraseWrap.style.display='none';
   }
 
-  // Bracket FIFA en vivo siempre visible debajo
+  // Bracket siempre visible debajo
   actualizarBracketEnVivo(sala);
   const bw=document.getElementById('alumno-espera-bracket');
   if(bw)bw.style.display='block';
-}
-
-// ★ Botón COMENZAR DUELO del banner pre-ronda (alumno controla cuando entra)
-function alumnoComenzarDuelo(){
-  if(!_pendingDuelo)return;
-  const{sala,partida,idx,rk}=_pendingDuelo;
-  _pendingDuelo=null;
-  MI_DUELO=true;
-  const bn=document.getElementById('alumno-preronda-banner');if(bn)bn.style.display='none';
-  iniciarDueloAlumno(sala,partida,idx,rk);
 }
 
 function iniciarDueloAlumno(sala,partida,idx,rk){
