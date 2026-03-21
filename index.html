@@ -736,10 +736,30 @@ nav{overflow:hidden;}
       </div>
     </div>
     <!-- Bracket en vivo — siempre visible, igual que en bots -->
+    <!-- ★ Banner pre-ronda — lo activa el admin, el alumno no tiene botón -->
+    <div id="alumno-preronda-banner" style="display:none;
+      background:linear-gradient(135deg,rgba(15,12,40,.97),rgba(25,18,60,.97));
+      border:2px solid rgba(251,191,36,.5);border-radius:14px;padding:1rem 1.4rem;
+      margin-bottom:1rem;
+      box-shadow:0 0 32px rgba(251,191,36,.15);animation:auraFadeIn .4s ease both;">
+      <div style="display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;">
+        <div style="font-size:2rem;">⚔️</div>
+        <div>
+          <div id="alumno-preronda-titulo" style="font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:#fbbf24;margin-bottom:2px;">¡Tu duelo está por comenzar!</div>
+          <div id="alumno-preronda-sub" style="font-family:'Space Mono',monospace;font-size:.62rem;color:rgba(255,255,255,.5);">El administrador iniciará el duelo en breve...</div>
+        </div>
+        <div style="margin-left:auto;">
+          <div style="width:10px;height:10px;border-radius:50%;background:#fbbf24;
+            animation:humanPulse 1s ease-in-out infinite;box-shadow:0 0 8px rgba(251,191,36,.7);"></div>
+        </div>
+      </div>
+    </div>
     <div id="alumno-espera-bracket" style="display:none;">
       <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--dim);
         letter-spacing:.14em;text-transform:uppercase;margin-bottom:.5rem;">📊 Bracket del torneo</div>
-      <div id="alumno-espera-bracket-content"></div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:.4rem;">
+        <div id="alumno-espera-bracket-content"></div>
+      </div>
     </div>
   </div>
 
@@ -753,9 +773,10 @@ nav{overflow:hidden;}
         ✕ Salir del torneo
       </button>
     </div>
-    <!-- Bracket en vivo para el eliminado -->
     <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--dim);letter-spacing:.12em;margin-bottom:.5rem;text-transform:uppercase;">📊 Bracket en vivo</div>
-    <div id="alumno-eliminado-bracket" style="overflow-x:auto;"></div>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:.4rem;">
+      <div id="alumno-eliminado-bracket"></div>
+    </div>
     <div id="alumno-ranking" style="max-width:320px;margin:1rem auto 0;"></div>
   </div>
 
@@ -943,9 +964,8 @@ nav{overflow:hidden;}
         <div id="podio-admin"></div>
       </div>
 
-      <!-- Historial — solo visible cuando NO hay sala activa -->
       <!-- ── CONTROL DEL SERVIDOR ─────────────────────────────── -->
-      <div class="t-setup" style="margin-top:1rem;border-color:rgba(248,113,113,.2);">
+      <div id="srv-wrap" class="t-setup" style="margin-top:1rem;border:1px solid rgba(248,113,113,.2);">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem;">
           <div>
             <h3 style="margin-bottom:2px;display:flex;align-items:center;gap:.4rem;">
@@ -957,7 +977,7 @@ nav{overflow:hidden;}
               </span>
             </h3>
             <div id="srv-desc" style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--dim);line-height:1.5;">
-              El servidor está activo y escuchando conexiones.<br>Apágalo cuando no haya clases para ahorrar recursos.
+              Activo y escuchando conexiones.<br>Apágalo cuando no haya clases.
             </div>
           </div>
           <button id="srv-btn" onclick="toggleServidor()"
@@ -965,11 +985,12 @@ nav{overflow:hidden;}
               padding:.6rem 1.3rem;border-radius:9px;font-family:'Space Mono',monospace;
               font-size:.72rem;font-weight:700;cursor:pointer;letter-spacing:.06em;
               box-shadow:0 4px 14px rgba(220,38,38,.36);transition:all .25s;white-space:nowrap;">
-            🔴 Apagar servidor
+            🔴 Apagar
           </button>
         </div>
       </div>
 
+      <!-- Historial -->
       <div id="admin-historial-wrap" class="t-setup" style="margin-top:1rem;">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.8rem;">
           <h3 style="margin-bottom:0;">📋 Historial</h3>
@@ -977,7 +998,8 @@ nav{overflow:hidden;}
         </div>
         <div id="admin-historial"><div style="font-size:.73rem;color:rgba(255,255,255,.3);">Cargando...</div></div>
       </div>
-    </div>
+
+    </div><!-- fin tab-sala -->
 
     <!-- TAB PREGUNTAS con IA -->
     <div id="tab-temas" style="display:none;">
@@ -1280,6 +1302,11 @@ function switchAdminTab(tab){
     const p=document.getElementById('tab-'+t);if(p)p.style.display=t===tab?'block':'none';
     const b=document.getElementById('tab-'+t+'-btn');if(b)b.classList.toggle('active',t===tab);
   });
+  // Servidor e historial solo visibles en tab sala
+  const srv=document.getElementById('srv-wrap');
+  const hw=document.getElementById('admin-historial-wrap');
+  if(srv)srv.style.display=tab==='sala'?'block':'none';
+  if(hw)hw.style.display=tab==='sala'?'block':'none';
   if(tab==='temas'){renderTemasLista();llenarSelectorTemas();cargarApiKey();}
   if(tab==='sala')llenarSelectorTemas();
   if(tab==='ajustes')renderPaletteActive();
@@ -2193,7 +2220,9 @@ function escucharBracketAdmin(){
 // Ocultar/mostrar historial según si hay sala activa
 function toggleHistorialAdmin(mostrar){
   const hw=document.getElementById('admin-historial-wrap');
+  const sw=document.getElementById('srv-wrap');
   if(hw)hw.style.display=mostrar?'block':'none';
+  if(sw)sw.style.display=mostrar?'block':'none';
 }
 
 function primeraRonda(formato){
@@ -2815,7 +2844,7 @@ function buscarMiPartida(sala){
     if(partida.ganador===MI){
       // Gané → mostrar bracket de esta ronda y esperar que admin inicie siguiente
       // Gané → bracket visible + frases motivacionales rotativas
-      mostrarEsperaConBracket(sala,'🏆 ¡Ganaste tu duelo!','El maestro iniciará la siguiente ronda...',true);
+      mostrarEsperaConBracket(sala,'🏆 ¡Ganaste tu duelo!','El maestro iniciará la siguiente ronda...',true,false);
     } else {
       // Perdí → pantalla de eliminado con bracket en vivo
       document.getElementById('alumno-espera').style.display='none';
@@ -2829,19 +2858,20 @@ function buscarMiPartida(sala){
   const esJ1p=partida.j1===MI;
   const yoListo=esJ1p?partida.j1_listo:partida.j2_listo;
   if(yoListo&&!partida.terminada){
-    mostrarEsperaConBracket(sala,'Respuestas enviadas ✓','Esperando que tu rival termine...',false);
+    mostrarEsperaConBracket(sala,'Respuestas enviadas ✓','Esperando que tu rival termine...',false,false);
     return;
   }
 
-  // ── Mi duelo es de la ronda activa → JUGAR ─────────────────────
+  // ── Mi duelo es de la ronda activa → mostrar banner y arrancar automáticamente ──
   if(rk===rAct&&!MI_DUELO&&!MI_JUGADOS.has(clave)){
     MI_DUELO=true;
-    // Mostrar brevemente el bracket con "¡Es tu turno!" antes de abrir el duelo
-    mostrarEsperaConBracket(sala,'⚡ ¡Tu duelo comienza!','Preparándote...',false);
-    setTimeout(function(){iniciarDueloAlumno(sala,partida,idx,rk);},900);
+    const rival=partida.j1===MI?partida.j2:partida.j1;
+    // Mostrar banner informativo (sin botón — el admin ya inició la ronda)
+    mostrarEsperaConBracket(sala,'⚔️ ¡Tu duelo comienza!','vs '+rival+' · Iniciando...',false,true);
+    // Arrancar el duelo automáticamente (el admin ya presionó INICIAR/SIG)
+    setTimeout(function(){iniciarDueloAlumno(sala,partida,idx,rk);},1200);
   } else if(rk!==rAct&&!MI_DUELO){
-    // Mi partida es de ronda anterior — esperar que el admin avance
-    mostrarEsperaConBracket(sala,'Hola, '+MI+'! 👋','El maestro iniciará tu ronda...',false);
+    mostrarEsperaConBracket(sala,'Hola, '+MI+'! 👋','El maestro iniciará tu ronda...',false,false);
   }
 }
 
@@ -2867,7 +2897,7 @@ const FRASES_ESPERA=[
 ];
 let _fraseTimer=null;
 
-function mostrarEsperaConBracket(sala,titulo,subtitulo,mostrarFrase){
+function mostrarEsperaConBracket(sala,titulo,subtitulo,mostrarFrase,esDuelo){
   document.getElementById('alumno-eliminado').style.display='none';
   document.getElementById('t-fase-bot-duelo').style.display='none';
   const esp=document.getElementById('alumno-espera');
@@ -2877,10 +2907,24 @@ function mostrarEsperaConBracket(sala,titulo,subtitulo,mostrarFrase){
   const ec=document.getElementById('alumno-espera-count');
   const fraseWrap=document.getElementById('alumno-frase-wrap');
   const fraseTxt=document.getElementById('alumno-frase-txt');
+  const bn=document.getElementById('alumno-preronda-banner');
+  const bTit=document.getElementById('alumno-preronda-titulo');
+  const bSub=document.getElementById('alumno-preronda-sub');
 
-  if(icon)icon.textContent=titulo.startsWith('🏆')?'🏆':titulo.startsWith('⚡')?'⚡':'⏳';
-  if(en)en.textContent=titulo.replace(/^[🏆⚡⏳💬]\s*/,'');
-  if(ec)ec.textContent=subtitulo;
+  if(icon)icon.textContent=esDuelo?'⚔️':titulo.startsWith('🏆')?'🏆':'⏳';
+  if(en)en.textContent=esDuelo?'¡Es tu turno!':titulo.replace(/^[🏆⚡⏳💬⚔️]\s*/,'');
+  if(ec)ec.textContent=esDuelo?'':subtitulo;
+
+  // ★ Banner pre-ronda informativo (sin botón — admin controla el inicio)
+  if(bn){
+    if(esDuelo){
+      if(bTit)bTit.textContent=titulo.replace(/^[🏆⚡⏳💬⚔️]\s*/,'');
+      if(bSub)bSub.textContent=subtitulo||'Iniciando en breve...';
+      bn.style.display='block';
+    }else{
+      bn.style.display='none';
+    }
+  }
 
   // Frases motivacionales — solo cuando ganó y espera siguiente ronda
   if(_fraseTimer){clearInterval(_fraseTimer);_fraseTimer=null;}
@@ -2890,7 +2934,6 @@ function mostrarEsperaConBracket(sala,titulo,subtitulo,mostrarFrase){
     let fi=Math.floor(Math.random()*pool.length);
     fraseTxt.textContent=pool[fi];
     _fraseTimer=setInterval(()=>{
-      // Fade out → cambiar texto → fade in
       fraseWrap.style.opacity='0';fraseWrap.style.transition='opacity .4s';
       setTimeout(()=>{
         fi=(fi+1)%pool.length;
@@ -2938,9 +2981,28 @@ function iniciarDueloAlumno(sala,partida,idx,rk){
   BS.duelo.humIdx=0;BS.duelo.humScore=0;BS.duelo.botScore=0;
   BS.duelo.botLog=[];BS.duelo.humLog=[];BS.duelo.esp=false;BS.duelo.botTimers=BS.duelo.botTimers||[];
   if(isBot(rival)){
-    const bo=getBot(rival);const dif=BS.dif;
+    const bo=getBot(rival);const dif=BS.dif;const tpq=BS.tpq||30;
+    // Tiempo total que tarda el bot en responder todas las preguntas
+    const botTiempoTotal=pregs.reduce((_,__,qi)=>_+(500+(qi*600)+Math.random()*400),0);
     pregs.forEach(function(_,qi){
-      const t=setTimeout(function(){const ok=Math.random()<(bo&&bo.a[dif]||.65);if(ok)BS.duelo.botScore+=3;BS.duelo.botLog.push({qi:qi,ok:ok,ans:pregs[qi].ans});},500+(qi*600)+Math.random()*400);
+      const botDelay=500+(qi*600)+Math.random()*400;
+      const t=setTimeout(function(){
+        const ok=Math.random()<(bo&&bo.a[dif]||.65);
+        // ★ Usar la misma fórmula de puntos por velocidad que el humano
+        const tiempoUsadoBot=Math.min(botDelay/1000, tpq);
+        const pts=ok?calcularPuntos(true, tiempoUsadoBot, tpq):0;
+        if(ok)BS.duelo.botScore=Math.round((BS.duelo.botScore+pts)*10)/10;
+        BS.duelo.botLog.push({qi,ok,ans:pregs[qi].ans,pts});
+        // ★ Si es la última pregunta del bot → guardar su score en Firebase
+        if(qi===pregs.length-1){
+          const path='salas/'+SALA+'/bracket/'+rk+'/'+idx;
+          const botUpd={};
+          // esJ1=true → yo soy j1, bot es j2 → score1; esJ1=false → bot es j1 → score0
+          if(esJ1){botUpd['score1']=BS.duelo.botScore;botUpd['j2_listo']=true;}
+          else{botUpd['score0']=BS.duelo.botScore;botUpd['j1_listo']=true;}
+          db.ref(path).update(botUpd);
+        }
+      },botDelay);
       BS.duelo.botTimers.push(t);
     });
   }
