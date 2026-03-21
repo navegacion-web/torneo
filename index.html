@@ -3094,5 +3094,587 @@ document.addEventListener('DOMContentLoaded',()=>{
     <a href="#" onclick="showSection('admin');return false;">👑 Admin</a>
   </div>
 </footer>
+  <script>/*
+ * ═══════════════════════════════════════════════════════════════
+ *  TORNEO PATCH v3.0
+ *  Instrucciones: pega este bloque <script>...</script> justo
+ *  ANTES del </body> del archivo HTML original.
+ *
+ *  Cambios aplicados:
+ *  1. mkSlotBracket() — slot FIFA reutilizable bots + online
+ *  2. renderBracketOnline() — bracket FIFA para el alumno
+ *  3. actualizarBracketEnVivo() — reemplazada con la versión FIFA
+ *  4. _pendingDuelo + alumnoComenzarDuelo() — botón COMENZAR DUELO
+ *  5. mostrarEsperaConBracket() — banner pre-ronda idéntico a bots
+ *  6. buscarMiPartida() — detecta duelo y muestra banner antes de abrir
+ *  7. slotAdmin() — FIX bug variable `cls` sin definir
+ *  8. isBot() — reconoce jugadores online reales
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+// ── 0. HTML EXTRA: banner pre-ronda para el alumno ──────────────
+// Insertar el banner en #alumno-espera justo antes del div del bracket
+(function injectBanner() {
+  const espera = document.getElementById('alumno-espera');
+  if (!espera) return;
+  if (document.getElementById('alumno-preronda-banner')) return; // ya existe
+
+  const banner = document.createElement('div');
+  banner.id = 'alumno-preronda-banner';
+  banner.style.cssText = [
+    'display:none',
+    'background:linear-gradient(135deg,rgba(15,12,40,.97),rgba(25,18,60,.97))',
+    'border:2px solid rgba(251,191,36,.5)',
+    'border-radius:14px',
+    'padding:1rem 1.4rem',
+    'margin-bottom:1rem',
+    'align-items:center',
+    'justify-content:space-between',
+    'flex-wrap:wrap',
+    'gap:.8rem',
+    'box-shadow:0 0 32px rgba(251,191,36,.15)',
+  ].join(';');
+  banner.innerHTML = `
+    <div>
+      <div id="alumno-preronda-titulo"
+        style="font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;
+               color:#fbbf24;margin-bottom:2px;">⚔️ Tu duelo</div>
+      <div id="alumno-preronda-sub"
+        style="font-family:'Space Mono',monospace;font-size:.63rem;
+               color:rgba(255,255,255,.44);">Prepárate para comenzar</div>
+    </div>
+    <button onclick="alumnoComenzarDuelo()"
+      style="background:linear-gradient(90deg,#d97706,#f59e0b);color:#1e1b4b;
+             border:none;padding:.7rem 1.8rem;border-radius:8px;
+             font-family:'Space Mono',monospace;font-size:.82rem;font-weight:700;
+             cursor:pointer;letter-spacing:.06em;
+             box-shadow:0 4px 18px rgba(251,191,36,.45);
+             animation:sigPulse 1.8s ease-in-out infinite;">
+      ▶ ¡COMENZAR DUELO!
+    </button>`;
+
+  // Insertar antes del div del bracket
+  const bkDiv = document.getElementById('alumno-espera-bracket');
+  if (bkDiv) espera.insertBefore(banner, bkDiv);
+  else espera.appendChild(banner);
+})();
+
+// ── 1. Lista global de jugadores reales online ──────────────────
+if (typeof _jugadoresOnline === 'undefined') window._jugadoresOnline = [];
+
+// ── 2. Referencia al duelo online pendiente ─────────────────────
+if (typeof _pendingDuelo === 'undefined') window._pendingDuelo = null;
+
+// ── 3. isBot() — reconoce jugadores online ──────────────────────
+// Sobreescribe la versión original que solo comparaba con BS.yo
+window.isBot = function(n) {
+  if (!n) return true;
+  if (n === BS.yo) return false;
+  if (_jugadoresOnline && _jugadoresOnline.includes(n)) return false;
+  if (typeof MI !== 'undefined' && MI && n === MI) return false;
+  return true;
+};
+
+// ── 4. mkSlotBracket() — slot FIFA reutilizable ─────────────────
+// Unifica la lógica de bots y online en un solo slot visual
+window.mkSlotBracket = function(p, activa, nPregs, modoOnline) {
+  if (!p) {
+    return `<div class="bk-slot bk-empty">
+      <div class="bk-row"><span class="bk-name bk-tbd">Por definir</span></div>
+      <div class="bk-div"></div>
+      <div class="bk-row"><span class="bk-name bk-tbd">Por definir</span></div>
+    </div>`;
+  }
+
+  // Normalizar campos según modo
+  let done, s0, s1, anim, prog, ganador;
+  if (modoOnline) {
+    done    = p.terminada || false;
+    s0      = (typeof p.score0 === 'number' ? p.score0 : (Array.isArray(p.scores) ? p.scores[0] : 0)) || 0;
+    s1      = (typeof p.score1 === 'number' ? p.score1 : (Array.isArray(p.scores) ? p.scores[1] : 0)) || 0;
+    anim    = !done && (p.j1_listo || p.j2_listo);
+    prog    = anim ? Math.ceil(nPregs / 2) : 0;
+    ganador = p.ganador || null;
+  } else {
+    done    = p.done;
+    s0      = p.s[0];
+    s1      = p.s[1];
+    anim    = p.anim;
+    prog    = p.prog;
+    ganador = p.ganador;
+  }
+
+  const g1 = done && ganador === p.j1;
+  const g2 = done && ganador === p.j2;
+
+  // Detectar humanos
+  const h1 = modoOnline
+    ? (_jugadoresOnline.includes(p.j1) || (typeof MI !== 'undefined' && MI && p.j1 === MI))
+    : !isBot(p.j1);
+  const h2 = modoOnline
+    ? (_jugadoresOnline.includes(p.j2) || (typeof MI !== 'undefined' && MI && p.j2 === MI))
+    : !isBot(p.j2);
+
+  // Resaltar mi partida en online
+  const esMia = modoOnline && typeof MI !== 'undefined' && MI && (p.j1 === MI || p.j2 === MI);
+  const mine  = activa && !done && (modoOnline ? esMia : (h1 || h2));
+  const live  = activa && !done && anim;
+
+  const bw  = Math.round((prog / nPregs) * 100);
+  const mp  = nPregs * 3;
+  const pw0 = done ? Math.round((s0 / mp) * 100) : 0;
+  const pw1 = done ? Math.round((s1 / mp) * 100) : 0;
+
+  const b1  = getBot(p.j1); const b2 = getBot(p.j2);
+  const c1  = h1 ? '#fbbf24' : (b1?.c || '#7c3aed');
+  const c2  = h2 ? '#fbbf24' : (b2?.c || '#7c3aed');
+
+  const border = done  ? 'rgba(52,211,153,.4)'
+               : mine  ? '#fbbf24'
+               : live  ? 'rgba(124,58,237,.8)'
+               : 'rgba(255,255,255,.1)';
+  const glow   = done  ? 'box-shadow:0 0 14px rgba(52,211,153,.2);'
+               : mine  ? 'box-shadow:0 0 16px rgba(251,191,36,.3);'
+               : live  ? 'box-shadow:0 0 14px rgba(124,58,237,.25);'
+               : '';
+
+  const mid  = live
+    ? `<div class="bk-prog"><div class="bk-prog-fill" style="width:${bw}%"></div></div>`
+    : `<div class="bk-div"></div>`;
+
+  const pw0h = done
+    ? `<div style="height:3px;background:rgba(255,255,255,.04);margin:0 7px;">
+         <div style="height:100%;width:${pw0}%;background:${g1 ? c1 : 'rgba(255,255,255,.15)'};
+                     border-radius:2px;transition:width .8s;"></div></div>`
+    : '';
+  const pw1h = done
+    ? `<div style="height:3px;background:rgba(255,255,255,.04);margin:0 7px;">
+         <div style="height:100%;width:${pw1}%;background:${g2 ? c2 : 'rgba(255,255,255,.15)'};
+                     border-radius:2px;transition:width .8s;"></div></div>`
+    : '';
+
+  // Badge de estado
+  let statusHtml = '';
+  if (done)       statusHtml = `<div class="bk-status-badge" style="color:#34d399;">${mkAv(ganador,!isBot(ganador),14)}<span style="margin-left:3px;">✓ ${ganador}</span></div>`;
+  else if (mine)  statusHtml = `<div class="bk-status-badge bk-badge-pulse" style="color:#fbbf24;">▶ TU DUELO</div>`;
+  else if (live)  statusHtml = `<div class="bk-status-badge" style="color:#a78bfa;">⚙ ${prog}/${nPregs}</div>`;
+
+  // Scores visibles
+  const show0 = modoOnline
+    ? (done ? s0 : (p.j1_listo ? s0 : '—'))
+    : ((done || anim) ? s0 : '—');
+  const show1 = modoOnline
+    ? (done ? s1 : (p.j2_listo ? s1 : '—'))
+    : ((done || anim) ? s1 : '—');
+
+  const slotCls = `bk-slot${done ? ' bk-done' : mine ? ' bk-human' : live ? ' bk-live' : ''}`;
+
+  return `<div class="${slotCls}" style="border-color:${border};${glow}">
+    <div class="bk-row${g1 ? ' bk-win' : done ? ' bk-los' : ''}">
+      ${mkAv(p.j1, h1, 24)}
+      <span class="bk-name" style="${g1 ? 'color:' + c1 + ';font-weight:700;' : ''}">${p.j1}</span>
+      <span class="bk-sc"   style="${g1 ? 'color:' + c1 + ';font-weight:700;' : ''}">${show0}</span>
+    </div>
+    ${pw0h}${mid}${pw1h}
+    <div class="bk-row${g2 ? ' bk-win' : done ? ' bk-los' : ''}">
+      ${mkAv(p.j2, h2, 24)}
+      <span class="bk-name" style="${g2 ? 'color:' + c2 + ';font-weight:700;' : ''}">${p.j2}</span>
+      <span class="bk-sc"   style="${g2 ? 'color:' + c2 + ';font-weight:700;' : ''}">${show1}</span>
+    </div>
+    ${statusHtml}
+  </div>`;
+};
+
+// ── 5. renderBotBracket() — ahora usa mkSlotBracket ─────────────
+window.renderBotBracket = function() {
+  const wrap = document.getElementById('t-bot-bracket');
+  if (!wrap) return;
+  const aO = BS.ronda === 'oct', aC = BS.ronda === 'cuar', aG = BS.ronda === 'gran';
+  const o = BS.oct, c = BS.cuar, g = BS.gran;
+  const n = BS.nPregs || 3;
+  const cam = g[0]?.ganador || '';
+  const camH = cam
+    ? `<div class="bk-camp-name">${isBot(cam) ? botTag(cam) + ' ' : ''} ${cam}</div>`
+    : `<div class="bk-camp-tbd">?</div>`;
+
+  wrap.innerHTML = `<div class="bk-fifa">
+    <div class="bk-col-oct">
+      ${mkSlotBracket(o[0], aO, n, false)}<div class="bk-gap"></div>${mkSlotBracket(o[1], aO, n, false)}
+    </div>
+    <div class="bk-conn-v"><svg width="100%" height="100%" viewBox="0 0 30 160" preserveAspectRatio="none">
+      <path d="M0,40 H15 V80 H30" fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M0,120 H15 V80"   fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/>
+    </svg></div>
+    <div class="bk-col-cuar">${mkSlotBracket(c[0], aC, n, false)}</div>
+    <div class="bk-conn-h"><svg width="100%" height="100%" viewBox="0 0 30 60" preserveAspectRatio="none">
+      <path d="M0,30 H30" fill="none" stroke="rgba(251,191,36,.6)" stroke-width="2" stroke-linecap="round"/>
+    </svg></div>
+    <div class="bk-col-final">
+      <div class="bk-final-header">⚡ GRAN FINAL</div>
+      <div class="bk-trophy">🏆</div>
+      ${camH}
+      ${mkSlotBracket(g[0], aG, n, false)}
+    </div>
+    <div class="bk-conn-h"><svg width="100%" height="100%" viewBox="0 0 30 60" preserveAspectRatio="none">
+      <path d="M30,30 H0" fill="none" stroke="rgba(251,191,36,.6)" stroke-width="2" stroke-linecap="round"/>
+    </svg></div>
+    <div class="bk-col-cuar">${mkSlotBracket(c[1], aC, n, false)}</div>
+    <div class="bk-conn-v"><svg width="100%" height="100%" viewBox="0 0 30 160" preserveAspectRatio="none">
+      <path d="M30,40 H15 V80 H0" fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M30,120 H15 V80"   fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/>
+    </svg></div>
+    <div class="bk-col-oct">
+      ${mkSlotBracket(o[2], aO, n, false)}<div class="bk-gap"></div>${mkSlotBracket(o[3], aO, n, false)}
+    </div>
+  </div>`;
+};
+
+// ── 6. renderBracketOnline() — bracket FIFA para el alumno ───────
+window.renderBracketOnline = function(sala, divId) {
+  const wrap = document.getElementById(divId);
+  if (!wrap) return;
+  const rAct   = sala.rondaActiva || 'oct8';
+  const nPregs = parseInt(sala.numPregs) || 3;
+
+  // Actualizar lista de jugadores reales
+  _jugadoresOnline = Object.values(sala.jugadores || {}).map(j => j.nombre);
+
+  const oct  = sala.bracket?.oct8  || sala.bracket?.oct16 || [];
+  const cuar = sala.bracket?.cuar  || [];
+  const semi = sala.bracket?.semi  || [];
+  const gran = sala.bracket?.gran  || [];
+
+  // Formato octavos completo → grid FIFA
+  if (oct.length >= 4) {
+    const aO  = rAct === 'oct8' || rAct === 'oct16';
+    const aC  = rAct === 'cuar';
+    const aGS = rAct === 'gran' || rAct === 'semi';
+    const c0  = cuar[0] || null;
+    const c1  = cuar[1] || null;
+    const gf  = gran[0] || semi[0] || null;
+    const cam = gf?.ganador || '';
+    const camH = cam
+      ? `<div class="bk-camp-name">${cam}</div>`
+      : `<div class="bk-camp-tbd">?</div>`;
+
+    wrap.innerHTML = `<div class="bk-fifa">
+      <div class="bk-col-oct">
+        ${mkSlotBracket(oct[0]||null, aO, nPregs, true)}<div class="bk-gap"></div>${mkSlotBracket(oct[1]||null, aO, nPregs, true)}
+      </div>
+      <div class="bk-conn-v"><svg width="100%" height="100%" viewBox="0 0 30 160" preserveAspectRatio="none">
+        <path d="M0,40 H15 V80 H30" fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M0,120 H15 V80"   fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg></div>
+      <div class="bk-col-cuar">${mkSlotBracket(c0, aC, nPregs, true)}</div>
+      <div class="bk-conn-h"><svg width="100%" height="100%" viewBox="0 0 30 60" preserveAspectRatio="none">
+        <path d="M0,30 H30" fill="none" stroke="rgba(251,191,36,.6)" stroke-width="2" stroke-linecap="round"/>
+      </svg></div>
+      <div class="bk-col-final">
+        <div class="bk-final-header">⚡ GRAN FINAL</div>
+        <div class="bk-trophy">🏆</div>
+        ${camH}
+        ${mkSlotBracket(gf, aGS, nPregs, true)}
+      </div>
+      <div class="bk-conn-h"><svg width="100%" height="100%" viewBox="0 0 30 60" preserveAspectRatio="none">
+        <path d="M30,30 H0" fill="none" stroke="rgba(251,191,36,.6)" stroke-width="2" stroke-linecap="round"/>
+      </svg></div>
+      <div class="bk-col-cuar">${mkSlotBracket(c1, aC, nPregs, true)}</div>
+      <div class="bk-conn-v"><svg width="100%" height="100%" viewBox="0 0 30 160" preserveAspectRatio="none">
+        <path d="M30,40 H15 V80 H0" fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M30,120 H15 V80"   fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg></div>
+      <div class="bk-col-oct">
+        ${mkSlotBracket(oct[2]||null, aO, nPregs, true)}<div class="bk-gap"></div>${mkSlotBracket(oct[3]||null, aO, nPregs, true)}
+      </div>
+    </div>`;
+    return;
+  }
+
+  // Formato pequeño (cuartos/semifinal/final) — lista de slots
+  const rondas = ['oct16','oct8','cuar','semi','gran'];
+  let html = '';
+  rondas.forEach(r => {
+    const pts = sala.bracket?.[r];
+    if (!pts || !pts.length) return;
+    const activa = r === rAct;
+    const color  = activa ? '#fbbf24' : 'rgba(255,255,255,.28)';
+    html += `<div style="margin-bottom:.9rem;">
+      <div style="font-family:Space Mono,monospace;font-size:.58rem;color:${color};
+                  letter-spacing:.13em;text-transform:uppercase;margin-bottom:.45rem;
+                  display:flex;align-items:center;gap:.4rem;">
+        ${activa ? '<span style="animation:cargando .8s infinite;">▶</span>' : '<span>·</span>'}
+        ${lblRonda(r)}
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${pts.map(p => mkSlotBracket(p, activa, nPregs, true)).join('')}
+      </div>
+    </div>`;
+  });
+  wrap.innerHTML = html || `<div style="font-family:Space Mono,monospace;font-size:.62rem;
+    color:rgba(255,255,255,.2);padding:.5rem;">Esperando inicio...</div>`;
+};
+
+// ── 7. actualizarBracketEnVivo() — reemplazada con renderBracketOnline ──
+window.actualizarBracketEnVivo = function(sala) {
+  // Actualizar lista de reales
+  _jugadoresOnline = Object.values(sala.jugadores || {}).map(j => j.nombre);
+
+  // Renderizar bracket FIFA en ambos divs
+  renderBracketOnline(sala, 'alumno-espera-bracket-content');
+  renderBracketOnline(sala, 'alumno-eliminado-bracket');
+
+  // Mostrar/ocultar el wrapper del bracket
+  const hayBracket = Object.values(sala.bracket || {}).some(r => Array.isArray(r) && r.length > 0);
+  const bw = document.getElementById('alumno-espera-bracket');
+  if (bw) bw.style.display = hayBracket ? 'block' : 'none';
+};
+
+// ── 8. mostrarEsperaConBracket() — con banner pre-ronda ─────────
+// Reemplaza la versión original. Cuando esDuelo=true muestra el
+// banner COMENZAR igual que pausaPreRonda() en bots.
+window.mostrarEsperaConBracket = function(sala, titulo, subtitulo, mostrarFrase, esDuelo) {
+  document.getElementById('alumno-eliminado').style.display = 'none';
+  document.getElementById('t-fase-bot-duelo').style.display = 'none';
+
+  const esp   = document.getElementById('alumno-espera');
+  esp.style.display = 'block';
+
+  const icon  = document.getElementById('alumno-espera-icon');
+  const en    = document.getElementById('alumno-espera-nombre');
+  const ec    = document.getElementById('alumno-espera-count');
+  const bn    = document.getElementById('alumno-preronda-banner');
+  const bTit  = document.getElementById('alumno-preronda-titulo');
+  const bSub  = document.getElementById('alumno-preronda-sub');
+  const fraseWrap = document.getElementById('alumno-frase-wrap');
+  const fraseTxt  = document.getElementById('alumno-frase-txt');
+
+  if (icon) icon.textContent = esDuelo ? '⚔️' : titulo.startsWith('🏆') ? '🏆' : '⏳';
+  if (en)   en.textContent   = titulo.replace(/^[🏆⚡⏳⚔️💬]\s*/, '');
+  if (ec)   ec.textContent   = esDuelo ? '' : subtitulo;
+
+  // ★ Banner COMENZAR (igual que pausaPreRonda en bots)
+  if (bn) {
+    if (esDuelo) {
+      if (bTit) bTit.textContent = '⚔️ ' + (titulo.replace(/^[🏆⚡⏳⚔️💬]\s*/, '') || 'Tu duelo');
+      if (bSub) bSub.textContent = subtitulo || 'Prepárate — las preguntas son las mismas para ambos';
+      bn.style.display = 'flex';
+      bn.style.animation = 'auraFadeIn .4s ease both';
+    } else {
+      bn.style.display = 'none';
+    }
+  }
+
+  // Frases motivacionales solo cuando ganó y espera siguiente ronda
+  if (typeof _fraseTimer !== 'undefined' && _fraseTimer) {
+    clearInterval(_fraseTimer);
+    window._fraseTimer = null;
+  }
+  if (mostrarFrase && fraseWrap && fraseTxt) {
+    const FRASES = [
+      '¡Tú puedes! La siguiente ronda es tuya.',
+      'Ese duelo fue tuyo. La mente más rápida avanza.',
+      '¡Imparable! Prepárate para el siguiente.',
+      'Victoria merecida. Ahora ve por más.',
+      'La concentración te trajo hasta aquí. No pares.',
+      '¡Bien hecho! El torneo todavía no termina.',
+      'Un paso más cerca del campeonato. ¡Ánimo!',
+      'Esa respuesta fue exacta. Sigue así.',
+      'El conocimiento venció hoy. ¡Sigue fuerte!',
+      '¡Lo lograste! Respira y prepárate.',
+    ];
+    fraseWrap.style.display = 'block';
+    fraseWrap.style.opacity = '1';
+    let fi = Math.floor(Math.random() * FRASES.length);
+    fraseTxt.textContent = FRASES[fi];
+    window._fraseTimer = setInterval(() => {
+      fraseWrap.style.opacity = '0';
+      fraseWrap.style.transition = 'opacity .4s';
+      setTimeout(() => {
+        fi = (fi + 1) % FRASES.length;
+        if (fraseTxt) fraseTxt.textContent = FRASES[fi];
+        fraseWrap.style.opacity = '1';
+      }, 420);
+    }, 4000);
+  } else if (fraseWrap) {
+    fraseWrap.style.display = 'none';
+  }
+
+  // Bracket en vivo
+  actualizarBracketEnVivo(sala);
+  const bkWrap = document.getElementById('alumno-espera-bracket');
+  if (bkWrap) bkWrap.style.display = 'block';
+};
+
+// ── 9. alumnoComenzarDuelo() — botón del banner ──────────────────
+window.alumnoComenzarDuelo = function() {
+  if (!_pendingDuelo) return;
+  const { sala, partida, idx, rk } = _pendingDuelo;
+  _pendingDuelo = null;
+  // Ocultar banner
+  const bn = document.getElementById('alumno-preronda-banner');
+  if (bn) bn.style.display = 'none';
+  iniciarDueloAlumno(sala, partida, idx, rk);
+};
+
+// ── 10. buscarMiPartida() — muestra banner antes de abrir duelo ──
+window.buscarMiPartida = function(sala) {
+  const rAct     = sala.rondaActiva || 'oct8';
+  const partsAct = sala.bracket?.[rAct] || [];
+
+  // Actualizar lista de jugadores reales
+  _jugadoresOnline = Object.values(sala.jugadores || {}).map(j => j.nombre);
+
+  let idx = partsAct.findIndex(p => p && (p.j1 === MI || p.j2 === MI));
+  let rk = rAct, parts = partsAct;
+
+  // Buscar en otras rondas si no aparezco en la activa
+  if (idx === -1) {
+    for (const k of ['oct16','oct8','cuar','semi','gran']) {
+      const pts = sala.bracket?.[k] || [];
+      const i = pts.findIndex(p => p && (p.j1 === MI || p.j2 === MI));
+      if (i !== -1) { rk = k; parts = pts; idx = i; break; }
+    }
+  }
+
+  // No aparezco → eliminado
+  if (idx === -1) {
+    if (!MI_DUELO) {
+      document.getElementById('alumno-espera').style.display = 'none';
+      document.getElementById('alumno-eliminado').style.display = 'block';
+      actualizarBracketEnVivo(sala);
+      if (typeof cargarRankingAlumno === 'function') cargarRankingAlumno();
+    }
+    return;
+  }
+
+  const partida  = parts[idx];
+  const clave    = rk + '_' + idx;
+
+  // ── Partida terminada ──────────────────────────────────────────
+  if (partida.terminada) {
+    if (!MI_JUGADOS.has(clave)) MI_JUGADOS.add(clave);
+    MI_DUELO = false;
+    document.body.classList.remove('duelo-activo');
+    document.body.style.top = '';
+    window.scrollTo(0, parseInt(document.body.dataset.scrollY || '0'));
+    document.getElementById('t-fase-bot-duelo').style.display = 'none';
+    _pendingDuelo = null;
+
+    if (partida.ganador === MI) {
+      // ★ Ganó → bracket visible + frases motivacionales
+      mostrarEsperaConBracket(sala, '🏆 ¡Ganaste tu duelo!',
+        'El maestro iniciará la siguiente ronda...', true, false);
+    } else {
+      document.getElementById('alumno-espera').style.display = 'none';
+      document.getElementById('alumno-eliminado').style.display = 'block';
+      actualizarBracketEnVivo(sala);
+      if (typeof cargarRankingAlumno === 'function') cargarRankingAlumno();
+    }
+    return;
+  }
+
+  // ── Ya respondí, esperando rival ──────────────────────────────
+  const esJ1p   = partida.j1 === MI;
+  const yoListo = esJ1p ? partida.j1_listo : partida.j2_listo;
+  if (yoListo && !partida.terminada) {
+    mostrarEsperaConBracket(sala, 'Respuestas enviadas ✓',
+      'Esperando que tu rival termine...', false, false);
+    return;
+  }
+
+  // ── Mi duelo en la ronda activa → mostrar banner COMENZAR ──────
+  if (rk === rAct && !MI_DUELO && !MI_JUGADOS.has(clave)) {
+    // Guardar referencia para el botón
+    _pendingDuelo = { sala, partida, idx, rk };
+    // ★ Mostrar banner igual que pausaPreRonda en bots
+    const rival = partida.j1 === MI ? partida.j2 : partida.j1;
+    mostrarEsperaConBracket(
+      sala,
+      '⚔️ ¡Tu duelo!',
+      `vs ${rival} · Mismas preguntas para ambos`,
+      false,
+      true   // ← esDuelo=true → muestra el botón COMENZAR
+    );
+  } else if (rk !== rAct && !MI_DUELO) {
+    // Ronda aún no activa
+    mostrarEsperaConBracket(sala, `Hola, ${MI}! 👋`,
+      'El maestro iniciará tu ronda...', false, false);
+  }
+};
+
+// ── 11. slotAdmin() — FIX bug variable `cls` ────────────────────
+// Parcha la función original con una versión corregida
+const _slotAdminOrig = window.slotAdmin;
+window.slotAdmin = function(p, idx, esActiva, nPregs, jugsReales) {
+  if (!p) {
+    return '<div class="adm-slot">'
+      + '<div class="adm-slot-header"><span>Duelo ' + (idx+1) + '</span><span>—</span></div>'
+      + '<div class="adm-row"><span class="adm-name" style="color:rgba(255,255,255,.2);">Por definir</span></div>'
+      + '<div class="adm-divider"></div>'
+      + '<div class="adm-row"><span class="adm-name" style="color:rgba(255,255,255,.2);">Por definir</span></div>'
+      + '</div>';
+  }
+  // ★ FIX: cls estaba sin definir en el código original → ReferenceError silencioso
+  const cls = p.terminada ? 'done' : (esActiva && !p.terminada ? 'live' : '');
+
+  const g1  = p.terminada && p.ganador === p.j1;
+  const g2  = p.terminada && p.ganador === p.j2;
+  const j1r = Array.isArray(jugsReales) && jugsReales.includes(p.j1);
+  const j2r = Array.isArray(jugsReales) && jugsReales.includes(p.j2);
+  const sc0 = (typeof p.score0 === 'number' ? p.score0 : (Array.isArray(p.scores) ? p.scores[0] : 0)) || 0;
+  const sc1 = (typeof p.score1 === 'number' ? p.score1 : (Array.isArray(p.scores) ? p.scores[1] : 0)) || 0;
+  const s0  = p.terminada ? sc0 : (p.j1_listo ? sc0 : '—');
+  const s1  = p.terminada ? sc1 : (p.j2_listo ? sc1 : '—');
+  const maxPts = (nPregs || 3) * 3;
+  const prog0  = p.terminada && sc0 ? Math.min(100, Math.round(sc0 / maxPts * 100)) : 0;
+  const prog1  = p.terminada && sc1 ? Math.min(100, Math.round(sc1 / maxPts * 100)) : 0;
+
+  let statusTxt = '', statusCol = 'rgba(255,255,255,.25)';
+  if      (p.terminada)                      { statusTxt = '✓ ' + p.ganador; statusCol = '#34d399'; }
+  else if (p.j1_listo && p.j2_listo)         { statusTxt = 'Calculando...';  statusCol = '#a78bfa'; }
+  else if (p.j1_listo || p.j2_listo)         { statusTxt = '⏳ Esperando rival'; statusCol = '#fbbf24'; }
+  else if (esActiva)                          { statusTxt = 'Jugando...';     statusCol = 'rgba(167,139,250,.55)'; }
+
+  let hBadge, hCol;
+  if      (p.terminada) { hBadge = 'TERMINADO'; hCol = '#34d399'; }
+  else if (esActiva)    { hBadge = 'EN CURSO';  hCol = '#fbbf24'; }
+  else                  { hBadge = 'Pendiente'; hCol = 'rgba(255,255,255,.3)'; }
+
+  const ch1 = p.j1_listo ? '✓' : '…'; const cc1 = p.j1_listo ? '#34d399' : 'rgba(255,255,255,.25)';
+  const ch2 = p.j2_listo ? '✓' : '…'; const cc2 = p.j2_listo ? '#34d399' : 'rgba(255,255,255,.25)';
+  const rc1 = g1 ? ' win' : p.terminada ? ' los' : '';
+  const rc2 = g2 ? ' win' : p.terminada ? ' los' : '';
+  const nc1 = j1r ? 'color:#fbbf24;' : ''; const nc2 = j2r ? 'color:#fbbf24;' : '';
+  const av1 = j1r ? '<span style="font-size:.72rem;">⭐</span>' : mkAv(p.j1, false, 18);
+  const av2 = j2r ? '<span style="font-size:.72rem;">⭐</span>' : mkAv(p.j2, false, 18);
+  const n1  = j1r ? '<strong>' + p.j1 + '</strong>' : p.j1;
+  const n2  = j2r ? '<strong>' + p.j2 + '</strong>' : p.j2;
+  const pb0 = '<div style="height:2px;background:rgba(255,255,255,.05);margin:0 .75rem;">'
+            + '<div style="height:100%;width:' + prog0 + '%;background:' + (g1 ? '#fbbf24' : 'rgba(255,255,255,.15)') + ';border-radius:2px;transition:width .8s;"></div></div>';
+  const pb1 = '<div style="height:2px;background:rgba(255,255,255,.05);margin:0 .75rem;">'
+            + '<div style="height:100%;width:' + prog1 + '%;background:' + (g2 ? '#fbbf24' : 'rgba(255,255,255,.15)') + ';border-radius:2px;transition:width .8s;"></div></div>';
+
+  return '<div class="adm-slot ' + cls + '">'
+    + '<div class="adm-slot-header"><span>Duelo ' + (idx+1) + '</span>'
+    + '<span style="color:' + hCol + ';">' + (esActiva && !p.terminada ? '<span style="animation:cargando 1s infinite;">' : '')
+    + hBadge + (esActiva && !p.terminada ? '</span>' : '') + '</span></div>'
+    + '<div class="adm-prog-bar"><div class="adm-prog-fill" style="width:'
+    + (p.terminada ? 100 : esActiva ? (p.j1_listo || p.j2_listo ? 60 : 20) : 0) + '%;"></div></div>'
+    + '<div class="adm-row' + rc1 + '">' + av1
+    + '<span class="adm-name" style="margin-left:3px;' + nc1 + '">' + n1 + '</span>'
+    + '<span class="adm-check" style="color:' + cc1 + ';">' + ch1 + '</span>'
+    + '<span class="adm-score">' + s0 + '</span></div>'
+    + (p.terminada ? pb0 : '')
+    + '<div class="adm-divider"></div>'
+    + (p.terminada ? pb1 : '')
+    + '<div class="adm-row' + rc2 + '">' + av2
+    + '<span class="adm-name" style="margin-left:3px;' + nc2 + '">' + n2 + '</span>'
+    + '<span class="adm-check" style="color:' + cc2 + ';">' + ch2 + '</span>'
+    + '<span class="adm-score">' + s1 + '</span></div>'
+    + (statusTxt ? '<div class="adm-footer" style="color:' + statusCol + ';">' + statusTxt + '</div>' : '')
+    + '</div>';
+};
+
+console.log('✅ Torneo Patch v3.0 cargado — bracket FIFA online, banner pre-ronda, fix slotAdmin');</script>
 </body>
 </html>
