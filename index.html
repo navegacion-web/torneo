@@ -618,19 +618,6 @@ nav{overflow:hidden;}
   <div class="t-sub" id="t-sub-ronda">Selecciona el modo para comenzar</div>
 
   <!-- SALÓN DE LA FAMA (solo vs Compañeros) -->
-  <div id="salon-fama" style="margin-bottom:1.5rem;display:none;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;flex-wrap:wrap;gap:.4rem;">
-      <div>
-        <div style="font-family:'Fraunces',serif;font-size:1.2rem;color:#fff;display:flex;align-items:center;gap:.5rem;">🏛️ Salón de la Fama</div>
-        <div style="font-family:'Space Mono',monospace;font-size:.59rem;color:var(--dim);letter-spacing:.08em;">Campeones registrados</div>
-      </div>
-      <button onclick="toggleSalonFama()" id="btn-toggle-salon" style="background:none;border:1px solid rgba(255,255,255,.08);color:var(--dim);border-radius:8px;padding:4px 12px;font-family:'Space Mono',monospace;font-size:.59rem;cursor:pointer;transition:all .2s;">Ver más</button>
-    </div>
-    <div id="salon-fama-lista" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.6rem;">
-      <div style="font-family:'Space Mono',monospace;font-size:.68rem;color:rgba(255,255,255,.2);padding:1rem;text-align:center;border:1px dashed rgba(255,255,255,.06);border-radius:10px;">Cargando...</div>
-    </div>
-  </div>
-
   <!-- SELECTOR MODO -->
   <div id="t-fase-modo" class="t-setup">
     <h3>⚡ Selecciona el modo de juego</h3>
@@ -790,7 +777,7 @@ nav{overflow:hidden;}
     <div id="podio-ceremonia-online" style="text-align:center;padding:1.5rem .5rem;"></div>
   </div>
 
-  <!-- BRACKET bots (Octavos → Cuartos → Final) -->
+  <!-- BRACKET bots — oculto por defecto, se activa al jugar vs Bots -->
   <div id="t-fase-bot-bracket" style="display:none;margin-top:1.2rem;">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;margin-bottom:.8rem;">
       <div>
@@ -954,8 +941,11 @@ nav{overflow:hidden;}
         </div>
       </div>
 
-      <div id="admin-bracket-view" style="display:none;">
-        <div id="admin-bracket-live"></div>
+      <div id="admin-bracket-view" style="display:none;margin-top:.8rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.5rem;">📊 Bracket en vivo</div>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:.5rem;">
+          <div id="admin-bracket-live"></div>
+        </div>
       </div>
 
       <!-- Ceremonia admin -->
@@ -1448,15 +1438,12 @@ let BS={
 //  MODO SELECTOR
 // ═══════════════════════════════════════════════════════════════
 function iniciarModoBots(){
-  document.getElementById('salon-fama').style.display='none';
   document.getElementById('t-fase-modo').style.display='none';
   document.getElementById('t-fase-setup-bots').style.display='block';
 }
 function volverModoSelector(){
   ['t-fase-setup-bots','t-fase-alumno-join','alumno-espera','alumno-eliminado','alumno-fin','alumno-ceremonia'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
   document.getElementById('t-fase-modo').style.display='block';
-  document.getElementById('salon-fama').style.display='none';
-  // Reset join form
   const jp=document.getElementById('join-paso-nombre');if(jp)jp.style.display='block';
   const jc=document.getElementById('join-paso-conectando');if(jc)jc.style.display='none';
 }
@@ -2269,7 +2256,10 @@ function renderAdminBracket(sala){
   html+='<div style="height:100%;width:'+progPct+'%;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:2px;transition:width .5s;"></div>';
   html+='</div>';
 
-  // ── Grid de rondas ──
+  // ── Bracket FIFA visual (igual que el alumno ve) ──
+  html+='<div id="adm-bracket-fifa-wrap" style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:.5rem;margin-bottom:1.2rem;"></div>';
+
+  // ── Grid de rondas (slots detallados con puntos) ──
   const rondas=['oct16','oct8','cuar','semi','gran'];
   rondas.forEach(r=>{
     const pts=sala.bracket?.[r];if(!pts||!pts.length)return;
@@ -2306,6 +2296,8 @@ function renderAdminBracket(sala){
   html+='</div>';
 
   div.innerHTML=html;
+  // ★ Renderizar bracket FIFA visual inmediatamente después de inyectar el HTML
+  renderBracketOnline(sala,'adm-bracket-fifa-wrap');
 }
 
 // ★ Slot admin amplio — versión limpia
@@ -2552,8 +2544,7 @@ function seleccionarModoAlumno(){
   document.getElementById('join-paso-nombre').style.display='block';
   document.getElementById('join-paso-conectando').style.display='none';
   document.getElementById('alumno-err').textContent='';
-  document.getElementById('salon-fama').style.display='block';
-  try{initFB();cargarSalonFama();}catch(e){}
+  try{initFB();}catch(e){}
   setTimeout(()=>document.getElementById('alumno-nombre').focus(),80);
 }
 
@@ -3125,9 +3116,7 @@ function renderCeremoniaFull(podioId,canvasId,camp,campH,sub2,sala,cronica,onRei
 function guardarHistorial(camp){
   db.ref('historial').push({campeon:camp,fecha:new Date().toLocaleDateString('es-MX'),sala:SALA,ts:Date.now()});
   db.ref('ranking/'+camp.replace(/\s/g,'_')).transaction(v=>(v||0)+1);
-  _salonCargado=false;setTimeout(()=>cargarSalonFama(true),1500);
 }
-
 function cargarRankingAlumno(){
   if(!db)return;
   db.ref('ranking').orderByValue().limitToLast(5).once('value').then(snap=>{
@@ -3139,28 +3128,6 @@ function cargarRankingAlumno(){
     });
   });
 }
-
-// ═══════════════════════════════════════════════════════════════
-//  SALÓN DE LA FAMA
-// ═══════════════════════════════════════════════════════════════
-let _salonExp=false,_salonCargado=false;
-function cargarSalonFama(force){
-  if(_salonCargado&&!force)return;if(!db)initFB();
-  const lista=document.getElementById('salon-fama-lista');if(!lista)return;
-  Promise.all([db.ref('ranking').orderByValue().limitToLast(10).once('value'),db.ref('historial').orderByChild('ts').limitToLast(12).once('value')]).then(([rs,hs])=>{
-    const ranking=rs.val()||{};const historial=hs.val()||{};
-    const camps=Object.entries(ranking).map(([k,v])=>({n:k.replace(/_/g,' '),v})).sort((a,b)=>b.v-a.v);
-    const fechas={};Object.values(historial).forEach(h=>{if(!fechas[h.campeon]||h.ts>(fechas[h.campeon].ts||0))fechas[h.campeon]={f:h.fecha,ts:h.ts||0};});
-    if(!camps.length){lista.innerHTML=`<div style="font-family:'Space Mono',monospace;font-size:.68rem;color:rgba(255,255,255,.2);padding:1.5rem;text-align:center;border:1px dashed rgba(255,255,255,.06);border-radius:12px;">🏛️<br>Aún no hay campeones</div>`;_salonCargado=true;return;}
-    const meds=['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟'];
-    const mostrar=_salonExp?camps:camps.slice(0,3);
-    lista.innerHTML=mostrar.map((j,i)=>{const f=fechas[j.n];const ep=i===0;return`<div class="fama-card${ep?' primer-lugar':''}" style="animation-delay:${i*.06}s"><div class="fama-medal">${meds[i]||'⭐'}</div><div class="fama-info"><div class="${ep?'fama-primer-label':'fama-nombre'}">${j.n}</div><div class="fama-meta">${f?'Último: '+f.f:'Campeón'}</div></div><div style="text-align:right;flex-shrink:0;"><div class="fama-victorias">${j.v}</div><div class="fama-vic-label">vic.</div></div></div>`;}).join('');
-    const btn=document.getElementById('btn-toggle-salon');
-    if(btn){btn.style.display=camps.length<=3?'none':'';btn.textContent=_salonExp?'Ver menos':`Ver todos (${camps.length})`;}
-    _salonCargado=true;
-  }).catch(()=>{if(lista)lista.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.63rem;color:rgba(255,255,255,.2);padding:.5rem;">Error al conectar</div>';});
-}
-function toggleSalonFama(){_salonExp=!_salonExp;_salonCargado=false;cargarSalonFama(true);}
 
 // ═══════════════════════════════════════════════════════════════
 //  SISTEMA DE AUDIO — Way of the Warrior (warrior.mp3)
