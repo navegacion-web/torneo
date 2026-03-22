@@ -2529,23 +2529,15 @@ let _srvListener=null;
 // Verificar estado real del servidor al entrar al panel
 function verificarEstadoServidor(){
   if(!db)return;
-  db.ref('servidor/estado').once('value').then(snap=>{
-    const val=snap.val();
-    // Si nunca se ha seteado o es 'activo', marcar activo
-    if(val===null||val==='activo'){
-      _srvActivo=true;
-      db.ref('servidor/estado').set('activo');
-    }else{
-      _srvActivo=false;
-    }
-    actualizarUIServidor();
-  });
-  // Escuchar cambios en tiempo real (útil si otro admin lo cambia)
-  if(_srvListener)db.ref('servidor/estado').off('value',_srvListener);
-  _srvListener=db.ref('servidor/estado').on('value',snap=>{
+  if(_srvListener){db.ref('servidor/estado').off('value',_srvListener);_srvListener=null;}
+  _srvListener=function(snap){
     const val=snap.val();
     _srvActivo=(val===null||val==='activo');
     actualizarUIServidor();
+  };
+  db.ref('servidor/estado').on('value',_srvListener);
+  db.ref('servidor/estado').once('value').then(snap=>{
+    if(snap.val()===null)db.ref('servidor/estado').set('activo');
   });
 }
 
@@ -2559,7 +2551,7 @@ function actualizarUIServidor(){
     badge.style.background='rgba(52,211,153,.15)';
     badge.style.color='#34d399';
     badge.style.borderColor='rgba(52,211,153,.3)';
-    desc.innerHTML='El servidor está <strong style="color:#34d399;">activo</strong> y escuchando conexiones.<br>Apágalo cuando no haya clases para ahorrar recursos.';
+    desc.innerHTML='Activo y escuchando conexiones.<br>Apágalo cuando no haya clases.';
     btn.innerHTML='🔴 Apagar servidor';
     btn.style.background='linear-gradient(135deg,#dc2626,#b91c1c)';
     btn.style.boxShadow='0 4px 14px rgba(220,38,38,.36)';
@@ -2568,7 +2560,7 @@ function actualizarUIServidor(){
     badge.style.background='rgba(248,113,113,.1)';
     badge.style.color='#f87171';
     badge.style.borderColor='rgba(248,113,113,.3)';
-    desc.innerHTML='El servidor está <strong style="color:#f87171;">apagado</strong>. Los alumnos no podrán conectarse.<br>Enciéndelo antes de iniciar una clase.';
+    desc.innerHTML='Apagado. Los alumnos no pueden conectarse.<br>Enciéndelo antes de clase.';
     btn.innerHTML='🟢 Encender servidor';
     btn.style.background='linear-gradient(135deg,#059669,#10b981)';
     btn.style.boxShadow='0 4px 14px rgba(16,185,129,.36)';
@@ -2582,15 +2574,10 @@ function toggleServidor(){
     ?'¿Apagar el servidor? Los alumnos no podrán conectarse.'
     :'¿Encender el servidor?';
   if(!confirm(msg))return;
-  db.ref('servidor').set({
-    estado:nuevoEstado,
-    ts:Date.now(),
-    actualizadoPor:'admin'
-  }).then(()=>{
-    _srvActivo=!_srvActivo;
-    actualizarUIServidor();
-    mostrarNotif(_srvActivo?'✅ Servidor encendido':'🔴 Servidor apagado');
-  });
+  // Solo escribir el campo estado — el listener actualiza la UI
+  db.ref('servidor/estado').set(nuevoEstado).then(()=>{
+    mostrarNotif(nuevoEstado==='activo'?'✅ Servidor encendido':'🔴 Servidor apagado');
+  }).catch(e=>mostrarNotif('⚠️ Error: '+e.message));
 }
 
 // ═══════════════════════════════════════════════════════════════
