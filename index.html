@@ -2523,22 +2523,25 @@ function borrarHistorial(){
 // ═══════════════════════════════════════════════════════════════
 //  CONTROL DEL SERVIDOR
 // ═══════════════════════════════════════════════════════════════
-let _srvActivo=true;
+let _srvActivo=null; // null=desconocido hasta que Firebase responda
 let _srvListener=null;
 
 // Verificar estado real del servidor al entrar al panel
 function verificarEstadoServidor(){
   if(!db)return;
+  // Deshabilitar botón mientras carga
+  const btn=document.getElementById('srv-btn');
+  if(btn){btn.disabled=true;btn.innerHTML='⏳ Verificando...';}
+  // Cancelar listener previo
   if(_srvListener){db.ref('servidor/estado').off('value',_srvListener);_srvListener=null;}
+  // Listener tiempo real — única fuente de verdad
   _srvListener=function(snap){
     const val=snap.val();
     _srvActivo=(val===null||val==='activo');
+    if(val===null)db.ref('servidor/estado').set('activo');
     actualizarUIServidor();
   };
   db.ref('servidor/estado').on('value',_srvListener);
-  db.ref('servidor/estado').once('value').then(snap=>{
-    if(snap.val()===null)db.ref('servidor/estado').set('activo');
-  });
 }
 
 function actualizarUIServidor(){
@@ -2546,38 +2549,40 @@ function actualizarUIServidor(){
   const desc =document.getElementById('srv-desc');
   const btn  =document.getElementById('srv-btn');
   if(!badge||!desc||!btn)return;
+  btn.disabled=false;
   if(_srvActivo){
     badge.textContent='ACTIVO';
-    badge.style.background='rgba(52,211,153,.15)';
-    badge.style.color='#34d399';
-    badge.style.borderColor='rgba(52,211,153,.3)';
-    desc.innerHTML='Activo y escuchando conexiones.<br>Apágalo cuando no haya clases.';
+    badge.style.cssText='font-family:Space Mono,monospace;font-size:.55rem;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.3);';
+    desc.innerHTML='Activo — los alumnos pueden conectarse.<br>Apágalo cuando no haya clases.';
     btn.innerHTML='🔴 Apagar servidor';
     btn.style.background='linear-gradient(135deg,#dc2626,#b91c1c)';
     btn.style.boxShadow='0 4px 14px rgba(220,38,38,.36)';
+    btn.style.color='#fff';
   }else{
     badge.textContent='APAGADO';
-    badge.style.background='rgba(248,113,113,.1)';
-    badge.style.color='#f87171';
-    badge.style.borderColor='rgba(248,113,113,.3)';
-    desc.innerHTML='Apagado. Los alumnos no pueden conectarse.<br>Enciéndelo antes de clase.';
+    badge.style.cssText='font-family:Space Mono,monospace;font-size:.55rem;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.3);';
+    desc.innerHTML='Apagado — los alumnos NO pueden conectarse.<br>Enciéndelo antes de clase.';
     btn.innerHTML='🟢 Encender servidor';
     btn.style.background='linear-gradient(135deg,#059669,#10b981)';
     btn.style.boxShadow='0 4px 14px rgba(16,185,129,.36)';
+    btn.style.color='#fff';
   }
 }
 
 function toggleServidor(){
   if(!db){mostrarNotif('⚠️ Conéctate al panel primero');return;}
+  if(_srvActivo===null){mostrarNotif('⏳ Espera, verificando estado...');return;}
   const nuevoEstado=_srvActivo?'apagado':'activo';
   const msg=_srvActivo
     ?'¿Apagar el servidor? Los alumnos no podrán conectarse.'
-    :'¿Encender el servidor?';
+    :'¿Encender el servidor? Los alumnos podrán conectarse.';
   if(!confirm(msg))return;
-  // Solo escribir el campo estado — el listener actualiza la UI
-  db.ref('servidor/estado').set(nuevoEstado).then(()=>{
-    mostrarNotif(nuevoEstado==='activo'?'✅ Servidor encendido':'🔴 Servidor apagado');
-  }).catch(e=>mostrarNotif('⚠️ Error: '+e.message));
+  const btn=document.getElementById('srv-btn');
+  if(btn){btn.disabled=true;btn.innerHTML='⏳ Guardando...';}
+  // Escribir solo el string — listener actualiza UI automáticamente
+  db.ref('servidor/estado').set(nuevoEstado)
+    .then(()=>mostrarNotif(nuevoEstado==='activo'?'✅ Servidor encendido':'🔴 Servidor apagado'))
+    .catch(e=>{mostrarNotif('⚠️ Error: '+e.message);if(btn)btn.disabled=false;});
 }
 
 // ═══════════════════════════════════════════════════════════════
