@@ -964,32 +964,6 @@ nav{overflow:hidden;}
         <div id="podio-admin"></div>
       </div>
 
-      <!-- ── CONTROL DEL SERVIDOR ─────────────────────────────── -->
-      <div id="srv-wrap" class="t-setup" style="margin-top:1rem;border:1px solid rgba(248,113,113,.2);">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem;">
-          <div>
-            <h3 style="margin-bottom:2px;display:flex;align-items:center;gap:.4rem;">
-              ⚡ Servidor
-              <span id="srv-estado-badge" style="font-family:'Space Mono',monospace;font-size:.55rem;
-                padding:2px 8px;border-radius:20px;font-weight:700;
-                background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.3);">
-                ACTIVO
-              </span>
-            </h3>
-            <div id="srv-desc" style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--dim);line-height:1.5;">
-              Activo y escuchando conexiones.<br>Apágalo cuando no haya clases.
-            </div>
-          </div>
-          <button id="srv-btn" onclick="toggleServidor()"
-            style="background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;
-              padding:.6rem 1.3rem;border-radius:9px;font-family:'Space Mono',monospace;
-              font-size:.72rem;font-weight:700;cursor:pointer;letter-spacing:.06em;
-              box-shadow:0 4px 14px rgba(220,38,38,.36);transition:all .25s;white-space:nowrap;">
-            🔴 Apagar
-          </button>
-        </div>
-      </div>
-
       <!-- Historial -->
       <div id="admin-historial-wrap" class="t-setup" style="margin-top:1rem;">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.8rem;">
@@ -1302,10 +1276,8 @@ function switchAdminTab(tab){
     const p=document.getElementById('tab-'+t);if(p)p.style.display=t===tab?'block':'none';
     const b=document.getElementById('tab-'+t+'-btn');if(b)b.classList.toggle('active',t===tab);
   });
-  // Servidor e historial solo visibles en tab sala
-  const srv=document.getElementById('srv-wrap');
+  // Historial solo visible en tab sala
   const hw=document.getElementById('admin-historial-wrap');
-  if(srv)srv.style.display=tab==='sala'?'block':'none';
   if(hw)hw.style.display=tab==='sala'?'block':'none';
   if(tab==='temas'){renderTemasLista();llenarSelectorTemas();cargarApiKey();}
   if(tab==='sala')llenarSelectorTemas();
@@ -1504,7 +1476,7 @@ function reiniciarTorneo(){
 //  TORNEO BOTS — BRACKET CLÁSICO (Oct → Cuar → Final)
 // ═══════════════════════════════════════════════════════════════
 function iniciarTorneoBots(){
-  BS.yo=document.getElementById('t-nombre-solo').value.trim()||'Jugador';
+  BS.yo=sanitize(document.getElementById('t-nombre-solo').value.trim()||'Jugador',25)||'Jugador';
   BS.dif=document.getElementById('t-dificultad').value;
   BS.tpq=parseInt(document.getElementById('t-tiempo').value)||30;
   BS.tema='sumas';BS.nPregs=3;
@@ -2105,7 +2077,7 @@ function mostrarAdmin(){
   document.getElementById('admin-login').style.display='none';
   document.getElementById('admin-panel').style.display='block';
   toggleHistorialAdmin(true);
-  initFB();llenarSelectorTemas();cargarHistAdmin();verificarEstadoServidor();
+  initFB();llenarSelectorTemas();cargarHistAdmin();
 }
 
 function crearSala(){
@@ -2220,9 +2192,7 @@ function escucharBracketAdmin(){
 // Ocultar/mostrar historial según si hay sala activa
 function toggleHistorialAdmin(mostrar){
   const hw=document.getElementById('admin-historial-wrap');
-  const sw=document.getElementById('srv-wrap');
   if(hw)hw.style.display=mostrar?'block':'none';
-  if(sw)sw.style.display=mostrar?'block':'none';
 }
 
 function primeraRonda(formato){
@@ -2523,66 +2493,27 @@ function borrarHistorial(){
 // ═══════════════════════════════════════════════════════════════
 //  CONTROL DEL SERVIDOR
 // ═══════════════════════════════════════════════════════════════
-let _srvActivo=null; // null=desconocido hasta que Firebase responda
-let _srvListener=null;
-
-// Verificar estado real del servidor al entrar al panel
-function verificarEstadoServidor(){
-  if(!db)return;
-  // Deshabilitar botón mientras carga
-  const btn=document.getElementById('srv-btn');
-  if(btn){btn.disabled=true;btn.innerHTML='⏳ Verificando...';}
-  // Cancelar listener previo
-  if(_srvListener){db.ref('servidor/estado').off('value',_srvListener);_srvListener=null;}
-  // Listener tiempo real — única fuente de verdad
-  _srvListener=function(snap){
-    const val=snap.val();
-    _srvActivo=(val===null||val==='activo');
-    if(val===null)db.ref('servidor/estado').set('activo');
-    actualizarUIServidor();
-  };
-  db.ref('servidor/estado').on('value',_srvListener);
+// ═══════════════════════════════════════════════════════════════
+//  SANITIZADO — protección contra inyección NoSQL / XSS
+//  Firebase Realtime DB no usa SQL, pero sí es vulnerable a:
+//  - Claves con / . # $ [ ] que rompen rutas de Firebase
+//  - Scripts en nombres que se renderizan como innerHTML
+//  - Datos exageradamante largos
+// ═══════════════════════════════════════════════════════════════
+function sanitize(str, maxLen=40){
+  if(typeof str!=='string')return '';
+  return str
+    .trim()
+    // Quitar caracteres peligrosos para Firebase keys y XSS básico
+    .replace(/[\/\.\#\$\[\]<>\"\'`\\;{}=]/g,'')
+    // Colapsar espacios múltiples
+    .replace(/\s+/g,' ')
+    // Limitar longitud
+    .slice(0,maxLen);
 }
-
-function actualizarUIServidor(){
-  const badge=document.getElementById('srv-estado-badge');
-  const desc =document.getElementById('srv-desc');
-  const btn  =document.getElementById('srv-btn');
-  if(!badge||!desc||!btn)return;
-  btn.disabled=false;
-  if(_srvActivo){
-    badge.textContent='ACTIVO';
-    badge.style.cssText='font-family:Space Mono,monospace;font-size:.55rem;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.3);';
-    desc.innerHTML='Activo — los alumnos pueden conectarse.<br>Apágalo cuando no haya clases.';
-    btn.innerHTML='🔴 Apagar servidor';
-    btn.style.background='linear-gradient(135deg,#dc2626,#b91c1c)';
-    btn.style.boxShadow='0 4px 14px rgba(220,38,38,.36)';
-    btn.style.color='#fff';
-  }else{
-    badge.textContent='APAGADO';
-    badge.style.cssText='font-family:Space Mono,monospace;font-size:.55rem;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.3);';
-    desc.innerHTML='Apagado — los alumnos NO pueden conectarse.<br>Enciéndelo antes de clase.';
-    btn.innerHTML='🟢 Encender servidor';
-    btn.style.background='linear-gradient(135deg,#059669,#10b981)';
-    btn.style.boxShadow='0 4px 14px rgba(16,185,129,.36)';
-    btn.style.color='#fff';
-  }
-}
-
-function toggleServidor(){
-  if(!db){mostrarNotif('⚠️ Conéctate al panel primero');return;}
-  if(_srvActivo===null){mostrarNotif('⏳ Espera, verificando estado...');return;}
-  const nuevoEstado=_srvActivo?'apagado':'activo';
-  const msg=_srvActivo
-    ?'¿Apagar el servidor? Los alumnos no podrán conectarse.'
-    :'¿Encender el servidor? Los alumnos podrán conectarse.';
-  if(!confirm(msg))return;
-  const btn=document.getElementById('srv-btn');
-  if(btn){btn.disabled=true;btn.innerHTML='⏳ Guardando...';}
-  // Escribir solo el string — listener actualiza UI automáticamente
-  db.ref('servidor/estado').set(nuevoEstado)
-    .then(()=>mostrarNotif(nuevoEstado==='activo'?'✅ Servidor encendido':'🔴 Servidor apagado'))
-    .catch(e=>{mostrarNotif('⚠️ Error: '+e.message);if(btn)btn.disabled=false;});
+function sanitizeCodigo(str){
+  // Solo mayúsculas, números y guión — nada más
+  return str.trim().toUpperCase().replace(/[^A-Z0-9\-]/g,'').slice(0,7);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2596,12 +2527,18 @@ function focoEnCodigo(){
 }
 
 function entrarASala(){
-  const nombre=document.getElementById('alumno-nombre').value.trim();
+  const nombreRaw=document.getElementById('alumno-nombre').value.trim();
   const codigoRaw=document.getElementById('alumno-codigo').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
-  const codigo=codigoRaw.length===6?codigoRaw.slice(0,3)+'-'+codigoRaw.slice(3):codigoRaw;
+  // ★ Sanitizar inputs antes de cualquier uso
+  const nombre=sanitize(nombreRaw,30);
+  const codigoLimpio=sanitizeCodigo(codigoRaw);
+  const codigo=codigoLimpio.replace(/-/g,'').length===6
+    ?codigoLimpio.replace(/-/g,'').slice(0,3)+'-'+codigoLimpio.replace(/-/g,'').slice(3)
+    :codigoLimpio;
   const errEl=document.getElementById('alumno-err');errEl.textContent='';
   if(!nombre){errEl.textContent='Escribe tu nombre';document.getElementById('alumno-nombre').focus();return;}
-  if(codigoRaw.length<5){errEl.textContent='El codigo debe tener 6 caracteres';document.getElementById('alumno-codigo').focus();return;}
+  if(nombre!==nombreRaw.trim()){errEl.textContent='El nombre contiene caracteres no permitidos';return;}
+  if(codigoLimpio.replace(/-/g,'').length<6){errEl.textContent='El codigo debe tener 6 caracteres';document.getElementById('alumno-codigo').focus();return;}
   document.getElementById('join-paso-nombre').style.display='none';
   document.getElementById('join-paso-conectando').style.display='block';
   document.getElementById('join-msg').textContent='Conectando...';
@@ -2658,14 +2595,7 @@ function unirseASala(nombre,codigo){
   if(msgEl)msgEl.textContent='Conectando...';
   if(subEl)subEl.textContent='Sala: '+codigo;
   initFB();MI=nombre;SALA=codigo;MI_JUGADOS=new Set();MI_CRONICA=[];
-  // ★ Verificar primero si el servidor está activo
-  db.ref('servidor/estado').once('value').then(srvSnap=>{
-    const srvEstado=srvSnap.val();
-    if(srvEstado==='apagado'){
-      setErr('⚠️ El servidor está apagado — espera a que el maestro lo encienda');
-      return;
-    }
-    db.ref('salas/'+codigo).once('value').then(snap=>{
+  db.ref('salas/'+codigo).once('value').then(snap=>{
     const sala=snap.val();
     if(!sala){setErr('Sala no encontrada - verifica el codigo');return;}
     if(sala.estado==='terminado'){setErr('Este torneo ya termino');return;}
@@ -2683,7 +2613,6 @@ function unirseASala(nombre,codigo){
         escucharSalaAlumno(codigo);
       },700);
     }).catch(()=>setErr('Error al registrar - intenta de nuevo'));
-  }).catch(()=>setErr('Sin conexion - verifica tu internet'));
   }).catch(()=>setErr('Sin conexion - verifica tu internet'));
 }
 
